@@ -4,6 +4,11 @@ M2S_CLIENT_KIT_PATH="m2s-client-kit"
 M2S_CLIENT_KIT_BIN_PATH="$M2S_CLIENT_KIT_PATH/bin"
 M2S_CLIENT_KIT_TMP_PATH="$M2S_CLIENT_KIT_PATH/tmp"
 
+M2S_SERVER_KIT_PATH="m2s-server-kit"
+M2S_SERVER_KIT_BIN_PATH="$M2S_SERVER_KIT_PATH/bin"
+M2S_SERVER_KIT_RUN_PATH="$M2S_SERVER_KIT_PATH/run"
+M2S_SERVER_KIT_TMP_PATH="$M2S_SERVER_KIT_PATH/tmp"
+
 inifile_py="$HOME/$M2S_CLIENT_KIT_BIN_PATH/inifile.py"
 inifile="$HOME/$M2S_CLIENT_KIT_TMP_PATH/sim-cluster.ini"
 
@@ -178,10 +183,82 @@ then
 elif [ "$command" == "commit" ]
 then
 
-	echo "Commit"
-	
+	# Options
+	temp=`getopt -o r: \
+		-n 'sim-cluster.sh' -- "$@"`
+	if [ $? != 0 ] ; then exit 1 ; fi
+	eval set -- "$temp"
+	rev=
+	while true
+	do
+		case "$1" in
+		-r) rev=$2 ; shift $2 ;;
+		--) shift ; break ;;
+		*) error "$1: invalid option" ;;
+		esac
+	done
+
+	# Get arguments
+	if [ $# != 2 ]
+	then
+		syntax
+	fi
+	cluster_name=$1
+	server_port=$2
+	cluster_section="Cluster.$cluster_name"
+
+	# Split server and port
+	server=`echo $server_port | awk -F: '{ print $1 }'`
+	port=`echo $server_port | awk -F: '{ print $2 }'`
+	if [ -z "$port" ]
+	then
+		port=22
+	fi
+
+	# Prepare Multi2Sim revision in server
+	rev_arg=
+	if [ -n "$rev" ]
+	then
+		rev_arg="-r $rev"
+	fi
+	$HOME/$M2S_CLIENT_KIT_BIN_PATH/gen-m2s-bin.sh \
+		$rev_arg $server_port
+
+	# Info
+	echo -n "committing cluster '$cluster_name'"
+
+	# Check if cluster exists
+	cluster_exists=`$inifile_py $inifile exists $cluster_section`
+	if [ "$cluster_exists" == 0 ]
+	then
+		error "cluster does not exist"
+	fi
+
+	# Send configuration to server
+	echo -n " - sending files"
+	server_package="$HOME/$M2S_CLIENT_KIT_TMP_PATH/sim-cluster.tar.gz"
+	cd $HOME/$M2S_CLIENT_KIT_TMP_PATH && \
+		tar -czf $server_package sim-cluster-file-* sim-cluster.ini \
+		|| error "error creating package for server"
+	scp -q -P $port $server_package $server:$M2S_SERVER_KIT_TMP_PATH \
+		|| error "error sending package to server"
+	rm -f $server_package
+
+	# Actions in server
+	ssh -p $port $server '
+
+		# Unpack server package
+		server_package="$HOME/'$M2S_SERVER_KIT_TMP_PATH'/sim-cluster.tar.gz"
+		tar -xvf $server_package || exit 1
+		rm -f $HOME
+
+	' || error "error in server"
+
 	# Clear all sending files
-	rm -f $HOME/$M2S_CLIENT_KIT_TMP_PATH/sim-cluster-file-*
+	# rm -f $HOME/$M2S_CLIENT_KIT_TMP_PATH/sim-cluster-file-* #######
+
+	# Done
+	echo " - ok"
 
 elif [ "$command" == "clear" ]
 then
