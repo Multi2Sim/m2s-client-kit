@@ -61,20 +61,27 @@ then
 		syntax
 	fi
 	cluster_name=$1
-	shift
+	cluster_section="Cluster.$cluster_name"
 
 	# Info
 	echo -n "starting cluster '$cluster_name'"
 
 	# Check if cluster exists
-	cluster_exists=`$inifile_py $inifile exists $cluster_name`
+	cluster_exists=`$inifile_py $inifile exists $cluster_section`
 	if [ "$cluster_exists" == 1 ]
 	then
 		error "cluster already started, commit or clear first."
 	fi
 
+	# Clear all sending files
+	rm -f $HOME/$M2S_CLIENT_KIT_TMP_PATH/sim-cluster-file-*
+
 	# Start cluster
-	$inifile_py $inifile write $cluster_name NumJobs 0
+	inifile_script=$(mktemp)
+	echo "write $cluster_section NumJobs 0" >> $inifile_script
+	echo "write $cluster_section NumSendFiles 0" >> $inifile_script
+	$inifile_py $inifile run $inifile_script
+	rm -f $inifile_script
 	echo " - ok"
 
 elif [ "$command" == "add" ]
@@ -109,15 +116,24 @@ then
 	cluster_name=$1
 	job_name=$2
 	suite_bench_name=$3
+	cluster_section="Cluster.$cluster_name"
+	job_section="Job.$cluster_name.$job_name"
 
 	# Info
 	echo -n "queuing job '$job_name' to cluster '$cluster_name'"
 
 	# Check job ID
-	job_id=`$inifile_py $inifile read $cluster_name NumJobs`
+	job_id=`$inifile_py $inifile read $cluster_section NumJobs`
 	if [ -z "$job_id" ]
 	then
 		error "cluster not started"
+	fi
+
+	# Check that job has unique name
+	job_exists=`$inifile_py $inifile exists $job_section`
+	if [ "$job_exists" == 1 ]
+	then
+		error "job with same name already exists"
 	fi
 
 	# Split suite/benchmark
@@ -129,17 +145,28 @@ then
 	suite_name=`echo $suite_bench_name | awk -F/ '{ print $1 }'`
 	bench_name=`echo $suite_bench_name | awk -F/ '{ print $2 }'`
 
+	# Make a copy of extra files
+	num_send_files=`$inifile_py $inifile read $cluster_section NumSendFiles`
+	for send_file in $send_files
+	do
+		send_file_copy="$HOME/$M2S_CLIENT_KIT_TMP_PATH/sim-cluster-file-$num_send_files"
+		num_send_files=`expr $num_send_files + 1`
+		cp $send_file $send_file_copy 2>/dev/null \
+			|| error "$send_file: file not found"
+	done
+
 	# Start job
 	inifile_script=`mktemp`
 	num_jobs=`expr $job_id + 1`
-	echo "write $cluster_name NumJobs $num_jobs" >> $inifile_script
-	echo "write $cluster_name Job[$job_id].Name $job_name" >> $inifile_script
-	echo "write $cluster_name Job[$job_id].Suite $suite_name" >> $inifile_script
-	echo "write $cluster_name Job[$job_id].Benchmark $bench_name" >> $inifile_script
-	echo "write $cluster_name Job[$job_id].NumThreads $num_threads" >> $inifile_script
-	echo "write $cluster_name Job[$job_id].SimulatorArguments \"$sim_args\"" >> $inifile_script
-	echo "write $cluster_name Job[$job_id].BenchmarkArguments \"$bench_args\"" >> $inifile_script
-	echo "write $cluster_name Job[$job_id].SendFiles \"$send_files\"" >> $inifile_script
+	echo "write $cluster_section NumSendFiles $num_send_files" >> $inifile_script
+	echo "write $cluster_section NumJobs $num_jobs" >> $inifile_script
+	echo "write $cluster_section Job[$job_id] $job_name" >> $inifile_script
+	echo "write $job_section Suite $suite_name" >> $inifile_script
+	echo "write $job_section Benchmark $bench_name" >> $inifile_script
+	echo "write $job_section NumThreads $num_threads" >> $inifile_script
+	echo "write $job_section SimulatorArguments \"$sim_args\"" >> $inifile_script
+	echo "write $job_section BenchmarkArguments \"$bench_args\"" >> $inifile_script
+	echo "write $job_section SendFiles \"$send_files\"" >> $inifile_script
 	$inifile_py $inifile run $inifile_script \
 		|| error "cannot queue job"
 	rm -f $inifile_script
@@ -152,6 +179,9 @@ elif [ "$command" == "commit" ]
 then
 
 	echo "Commit"
+	
+	# Clear all sending files
+	rm -f $HOME/$M2S_CLIENT_KIT_TMP_PATH/sim-cluster-file-*
 
 elif [ "$command" == "clear" ]
 then
@@ -162,19 +192,43 @@ then
 		syntax
 	fi
 	cluster_name=$1
+	cluster_section="Cluster.$cluster_name"
 
 	# Info
 	echo -n "clearing cluster '$cluster_name'"
 
 	# Check if cluster exists
-	cluster_exists=`$inifile_py $inifile exists $cluster_name`
+	cluster_exists=`$inifile_py $inifile exists $cluster_section`
 	if [ "$cluster_exists" == 0 ]
 	then
 		error "cluster does not exist"
 	fi
 
+	# Clear all sending files
+	rm -f $HOME/$M2S_CLIENT_KIT_TMP_PATH/sim-cluster-file-*
+
+	# Get cluster jobs
+	num_jobs=`$inifile_py $inifile read $cluster_section NumJobs`
+	inifile_script=`mktemp`
+	for ((job_id=0; job_id<$num_jobs; job_id++))
+	do
+		echo "read $cluster_section Job[$job_id]" >> $inifile_script
+	done
+	job_list=`$inifile_py $inifile run $inifile_script`
+	rm -f $inifile_script
+
+	# Delete all jobs
+	inifile_script=`mktemp`
+	for job_name in $job_list
+	do
+		job_section="Job.$cluster_name.$job_name"
+		echo "remove $job_section" >> $inifile_script
+	done
+	$inifile_py $inifile run $inifile_script
+	rm -f $inifile_script
+
 	# Delete cluster
-	$inifile_py $inifile remove $cluster_name
+	$inifile_py $inifile remove $cluster_section
 	echo " - ok"
 
 else
