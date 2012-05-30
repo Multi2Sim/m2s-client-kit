@@ -32,8 +32,95 @@ function syntax()
 	cat << EOF
 
 Syntax:
-    $prog <command> [<options>] <arguments>
+    $prog <command> <arguments> [<options>]
 
+Run simulations on a server with condor and a shared file system, where the
+Multi2Sim server kit is installed in the home folder of the same user. Possible
+commands are:
+
+  start <cluster_name>
+      Start a new cluster (set of jobs). To run simulations, a cluster must be
+      first started. Then new jobs are added to it, and finally it is committed
+      to the server.
+      The folder in the server where the cluster will reside is
+
+          SERVER:~/m2s-server-kit/run/<cluster_name>
+
+  add <cluster_name> <job_name> <suite_bench> [<suite_bench2> [...]] [<options>]
+      Add a new job to the cluster, where <job_name> is the identifier of the
+      new job. This identifier can contain '/' characters. The folder in the
+      server where the job will reside is
+
+          SERVER:~/m2s-server-kit/run/<cluster_name>/<job_name>
+      
+      Each element <suite_bench> is a benchmark to run as a different context of
+      the same simulation. <suite_bench> is given as <suite>/<benchmark>, i.e.,
+      the benchmark suite followed by the benchmark, separated with a '/'.
+      Suites and benchmarks should be given as they appear in folder
+
+          SERVER:~/m2s-server-kit/benchmarks
+
+      The following optional arguments can be used for the 'add' command:
+
+      -p <num_threads>
+          Number of child threads for the benchmark to spawn, in case this value
+	  is part of the benchmark command line (i.e., SPLASH-2 benchmarks).
+
+      --send <file>
+          Send an additional file to be included in the working directory of the
+	  simulation execution. This option is useful to send configuration
+	  files for Multi2Sim. To send multiple files, use double quotes (e.g.,
+	  --send "mem-config gpu-config").
+
+      --sim-arg <arg>
+          Additional arguments for the simulator. This is useful to make it
+	  consume the configuration files sent with option '--send'. Use double
+	  quotes for more than one argument (e.g.,
+	  --sim-arg "--mem-config my-mem-config-file").
+	  When using this option to add output report files, it is recommended
+	  to use files prefixed with 'report-' (e.g.,
+	  --sim-arg "--report-cpu-pipeline report-my-cpu-pipeline"). Files with
+	  this prefix in the simulation working directory will be automatically
+	  imported with command 'import'.
+
+      --data-set <set>
+          For those benchmarks providing several data sets, this argument
+	  specifies the name. It is set to 'Default' if no value is given.
+
+      --bench-arg <arg>
+          Additional arguments for the benchmark. A benchmark has a specific set
+	  of arguments given by the data set specified. These arguments will be
+	  added to the benchmark command line (e.g., --bench-arg "-x 16 -y 16").
+
+  commit <cluster_name> [-r <rev>]
+      Commit the cluster to the server and start its execution using condor. The
+      optional argument <rev> specifies the Multi2Sim SVN revision to use for
+      the simulation. If not specified, the latest revision is used.
+
+  clear <cluster_name>
+      Clear the cluster and all its jobs. The entire directory hierarchy
+      associated with the cluster in the server will be deleted at
+
+          SERVER:~/m2s-server-kit/run/<cluster_name>
+
+      If the cluster has been imported before using the 'import' command, the
+      client copy will still be kept at:
+
+          CLIENT:~/m2s-client-kit/run/<cluster_name>
+
+  import <cluster_name>
+      Copy simulation output and report files into a similar directory hierarchy
+      from the server into the client. The source and destination paths are,
+      respectively:
+
+          SERVER:~/m2s-server-kit/run/<cluster_name>
+          CLIENT:~/m2s-client-kit/run/<cluster_name>
+
+      This command is useful for post-processing of statistics generated in the
+      server, without the burden of importing all simulation files. The 'import'
+      command copies, among others, every file generated during the simulation
+      whose name is prefixed with string "report-".
+      
 EOF
 	exit 1
 }
@@ -72,6 +159,10 @@ then
 
 	# Info
 	echo -n "starting cluster '$cluster_name'"
+
+	# Check valid cluster name
+	num_fields=`echo $cluster_name | awk -F/ '{ print NF }'`
+	[ "$num_fields" == 1 ] || error "cluster name cannot contain '/'"
 
 	# Check if cluster exists
 	cluster_exists=`$inifile_py $inifile exists $cluster_section`
