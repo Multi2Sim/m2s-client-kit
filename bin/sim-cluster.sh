@@ -120,6 +120,14 @@ commands are:
       server, without the burden of importing all simulation files. The 'import'
       command copies, among others, every file generated during the simulation
       whose name is prefixed with string "report-".
+
+  state <cluster_name>
+      Return the current state of a cluster. The following states are possible:
+      * Invalid: the cluster does not exist.
+      * Created: the cluster has been created, but not submitted to the server
+        yet.
+      * Submitted: the cluster has been submitted to the server. This state is
+        reported with further information from the server.
       
 EOF
 	exit 1
@@ -322,7 +330,7 @@ then
 
 	# Check that cluster has not been submitted already
 	cluster_state=`$inifile_py $inifile read $cluster_section State`
-	[ "$cluster_state" != Submitted ] || error "cluster has been already submitted"
+	[ "$cluster_state" == Created ] || error "cluster has been already submitted"
 
 	# Send configuration to server
 	echo -n " - sending files"
@@ -590,6 +598,61 @@ then
 	# Delete cluster
 	$inifile_py $inifile remove $cluster_section
 	echo " - ok"
+
+elif [ "$command" == "state" ]
+then
+
+	# Get arguments
+	if [ $# != 1 ]
+	then
+		syntax
+	fi
+	cluster_name=$1
+	cluster_section="Cluster.$cluster_name"
+
+	# Read cluster properties
+	inifile_script=`mktemp`
+	temp=`mktemp`
+	echo "exists $cluster_section" >> $inifile_script
+	echo "read $cluster_section State" >> $inifile_script
+	echo "read $cluster_section Server" >> $inifile_script
+	echo "read $cluster_section Port" >> $inifile_script
+	$inifile_py $inifile run $inifile_script > $temp
+	for i in 1
+	do
+		read section_exists
+		read state
+		read server
+		read port
+	done < $temp
+	rm -f $inifile_script $temp
+
+	# Cluster does not exist
+	if [ "$section_exists" == 0 ]
+	then
+		echo "Invalid"
+		exit
+	fi
+
+	# Submitted
+	if [ "$state" == "Submitted" ]
+	then
+		# List processes in server
+		temp=`mktemp`
+		ssh $server -p $port '
+			condor_q -submitter $USER -format "%s\n" Cmd \
+				|| exit 1
+		' > $temp || error "cannot query state in server"
+		cluster_running=`grep /m2s-server-kit/run/$cluster_name/ $temp | wc -l`
+		rm -f $temp
+
+		# Info
+		echo "Submitted (Server=$server, Port=$port, Running=$cluster_running)"
+		exit
+	fi
+
+	# Other state
+	echo $state
 
 else
 	
