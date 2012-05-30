@@ -135,6 +135,66 @@ EOF
 
 
 
+# Create a temporary INI file with a list of all Condor jobs present in the
+# server, associated with a cluster name.
+# The name of the temporary file is dumped in stdout.
+# Each section of the INI file is as follows:
+#
+#	[ 17.0 ]
+#	Cmd = /home/ubal/m2s-server-kit/run/my-cluster/m2s
+#	Args = --ctx-config /home/ubal/m2s-server-kit/run/my-cluster/my-job-0/ctx-config
+#	--gpu-sim detailed
+#	ClusterID = 17
+#	ProcID = 0
+#	Owner = ubal
+#	JobStatus = 2
+#
+# Values for JobStatus are
+#	0	Unexpanded
+#	1 	Idle
+#	2 	Running
+#	3 	Removed
+#	4 	Completed
+#	5 	Held
+# Syntax: get_condor_jobs <cluster> <server> <port>
+function get_condor_jobs()
+{
+	# Arguments
+	local cluster_name=$1 ; shift
+	local server=$1 ; shift
+	local port=$1 ; shift
+
+	# Connect to server
+	temp=`mktemp`
+	ssh $server -p $port '
+		condor_q -submitter $USER \
+			-format "[ %d." ClusterID \
+			-format "%d ]\n" ProcID \
+			-format "Cmd = %s\n" Cmd \
+			-format "Args = %s\n" Args \
+			-format "ClusterID = %d\n" ClusterID \
+			-format "ProcID = %d\n" ProcID \
+			-format "Owner = %s\n" Owner \
+			-format "JobStatus = %d\n\n" JobStatus \
+			|| exit 1
+	' > $temp || error "cannot query state in server"
+
+	# Filter all jobs that don't belong to cluster.
+	# Do this by checking the full path of the command (m2s)
+	job_list=`$inifile_py $temp list`
+	for job in $job_list
+	do
+		cmd=`$inifile_py $temp read $job Cmd`
+		[[ "$cmd" =~ "/m2s-server-kit/run/$cluster_name/" ]] \
+			|| $inifile_py $temp remove $job
+	done
+
+	# Dump name of INI file created
+	echo $temp
+}
+
+
+
 #
 # Main Program
 #
@@ -601,7 +661,6 @@ then
 
 elif [ "$command" == "state" ]
 then
-
 	# Get arguments
 	if [ $# != 1 ]
 	then
@@ -637,17 +696,44 @@ then
 	# Submitted
 	if [ "$state" == "Submitted" ]
 	then
-		# List processes in server
-		temp=`mktemp`
-		ssh $server -p $port '
-			condor_q -submitter $USER -format "%s\n" Cmd \
-				|| exit 1
-		' > $temp || error "cannot query state in server"
-		cluster_running=`grep /m2s-server-kit/run/$cluster_name/ $temp | wc -l`
-		rm -f $temp
+		# Get INI file with condor info
+		temp=`get_condor_jobs $cluster_name $server $port`
+
+		# If no more jobs left, change state to Completed
+		job_list=`$inifile_py $temp list`
+		if [ -z "$job_list" ]
+		then
+			$inifile_py $inifile write $cluster_section State Completed
+			echo "Completed"
+			exit
+		fi
+
+		# Get list of job states
+		inifile_script=`mktemp`
+		for job in $job_list
+		do
+			echo "read $job JobStatus" >> $inifile_script
+		done
+		job_state_list=`$inifile_py $temp run $inifile_script`
+		rm -f $inifile_script
+
+		# Count running and idle jobs
+		job_running_count=0
+		job_idle_count=0
+		for job_state in $job_state_list
+		do
+			if [ "$job_state" == 2 ]
+			then
+				job_running_count=`expr $job_running_count + 1`
+			else
+				job_idle_count=`expr $job_idle_count + 1`
+			fi
+		done
 
 		# Info
-		echo "Submitted (Server=$server, Port=$port, Running=$cluster_running)"
+		echo -n "Submitted - Server=$server, Port=$port - "
+		echo "$job_running_count job(s) running, $job_idle_count job(s) idle."
+		rm -f $temp
 		exit
 	fi
 
