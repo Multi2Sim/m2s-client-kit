@@ -40,7 +40,7 @@ commands are:
 
   start <cluster_name>
       Start a new cluster (set of jobs). To run simulations, a cluster must be
-      first started. Then new jobs are added to it, and finally it is committed
+      first started. Then new jobs are added to it, and finally it is submitted
       to the server.
       The folder in the server where the cluster will reside is
 
@@ -92,8 +92,8 @@ commands are:
 	  of arguments given by the data set specified. These arguments will be
 	  added to the benchmark command line (e.g., --bench-arg "-x 16 -y 16").
 
-  commit <cluster_name> [-r <rev>]
-      Commit the cluster to the server and start its execution using condor. The
+  submit <cluster_name> <server> [-r <rev>]
+      Submit the cluster to the server and start its execution using condor. The
       optional argument <rev> specifies the Multi2Sim SVN revision to use for
       the simulation. If not specified, the latest revision is used.
 
@@ -168,7 +168,7 @@ then
 	cluster_exists=`$inifile_py $inifile exists $cluster_section`
 	if [ "$cluster_exists" == 1 ]
 	then
-		error "cluster already started, commit or clear first."
+		error "cluster already started, clear first."
 	fi
 
 	# Clear all sending files
@@ -178,6 +178,7 @@ then
 	inifile_script=$(mktemp)
 	echo "write $cluster_section NumJobs 0" >> $inifile_script
 	echo "write $cluster_section NumSendFiles 0" >> $inifile_script
+	echo "write $cluster_section State Created" >> $inifile_script
 	$inifile_py $inifile run $inifile_script
 	rm -f $inifile_script
 	echo " - ok"
@@ -268,7 +269,7 @@ then
 	# Done
 	echo " - ok"
 
-elif [ "$command" == "commit" ]
+elif [ "$command" == "submit" ]
 then
 
 	# Options
@@ -313,14 +314,15 @@ then
 		$rev_arg $server_port
 
 	# Info
-	echo -n "committing cluster '$cluster_name'"
+	echo -n "submitting cluster '$cluster_name'"
 
 	# Check if cluster exists
 	cluster_exists=`$inifile_py $inifile exists $cluster_section`
-	if [ "$cluster_exists" == 0 ]
-	then
-		error "cluster does not exist"
-	fi
+	[ "$cluster_exists" == 1 ] || error "cluster does not exist"
+
+	# Check that cluster has not been submitted already
+	cluster_state=`$inifile_py $inifile read $cluster_section State`
+	[ "$cluster_state" != Submitted ] || error "cluster has been already submitted"
 
 	# Send configuration to server
 	echo -n " - sending files"
@@ -382,8 +384,16 @@ then
 		done < $temp
 		rm -f $inifile_script $temp
 
+		# Copy Multi2Sim binary
+		cluster_path="$HOME/'$M2S_SERVER_KIT_RUN_PATH'/$cluster_name"
+		mkdir -p $cluster_path || exit 1
+		cp $HOME/'$M2S_SERVER_KIT_M2S_BIN_PATH'/m2s $cluster_path || exit 1
+
 		# Create condor submit file
 		condor_submit_path=`mktemp`
+		echo "Universe = vanilla" >> $condor_submit_path
+		echo "Notification = Never" >> $condor_submit_path
+		echo "Executable = $cluster_path/m2s" >> $condor_submit_path
 
 		# For each job
 		send_file_id=0
@@ -392,9 +402,6 @@ then
 			# Create directory
 			job_path="$HOME/'$M2S_SERVER_KIT_RUN_PATH'/$cluster_name/$job_name"
 			mkdir -p $job_path || exit 1
-
-			# Copy Multi2Sim binary
-			cp $HOME/'$M2S_SERVER_KIT_M2S_BIN_PATH'/m2s $job_path || exit 1
 
 			# Read job configuration
 			job_section="Job.$cluster_name.$job_name"
@@ -495,9 +502,6 @@ then
 			done
 
 			# Queue job
-			echo "Universe = vanilla" >> $condor_submit_path
-			echo "Notification = Never" >> $condor_submit_path
-			echo "Executable = $job_path/m2s" >> $condor_submit_path
 			echo "Input = /dev/null" >> $condor_submit_path
 			echo "Output = $job_path/sim.out" >> $condor_submit_path
 			echo "Error = $job_path/sim.err" >> $condor_submit_path
@@ -508,13 +512,33 @@ then
 		done
 
 		# Submit condor cluster
-		echo ~~~~~~~~~~~~~~~~~
-		cat $condor_submit_path
-		echo ~~~~~~~~~~~~~~~~~
-		condor_submit $condor_submit_path
+		condor_submit_log=`mktemp`
+		condor_submit -verbose $condor_submit_path > $condor_submit_log \
+			|| error "error submitting jobs with condor"
 		rm -f $condor_submit_path
 
+		# Get condor job IDs
+		# Filter lines like "** Proc 11.0:" from submission output.
+		condor_job_ids=`sed -n "s/^\*\* Proc \(.*\):$/\1/gp" $condor_submit_log`
+		num_condor_job_ids=`echo $condor_job_ids | wc -w`
+		[ $num_condor_job_ids == $num_jobs ] || \
+			error "unexpected condor_submit output format"
+		rm -f $condor_submit_log
+
+		# Get condor cluster ID
+		# Get the first number on the left of the "." from job IDs
+		condor_cluster_id=`echo $condor_job_ids | awk -F. "{ print \\$1 }"`
+		echo -n " - condor id $condor_cluster_id"
+	
 	' || exit 1
+
+	# Change cluster state
+	inifile_script=`mktemp`
+	echo "write $cluster_section State Submitted" >> $inifile_script
+	echo "write $cluster_section Server $server" >> $inifile_script
+	echo "write $cluster_section Port $port" >> $inifile_script
+	$inifile_py $inifile run $inifile_script
+	rm -f $inifile_script
 
 	# Done
 	echo " - ok"
