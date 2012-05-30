@@ -141,8 +141,8 @@ commands are:
       The cluster must be in state 'Submitted', 'Completed', or 'Killed' for
       this command to be valid.
 
-  clear <cluster_name>
-      Clear all information about the cluster and its jobs. The entire directory
+  remove <cluster_name>
+      Remove all information about the cluster and its jobs. The entire directory
       hierarchy associated with the cluster in the server will be deleted at
 
           SERVER:~/m2s-server-kit/run/<cluster_name>
@@ -150,7 +150,8 @@ commands are:
       If the cluster has been imported before using the 'import' command, the
       client copy of the directory hierarchy is still kept. A cluster must be in
       state 'Created', 'Completed', or 'Killed' for this command to be valid.
-      The cluster will transition to state 'Invalid'.
+      Querying the state of a cluster after it has been removed will return
+      state 'Invalid'.
 
 EOF
 	exit 1
@@ -520,6 +521,7 @@ then
 			echo "read $job_section SimulatorArguments" >> $inifile_script
 			echo "read $job_section BenchmarkArguments" >> $inifile_script
 			echo "read $job_section DataSet" >> $inifile_script
+			echo "read $job_section NumThreads" >> $inifile_script
 			$inifile_py $inifile run $inifile_script > $temp
 			for i in 1
 			do
@@ -528,6 +530,7 @@ then
 				read sim_args
 				read bench_args
 				read data_set
+				read num_threads
 			done < $temp
 			rm -f $inifile_script $temp
 
@@ -565,6 +568,10 @@ then
 				data_set_exists=`$inifile_py $bench_ini exists $data_set`
 				[ "$data_set_exists" == 1 ] || error "$data_set: invalid data set"
 
+				# Parse benchmark.ini file, replacing NTHREADS variable
+				bench_ini_parsed=`mktemp`
+				sed "s/\$NTHREADS\>/$num_threads/g" $bench_ini > $bench_ini_parsed
+
 				# Read benchmark properties
 				inifile_script=`mktemp`
 				temp=`mktemp`
@@ -572,7 +579,7 @@ then
 				echo "read $data_set Args" >> $inifile_script
 				echo "read $data_set Stdin" >> $inifile_script
 				echo "read $data_set Data" >> $inifile_script
-				$inifile_py $bench_ini run $inifile_script > $temp
+				$inifile_py $bench_ini_parsed run $inifile_script > $temp
 				for i in 1
 				do
 					read exe
@@ -581,6 +588,7 @@ then
 					read data
 				done < $temp
 				rm -f $inifile_script $temp
+				rm -f $bench_ini_parsed
 
 				# If this is the first context, add arguments in "bench_args"
 				if [ $context_id == 0 ]
@@ -652,20 +660,20 @@ then
 	# Done
 	echo " - $num_jobs jobs submitted - ok"
 
-elif [ "$command" == "clear" ]
+elif [ "$command" == "remove" ]
 then
 
 	# Get arguments
 	if [ $# != 1 ]
 	then
-		echo >&2 "syntax: clear <cluster>"
+		echo >&2 "syntax: remove <cluster>"
 		exit 1
 	fi
 	cluster_name=$1
 	cluster_section="Cluster.$cluster_name"
 
 	# Info
-	echo -n "clearing cluster '$cluster_name'"
+	echo -n "removing cluster '$cluster_name'"
 
 	# Read cluster properties
 	inifile_script=`mktemp`
@@ -691,7 +699,7 @@ then
 	[ "$cluster_state" != "Submitted" ] \
 		|| error "cluster must be in state 'Created', 'Completed', or 'Killed'"
 
-	# Clear all sending files
+	# Remove all sending files
 	rm -f $HOME/$M2S_CLIENT_KIT_TMP_PATH/sim-cluster-file-*
 
 	# Get cluster jobs
