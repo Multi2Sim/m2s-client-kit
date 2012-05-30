@@ -96,17 +96,19 @@ commands are:
       Submit the cluster to the server and start its execution using condor. The
       optional argument <rev> specifies the Multi2Sim SVN revision to use for
       the simulation. If not specified, the latest revision is used.
+      A cluster must be in state 'Created', 'Completed', or 'Killed' for it to
+      be (re-)submitted. The cluster will transition to state 'Submitted'.
 
   clear <cluster_name>
-      Clear the cluster and all its jobs. The entire directory hierarchy
-      associated with the cluster in the server will be deleted at
+      Clear all information about the cluster and its jobs. The entire directory
+      hierarchy associated with the cluster in the server will be deleted at
 
           SERVER:~/m2s-server-kit/run/<cluster_name>
 
       If the cluster has been imported before using the 'import' command, the
-      client copy will still be kept at:
-
-          CLIENT:~/m2s-client-kit/run/<cluster_name>
+      client copy of the directory hierarchy is still kept. A cluster must be in
+      state 'Created', 'Completed', or 'Killed' for this command to be valid.
+      The cluster will transition to state 'Invalid'.
 
   import <cluster_name>
       Copy simulation output and report files into a similar directory hierarchy
@@ -117,17 +119,35 @@ commands are:
           CLIENT:~/m2s-client-kit/run/<cluster_name>
 
       This command is useful for post-processing of statistics generated in the
-      server, without the burden of importing all simulation files. The 'import'
+      server, without the burden of importing unnecessary simulation files, such
+      as simulator executable, benchmark binaries, or data files. The 'import'
       command copies, among others, every file generated during the simulation
-      whose name is prefixed with string "report-".
+      with a name prefixed by string "report-".
 
   state <cluster_name>
       Return the current state of a cluster. The following states are possible:
-      * Invalid: the cluster does not exist.
-      * Created: the cluster has been created, but not submitted to the server
-        yet.
-      * Submitted: the cluster has been submitted to the server. This state is
-        reported with further information from the server.
+
+      Invalid
+          The cluster does not exist.
+
+      Created
+          The cluster has been created, but not submitted to the server yet.
+
+      Submitted
+          The cluster has been submitted to the server. This state is reported
+	  with further information from the server.
+
+      Completed
+          All jobs associated with the cluster have completed execution in the
+	  server.
+
+      Killed
+          The cluster has been killed before completing execution.
+
+  kill <cluster_name>
+      Kill all jobs associated with the cluster in the server. The cluster must
+      be in state 'Submitted' for this operation to be valid. After this
+      operation, the cluster transitions to state 'Killed'.
       
 EOF
 	exit 1
@@ -267,7 +287,7 @@ then
 	while true
 	do
 		case "$1" in
-		-p) num_threads=$2 ; shift $2 ;;
+		-p) num_threads=$2 ; shift 2 ;;
 		--send) send_files="$send_files $2" ; shift 2 ;;
 		--sim-arg) sim_args="$sim_args $2" ; shift 2 ;;
 		--bench-arg) bench_args="$bench_args $2" ; shift 2 ;;
@@ -349,7 +369,7 @@ then
 	while true
 	do
 		case "$1" in
-		-r) rev=$2 ; shift $2 ;;
+		-r) rev=$2 ; shift 2 ;;
 		--) shift ; break ;;
 		*) error "$1: invalid option" ;;
 		esac
@@ -372,6 +392,26 @@ then
 		port=22
 	fi
 
+	# Read cluster properties
+	inifile_script=`mktemp`
+	temp=`mktemp`
+	echo "exists $cluster_section" >> $inifile_script
+	echo "read $cluster_section State" >> $inifile_script
+	echo "read $cluster_section NumJobs" >> $inifile_script
+	$inifile_py $inifile run $inifile_script > $temp
+	for i in 1
+	do
+		read cluster_exists
+		read cluster_state
+		read num_jobs
+	done < $temp
+	rm -f $inifile_script $temp
+
+	# Check cluster state
+	[ "$cluster_exists" == 1 ] || error "cluster does not exist"
+	[ "$cluster_state" != "Submitted" ] \
+		|| error "cluster must be in state 'Created', 'Completed', or 'Killed'"
+
 	# Prepare Multi2Sim revision in server
 	rev_arg=
 	if [ -n "$rev" ]
@@ -379,18 +419,11 @@ then
 		rev_arg="-r $rev"
 	fi
 	$HOME/$M2S_CLIENT_KIT_BIN_PATH/gen-m2s-bin.sh \
-		$rev_arg $server_port
+		$rev_arg $server_port \
+		|| exit 1
 
 	# Info
 	echo -n "submitting cluster '$cluster_name'"
-
-	# Check if cluster exists
-	cluster_exists=`$inifile_py $inifile exists $cluster_section`
-	[ "$cluster_exists" == 1 ] || error "cluster does not exist"
-
-	# Check that cluster has not been submitted already
-	cluster_state=`$inifile_py $inifile read $cluster_section State`
-	[ "$cluster_state" == Created ] || error "cluster has been already submitted"
 
 	# Send configuration to server
 	echo -n " - sending files"
@@ -609,7 +642,7 @@ then
 	rm -f $inifile_script
 
 	# Done
-	echo " - ok"
+	echo " - $num_jobs jobs submitted - ok"
 
 elif [ "$command" == "clear" ]
 then
@@ -625,12 +658,29 @@ then
 	# Info
 	echo -n "clearing cluster '$cluster_name'"
 
-	# Check if cluster exists
-	cluster_exists=`$inifile_py $inifile exists $cluster_section`
-	if [ "$cluster_exists" == 0 ]
-	then
-		error "cluster does not exist"
-	fi
+	# Read cluster properties
+	inifile_script=`mktemp`
+	temp=`mktemp`
+	echo "exists $cluster_section" >> $inifile_script
+	echo "read $cluster_section State" >> $inifile_script
+	echo "read $cluster_section NumJobs" >> $inifile_script
+	echo "read $cluster_section Server" >> $inifile_script
+	echo "read $cluster_section Port" >> $inifile_script
+	$inifile_py $inifile run $inifile_script > $temp
+	for i in 1
+	do
+		read cluster_exists
+		read cluster_state
+		read num_jobs
+		read server
+		read port
+	done < $temp
+	rm -f $inifile_script $temp
+
+	# Check cluster state
+	[ "$cluster_exists" == 1 ] || error "cluster does not exist"
+	[ "$cluster_state" != "Submitted" ] \
+		|| error "cluster must be in state 'Created', 'Completed', or 'Killed'"
 
 	# Clear all sending files
 	rm -f $HOME/$M2S_CLIENT_KIT_TMP_PATH/sim-cluster-file-*
@@ -645,8 +695,9 @@ then
 	job_list=`$inifile_py $inifile run $inifile_script`
 	rm -f $inifile_script
 
-	# Delete all jobs
+	# Delete cluster and job sections
 	inifile_script=`mktemp`
+	echo "remove $cluster_section" >> $inifile_script
 	for job_name in $job_list
 	do
 		job_section="Job.$cluster_name.$job_name"
@@ -655,8 +706,17 @@ then
 	$inifile_py $inifile run $inifile_script
 	rm -f $inifile_script
 
-	# Delete cluster
-	$inifile_py $inifile remove $cluster_section
+	# If cluster has ever been submitted, delete the directory where it ran
+	# in the server. This clears a lot of space used for benchmark copies.
+	if [ -n "$server" ]
+	then
+		echo -n " - removing cluster in server"
+		ssh $server -p $port '
+			rm -rf $HOME/'$M2S_SERVER_KIT_RUN_PATH/$cluster_name'
+		' || error "failed deleting directories in server"
+	fi
+
+	# Done
 	echo " - ok"
 
 elif [ "$command" == "state" ]
@@ -739,6 +799,61 @@ then
 
 	# Other state
 	echo $state
+
+elif [ "$command" == "kill" ]
+then
+	# Get arguments
+	if [ $# != 1 ]
+	then
+		syntax
+	fi
+	cluster_name=$1
+	cluster_section="Cluster.$cluster_name"
+
+	# Read cluster properties
+	inifile_script=`mktemp`
+	temp=`mktemp`
+	echo "exists $cluster_section" >> $inifile_script
+	echo "read $cluster_section State" >> $inifile_script
+	echo "read $cluster_section Server" >> $inifile_script
+	echo "read $cluster_section Port" >> $inifile_script
+	$inifile_py $inifile run $inifile_script > $temp
+	for i in 1
+	do
+		read section_exists
+		read state
+		read server
+		read port
+	done < $temp
+	rm -f $inifile_script $temp
+
+	# Check valid state of cluster
+	echo -n "killing cluster"
+	[ "$section_exists" == 1 ] || error "cluster does not exist"
+	[ "$state" == "Submitted" ] || error "cluster must be in state 'Submitted'"
+
+	# Get list of condor jobs
+	echo -n " - get job list"
+	temp=`get_condor_jobs $cluster_name $server $port`
+	job_list=`$inifile_py $temp list`
+	num_jobs=`echo $job_list | wc -w`
+	rm -f $temp
+	if [ -z "$job_list" ]
+	then
+		echo " - no job to kill"
+		exit
+	fi
+
+	# Kill jobs
+	ssh $server -p $port '
+		condor_rm '$job_list' > /dev/null
+	' || error "failed to kill condor jobs"
+
+	# Update cluster state
+	$inifile_py $inifile write $cluster_section State Killed
+
+	# Done
+	echo " - $num_jobs jobs killed - ok"
 
 else
 	
