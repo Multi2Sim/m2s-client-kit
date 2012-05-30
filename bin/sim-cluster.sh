@@ -3,6 +3,7 @@
 M2S_CLIENT_KIT_PATH="m2s-client-kit"
 M2S_CLIENT_KIT_BIN_PATH="$M2S_CLIENT_KIT_PATH/bin"
 M2S_CLIENT_KIT_TMP_PATH="$M2S_CLIENT_KIT_PATH/tmp"
+M2S_CLIENT_KIT_RESULT_PATH="$M2S_CLIENT_KIT_PATH/result"
 
 M2S_SERVER_KIT_PATH="m2s-server-kit"
 M2S_SERVER_KIT_BIN_PATH="$M2S_SERVER_KIT_PATH/bin"
@@ -38,8 +39,8 @@ Run simulations on a server with condor and a shared file system, where the
 Multi2Sim server kit is installed in the home folder of the same user. Possible
 commands are:
 
-  start <cluster_name>
-      Start a new cluster (set of jobs). To run simulations, a cluster must be
+  create <cluster_name>
+      Create a new cluster (set of jobs). To run simulations, a cluster must be
       first started. Then new jobs are added to it, and finally it is submitted
       to the server.
       The folder in the server where the cluster will reside is
@@ -99,31 +100,6 @@ commands are:
       A cluster must be in state 'Created', 'Completed', or 'Killed' for it to
       be (re-)submitted. The cluster will transition to state 'Submitted'.
 
-  clear <cluster_name>
-      Clear all information about the cluster and its jobs. The entire directory
-      hierarchy associated with the cluster in the server will be deleted at
-
-          SERVER:~/m2s-server-kit/run/<cluster_name>
-
-      If the cluster has been imported before using the 'import' command, the
-      client copy of the directory hierarchy is still kept. A cluster must be in
-      state 'Created', 'Completed', or 'Killed' for this command to be valid.
-      The cluster will transition to state 'Invalid'.
-
-  import <cluster_name>
-      Copy simulation output and report files into a similar directory hierarchy
-      from the server into the client. The source and destination paths are,
-      respectively:
-
-          SERVER:~/m2s-server-kit/run/<cluster_name>
-          CLIENT:~/m2s-client-kit/run/<cluster_name>
-
-      This command is useful for post-processing of statistics generated in the
-      server, without the burden of importing unnecessary simulation files, such
-      as simulator executable, benchmark binaries, or data files. The 'import'
-      command copies, among others, every file generated during the simulation
-      with a name prefixed by string "report-".
-
   state <cluster_name>
       Return the current state of a cluster. The following states are possible:
 
@@ -149,6 +125,33 @@ commands are:
       be in state 'Submitted' for this operation to be valid. After this
       operation, the cluster transitions to state 'Killed'.
       
+  import <cluster_name>
+      Copy simulation output and report files into a similar directory hierarchy
+      from the server into the client. The source and destination paths are,
+      respectively:
+
+          SERVER:~/m2s-server-kit/run/<cluster_name>
+          CLIENT:~/m2s-client-kit/run/<cluster_name>
+
+      This command is useful for post-processing of statistics generated in the
+      server, without the burden of importing unnecessary simulation files, such
+      as simulator executable, benchmark binaries, or data files. The 'import'
+      command copies, among others, every file generated during the simulation
+      with a name prefixed by string "report-".
+      The cluster must be in state 'Submitted', 'Completed', or 'Killed' for
+      this command to be valid.
+
+  clear <cluster_name>
+      Clear all information about the cluster and its jobs. The entire directory
+      hierarchy associated with the cluster in the server will be deleted at
+
+          SERVER:~/m2s-server-kit/run/<cluster_name>
+
+      If the cluster has been imported before using the 'import' command, the
+      client copy of the directory hierarchy is still kept. A cluster must be in
+      state 'Created', 'Completed', or 'Killed' for this command to be valid.
+      The cluster will transition to state 'Invalid'.
+
 EOF
 	exit 1
 }
@@ -233,20 +236,21 @@ then
 	touch $inifile || exit 1
 fi
 
-# Command = 'start'
-if [ "$command" == "start" ]
+# Commands
+if [ "$command" == "create" ]
 then
 
 	# Get cluster name
 	if [ $# != 1 ]
 	then
-		syntax
+		echo >&2 "syntax: create <cluster>"
+		exit 1
 	fi
 	cluster_name=$1
 	cluster_section="Cluster.$cluster_name"
 
 	# Info
-	echo -n "starting cluster '$cluster_name'"
+	echo -n "creating cluster '$cluster_name'"
 
 	# Check valid cluster name
 	num_fields=`echo $cluster_name | awk -F/ '{ print NF }'`
@@ -256,7 +260,7 @@ then
 	cluster_exists=`$inifile_py $inifile exists $cluster_section`
 	if [ "$cluster_exists" == 1 ]
 	then
-		error "cluster already started, clear first."
+		error "cluster already exists."
 	fi
 
 	# Clear all sending files
@@ -300,7 +304,9 @@ then
 	# Get arguments
 	if [ $# -lt 3 ]
 	then
-		syntax
+		echo -n >&2 "syntax: add <cluster_name> <job_name> <suite_bench>"
+		echo >&2 " [<suite_bench2> [...]] [<options>]"
+		exit 1
 	fi
 	cluster_name=$1
 	shift
@@ -317,7 +323,7 @@ then
 	job_id=`$inifile_py $inifile read $cluster_section NumJobs`
 	if [ -z "$job_id" ]
 	then
-		error "cluster not started"
+		error "cluster does not exist"
 	fi
 
 	# Check that job has unique name
@@ -378,7 +384,8 @@ then
 	# Get arguments
 	if [ $# != 2 ]
 	then
-		syntax
+		echo >&2 "syntax: submit <cluster> <server> [-r <rev>]"
+		exit 1
 	fi
 	cluster_name=$1
 	server_port=$2
@@ -447,7 +454,7 @@ then
 		# Unpack server package
 		server_package="$HOME/'$M2S_SERVER_KIT_TMP_PATH'/sim-cluster.tar.gz"
 		cd $HOME/'$M2S_SERVER_KIT_TMP_PATH' && \
-			tar -xzf $server_package || exit 1
+			tar -xzf $server_package > /dev/null 2>&1 || exit 1
 		rm -f $server_package
 
 		# Initialize
@@ -596,6 +603,7 @@ then
 				echo "Exe = $exe" >> $ctx_config_path
 				echo "Args = $args" >> $ctx_config_path
 				echo "StdIn = $stdin" >> $ctx_config_path
+				echo "StdOut = sim.out" >> $ctx_config_path
 				echo >> $ctx_config_path
 
 				# Next context
@@ -650,7 +658,8 @@ then
 	# Get arguments
 	if [ $# != 1 ]
 	then
-		syntax
+		echo >&2 "syntax: clear <cluster>"
+		exit 1
 	fi
 	cluster_name=$1
 	cluster_section="Cluster.$cluster_name"
@@ -708,10 +717,13 @@ then
 
 	# If cluster has ever been submitted, delete the directory where it ran
 	# in the server. This clears a lot of space used for benchmark copies.
+	# Also delete the report package that might have been created when
+	# importing the cluster output data.
 	if [ -n "$server" ]
 	then
 		echo -n " - removing cluster in server"
 		ssh $server -p $port '
+			rm -f $HOME/'$M2S_SERVER_KIT_TMP_PATH/$cluster_name'-report.tar.gz
 			rm -rf $HOME/'$M2S_SERVER_KIT_RUN_PATH/$cluster_name'
 		' || error "failed deleting directories in server"
 	fi
@@ -724,7 +736,8 @@ then
 	# Get arguments
 	if [ $# != 1 ]
 	then
-		syntax
+		echo >&2 "syntax: state <cluster>"
+		exit 1
 	fi
 	cluster_name=$1
 	cluster_section="Cluster.$cluster_name"
@@ -805,7 +818,8 @@ then
 	# Get arguments
 	if [ $# != 1 ]
 	then
-		syntax
+		echo >&2 "syntax: kill <cluster>"
+		exit 1
 	fi
 	cluster_name=$1
 	cluster_section="Cluster.$cluster_name"
@@ -854,6 +868,68 @@ then
 
 	# Done
 	echo " - $num_jobs jobs killed - ok"
+
+elif [ "$command" == "import" ]
+then
+	# Get arguments
+	if [ $# != 1 ]
+	then
+		echo >&2 "syntax: import <cluster>"
+		exit 1
+	fi
+	cluster_name=$1
+	cluster_section="Cluster.$cluster_name"
+
+	# Read cluster properties
+	inifile_script=`mktemp`
+	temp=`mktemp`
+	echo "exists $cluster_section" >> $inifile_script
+	echo "read $cluster_section State" >> $inifile_script
+	echo "read $cluster_section Server" >> $inifile_script
+	echo "read $cluster_section Port" >> $inifile_script
+	$inifile_py $inifile run $inifile_script > $temp
+	for i in 1
+	do
+		read section_exists
+		read state
+		read server
+		read port
+	done < $temp
+	rm -f $inifile_script $temp
+
+	# Check valid state of cluster
+	echo -n "importing cluster output"
+	[ "$section_exists" == 1 ] || error "cluster does not exist"
+	[ "$state" != "Created" ] || error "cluster must be in state 'Submitted', 'Completed', or 'Killed'"
+
+	# Connect to server and create package
+	echo -n " - create package"
+	ssh $server -p $port '
+		package=$HOME/'$M2S_SERVER_KIT_TMP_PATH/$cluster_name'-report.tar.gz
+		cd $HOME/'$M2S_SERVER_KIT_RUN_PATH/$cluster_name' || exit 1
+		tar -czf $package $(find -regex \
+			"\(.*/sim.err$\)\|\(.*/report-[^/]*$\)\|\(.*/sim.out$\)\|\(.*/-config$\)") \
+			> /dev/null 2>&1 || exit 1
+	' || error "could not create package in server"
+
+	# Create directory locally
+	rm -rf $HOME/$M2S_CLIENT_KIT_RESULT_PATH/$cluster_name
+	mkdir $HOME/$M2S_CLIENT_KIT_RESULT_PATH/$cluster_name \
+		> /dev/null 2>&1 || error "cannot create local copy"
+	cd $HOME/$M2S_CLIENT_KIT_RESULT_PATH/$cluster_name || exit 1
+
+	# Import the package
+	echo -n " - import"
+	scp -P $port -q $server:$M2S_SERVER_KIT_TMP_PATH/${cluster_name}-report.tar.gz . \
+		>/dev/null 2>&1 || error "could not import package"
+
+	# Unpack in client
+	tar -xvf ${cluster_name}-report.tar.gz \
+		>/dev/null 2>&1 || error "could not unpack"
+	rm -f ${cluster_name}-report.tar.gz
+
+	# Done
+	echo " - ok"
 
 else
 	
