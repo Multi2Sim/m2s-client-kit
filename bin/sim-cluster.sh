@@ -133,7 +133,7 @@ commands are:
       respectively:
 
           SERVER:~/m2s-server-kit/run/<cluster_name>
-          CLIENT:~/m2s-client-kit/run/<cluster_name>
+          CLIENT:~/m2s-client-kit/result/<cluster_name>
 
       This command is useful for post-processing of statistics generated in the
       server, without the burden of importing unnecessary simulation files, such
@@ -145,15 +145,15 @@ commands are:
 
   remove <cluster>
       Remove all information about the cluster and its jobs. The entire directory
-      hierarchy associated with the cluster in the server will be deleted at
+      hierarchy associated with the cluster both in the server and client will
+      be deleted at the following locations:
 
           SERVER:~/m2s-server-kit/run/<cluster_name>
+          CLIENT:~/m2s-server-kit/result/<cluster_name>
 
-      If the cluster has been imported before using the 'import' command, the
-      client copy of the directory hierarchy is still kept. A cluster must be in
-      state 'Created', 'Completed', or 'Killed' for this command to be valid.
-      Querying the state of a cluster after it has been removed will return
-      state 'Invalid'.
+      A cluster must be in state 'Created', 'Completed', or 'Killed' for this
+      command to be valid. Querying the state of a cluster after it has been
+      removed will return state 'Invalid'.
 
   list [<cluster>]
       If no value for <cluster> is provided, list all existing clusters. If a
@@ -748,6 +748,9 @@ then
 			rm -rf $HOME/'$M2S_SERVER_KIT_RUN_PATH/$cluster_name'
 		' || error "failed deleting directories in server"
 	fi
+
+	# If cluster has been imported, delete the directory
+	rm -rf $HOME/$M2S_CLIENT_KIT_RESULT_PATH/$cluster_name
 
 	# Done
 	echo " - ok"
