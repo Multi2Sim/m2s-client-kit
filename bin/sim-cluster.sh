@@ -39,7 +39,7 @@ Run simulations on a server with condor and a shared file system, where the
 Multi2Sim server kit is installed in the home folder of the same user. Possible
 commands are:
 
-  create <cluster_name>
+  create <cluster>
       Create a new cluster (set of jobs). To run simulations, a cluster must be
       first started. Then new jobs are added to it, and finally it is submitted
       to the server.
@@ -47,7 +47,7 @@ commands are:
 
           SERVER:~/m2s-server-kit/run/<cluster_name>
 
-  add <cluster_name> <job_name> <suite_bench> [<suite_bench2> [...]] [<options>]
+  add <cluster> <job_name> <suite_bench> [<suite_bench2> [...]] [<options>]
       Add a new job to the cluster, where <job_name> is the identifier of the
       new job. This identifier can contain '/' characters. The folder in the
       server where the job will reside is
@@ -93,14 +93,14 @@ commands are:
 	  of arguments given by the data set specified. These arguments will be
 	  added to the benchmark command line (e.g., --bench-arg "-x 16 -y 16").
 
-  submit <cluster_name> <server> [-r <rev>]
+  submit <cluster> <server> [-r <rev>]
       Submit the cluster to the server and start its execution using condor. The
       optional argument <rev> specifies the Multi2Sim SVN revision to use for
       the simulation. If not specified, the latest revision is used.
       A cluster must be in state 'Created', 'Completed', or 'Killed' for it to
       be (re-)submitted. The cluster will transition to state 'Submitted'.
 
-  state <cluster_name>
+  state <cluster>
       Return the current state of a cluster. The following states are possible:
 
       Invalid
@@ -120,12 +120,12 @@ commands are:
       Killed
           The cluster has been killed before completing execution.
 
-  kill <cluster_name>
+  kill <cluster>
       Kill all jobs associated with the cluster in the server. The cluster must
       be in state 'Submitted' for this operation to be valid. After this
       operation, the cluster transitions to state 'Killed'.
       
-  import <cluster_name>
+  import <cluster>
       Copy simulation output and report files into a similar directory hierarchy
       from the server into the client. The source and destination paths are,
       respectively:
@@ -141,7 +141,7 @@ commands are:
       The cluster must be in state 'Submitted', 'Completed', or 'Killed' for
       this command to be valid.
 
-  remove <cluster_name>
+  remove <cluster>
       Remove all information about the cluster and its jobs. The entire directory
       hierarchy associated with the cluster in the server will be deleted at
 
@@ -152,6 +152,10 @@ commands are:
       state 'Created', 'Completed', or 'Killed' for this command to be valid.
       Querying the state of a cluster after it has been removed will return
       state 'Invalid'.
+
+  list [<cluster>]
+      If no value for <cluster> is provided, list all existing clusters. If a
+      value is given, list all jobs added to <cluster>.
 
 EOF
 	exit 1
@@ -939,6 +943,52 @@ then
 	# Done
 	echo " - ok"
 
+elif [ "$command" == "list" ]
+then
+	# Get arguments
+	if [ $# -gt 1 ]
+	then
+		echo >&2 "syntax: list [<cluster>]"
+		exit 1
+	fi
+	cluster_name=$1
+	cluster_section="Cluster.$cluster_name"
+
+	# List clusters
+	if [ -z "$cluster_name" ]
+	then
+		section_list=`$inifile_py $inifile list`
+		num_clusters=0
+		for section in $section_list
+		do
+			if [[ $section =~ ^Cluster\. ]]
+			then
+				echo ${section:8}
+				num_clusters=`expr $num_clusters + 1`
+			fi
+		done
+		echo "$num_clusters cluster(s) created"
+		exit
+	fi
+
+	# Check that cluster exists
+	cluster_exists=`$inifile_py $inifile exists $cluster_section`
+	[ "$cluster_exists" == 1 ] || error "cluster does not exist"
+
+	# List jobs
+	section_list=`$inifile_py $inifile list`
+	job_section_prefix="Job.$cluster_name."
+	job_section_prefix_length=${#job_section_prefix}
+	num_jobs=0
+	for section in $section_list
+	do
+		if [[ $section =~ ^Job\.$cluster_name\. ]]
+		then
+			echo ${section:$job_section_prefix_length}
+			num_jobs=`expr $num_jobs + 1`
+		fi
+	done
+	echo "$num_jobs job(s) in cluster '$cluster_name'"
 else
 	
 	error "$command: invalid command"
