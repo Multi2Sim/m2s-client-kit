@@ -15,6 +15,8 @@ M2S_SERVER_KIT_M2S_BIN_PATH="$M2S_SERVER_KIT_TMP_PATH/m2s-bin"
 inifile_py="$HOME/$M2S_CLIENT_KIT_BIN_PATH/inifile.py"
 inifile="$HOME/$M2S_CLIENT_KIT_TMP_PATH/sim-cluster.ini"
 
+prog_name=`echo $0 | awk -F/ '{ print $NF }'`
+
 
 #
 # Syntax
@@ -29,11 +31,10 @@ function error()
 
 function syntax()
 {
-	prog=`echo $0 | awk -F/ '{print $NF}'`
 	cat << EOF
 
 Syntax:
-    $prog <command> <arguments> [<options>]
+    $prog_name <command> <arguments> [<options>]
 
 Run simulations on a server with condor and a shared file system, where the
 Multi2Sim server kit is installed in the home folder of the same user. Possible
@@ -294,8 +295,8 @@ then
 	
 	# Options
 	temp=`getopt -o p: -l send:,sim-arg:,bench-arg:,data-set: \
-		-n 'sim-cluster.sh' -- "$@"`
-	if [ $? != 0 ] ; then exit 1 ; fi
+		-n $prog_name -- "$@"`
+	[ $? == 0 ] || exit 1
 	eval set -- "$temp"
 	send_files=
 	sim_args=
@@ -381,9 +382,8 @@ elif [ "$command" == "submit" ]
 then
 
 	# Options
-	temp=`getopt -o r: \
-		-n 'sim-cluster.sh' -- "$@"`
-	if [ $? != 0 ] ; then exit 1 ; fi
+	temp=`getopt -o r: -n $prog_name -- "$@"`
+	[ $? == 0 ] || exit 1
 	eval set -- "$temp"
 	rev=
 	while true
@@ -759,9 +759,8 @@ elif [ "$command" == "state" ]
 then
 	
 	# Options
-	temp=`getopt -o v \
-		-n 'sim-cluster.sh' -- "$@"`
-	if [ $? != 0 ] ; then exit 1 ; fi
+	temp=`getopt -o v -n $prog_name -- "$@"`
+	[ $? == 0 ] || exit 1
 	eval set -- "$temp"
 	verbose=0
 	while true

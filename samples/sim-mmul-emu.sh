@@ -4,7 +4,9 @@ M2S_CLIENT_KIT_PATH="m2s-client-kit"
 M2S_CLIENT_KIT_BIN_PATH="$M2S_CLIENT_KIT_PATH/bin"
 M2S_CLIENT_KIT_RESULT_PATH="$M2S_CLIENT_KIT_PATH/result"
 
+prog_name=`echo $0 | awk -F/ '{ print $NF }'`
 sim_cluster_sh="$HOME/$M2S_CLIENT_KIT_BIN_PATH/sim-cluster.sh"
+
 
 cluster_name="mmul-emu"
 matrix_size_list="16 32 64 128 256 512 1024"
@@ -16,11 +18,10 @@ matrix_size_list="16 32 64 128 256 512 1024"
 
 function syntax()
 {
-	prog=`echo $0 | awk -F/ '{print $NF}'`
 	cat << EOF
 
 Syntax:
-    $prog <command> [<arguments>]
+    $prog_name <command> [<arguments>]
 
 Run a simulation for benchmark MatrixMultiplication in suite AMDAPP-2.5, using a
 functional emulation, and activating the self-check option in the benchmark.
@@ -33,9 +34,11 @@ Possible values for <command> are:
       port. Commands "sim-cluster.sh list/state/kill/import/remove" can be used
       later to manage the created cluster.
 
-  process
+  process [-f]
       Import output files of the cluster if they do not exist already locally,
       and process them to generate plots, filter data, validate results, etc.
+      Optional flag '-f' forces the output files to be imported again from the
+      server, even if they already existed locally.
 
 EOF
 	exit 1
@@ -87,9 +90,23 @@ then
 elif [ "$command" == process ]
 then
 
+	# Options
+	temp=`getopt -o f -n $prog_name -- "$@"`
+	[ $? == 0 ] || exit 1
+	eval set -- "$temp"
+	force=0
+	while true
+	do
+		case "$1" in
+		-f) force=1 ; shift 1 ;;
+		--) shift ; break ;;
+		*) error "$1: invalid option" ;;
+		esac
+	done
+
 	# Import cluster if needed
 	cluster_path="$HOME/$M2S_CLIENT_KIT_RESULT_PATH/$cluster_name"
-	if [ ! -d "$cluster_path" ]
+	if [ ! -d "$cluster_path" -o "$force" == 1 ]
 	then
 		$sim_cluster_sh import $cluster_name \
 			|| exit 1
