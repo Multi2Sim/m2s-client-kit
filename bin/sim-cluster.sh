@@ -100,8 +100,10 @@ commands are:
       A cluster must be in state 'Created', 'Completed', or 'Killed' for it to
       be (re-)submitted. The cluster will transition to state 'Submitted'.
 
-  state <cluster>
-      Return the current state of a cluster. The following states are possible:
+  state <cluster> [-v]
+      Return the current state of a cluster. Additional information about the
+      cluster will be printed if optional flag '-v' is specified. The following
+      states are possible:
 
       Invalid
           The cluster does not exist.
@@ -187,6 +189,12 @@ EOF
 # Syntax: get_condor_jobs <cluster> <server> <port>
 function get_condor_jobs()
 {
+	local temp
+	local job_list
+	local job
+
+	local cmd
+
 	# Arguments
 	local cluster_name=$1 ; shift
 	local server=$1 ; shift
@@ -195,8 +203,7 @@ function get_condor_jobs()
 	# Connect to server
 	temp=`mktemp`
 	ssh $server -p $port '
-		condor_q -submitter $USER \
-			-format "[ %d." ClusterID \
+		condor_q -format "[ %d." ClusterID \
 			-format "%d ]\n" ProcID \
 			-format "Cmd = %s\n" Cmd \
 			-format "Args = %s\n" Args \
@@ -213,7 +220,9 @@ function get_condor_jobs()
 	for job in $job_list
 	do
 		cmd=`$inifile_py $temp read $job Cmd`
-		[[ "$cmd" =~ "/m2s-server-kit/run/$cluster_name/" ]] \
+		owner=`$inifile_py $temp read $job Owner`
+		[[ "$cmd" =~ "/m2s-server-kit/run/$cluster_name/" \
+			&& "$owner" == "$USER" ]] \
 			|| $inifile_py $temp remove $job
 	done
 
@@ -745,6 +754,22 @@ then
 
 elif [ "$command" == "state" ]
 then
+	
+	# Options
+	temp=`getopt -o v \
+		-n 'sim-cluster.sh' -- "$@"`
+	if [ $? != 0 ] ; then exit 1 ; fi
+	eval set -- "$temp"
+	verbose=0
+	while true
+	do
+		case "$1" in
+		-v) verbose=1 ; shift 1 ;;
+		--) shift ; break ;;
+		*) error "$1: invalid option" ;;
+		esac
+	done
+
 	# Get arguments
 	if [ $# != 1 ]
 	then
@@ -783,6 +808,7 @@ then
 	then
 		# Get INI file with condor info
 		temp=`get_condor_jobs $cluster_name $server $port`
+		[ -n "$temp" ] || exit 1
 
 		# If no more jobs left, change state to Completed
 		job_list=`$inifile_py $temp list`
@@ -790,6 +816,14 @@ then
 		then
 			$inifile_py $inifile write $cluster_section State Completed
 			echo "Completed"
+			exit
+		fi
+
+		# Print state and quit if no verbose
+		echo "Submitted"
+		if [ "$verbose" == 0 ]
+		then
+			rm -f $temp
 			exit
 		fi
 
@@ -816,7 +850,7 @@ then
 		done
 
 		# Info
-		echo -n "Submitted - Server=$server, Port=$port - "
+		echo "cluster running on server '$server'"
 		echo "$job_running_count job(s) running, $job_idle_count job(s) idle."
 		rm -f $temp
 		exit
