@@ -638,6 +638,10 @@ then
 			echo "InitialDir = $job_path" >> $condor_submit_path
 			echo "Log = $job_path/sim.log" >> $condor_submit_path
 			echo "Arguments = --ctx-config $ctx_config_path $sim_args" >> $condor_submit_path
+			echo "Requirements = Memory > 100" >> $condor_submit_path
+			echo "Rank = -LoadAvg" >> $condor_submit_path
+			echo "+GPBatchJob = True" >> $condor_submit_path
+			echo "+LongRunningJob = True" >> $condor_submit_path
 			echo "Queue" >> $condor_submit_path
 		done
 
