@@ -74,32 +74,42 @@ commands are:
 	  files for Multi2Sim. To send multiple files, use double quotes (e.g.,
 	  --send "mem-config gpu-config").
 
-      --sim-arg <arg>
+      --sim-args <args>
           Additional arguments for the simulator. This is useful to make it
 	  consume the configuration files sent with option '--send'. Use double
 	  quotes for more than one argument (e.g.,
-	  --sim-arg "--mem-config my-mem-config-file").
+	  --sim-args "--mem-config my-mem-config-file").
 	  When using this option to add output report files, it is recommended
 	  to use files prefixed with 'report-' (e.g.,
-	  --sim-arg "--report-cpu-pipeline report-my-cpu-pipeline"). Files with
+	  --sim-args "--report-cpu-pipeline report-my-cpu-pipeline"). Files with
 	  this prefix in the simulation working directory will be automatically
 	  imported with command 'import'.
+
+      --bench-args <args>
+          Additional arguments for the benchmark. A benchmark has a specific set
+	  of arguments given by the data set specified. These arguments will be
+	  added to the benchmark command line (e.g., --bench-args "-x 16 -y 16").
 
       --data-set <set>
           For those benchmarks providing several data sets, this argument
 	  specifies the name. It is set to 'Default' if no value is given.
 
-      --bench-arg <arg>
-          Additional arguments for the benchmark. A benchmark has a specific set
-	  of arguments given by the data set specified. These arguments will be
-	  added to the benchmark command line (e.g., --bench-arg "-x 16 -y 16").
+  submit <cluster> <server> [<options>]
+      Submit the cluster to the server and start its execution using condor. A
+      cluster must be in state 'Created', 'Completed', or 'Killed' for it to be
+      (re-)submitted. The cluster will transition to state 'Submitted'.
 
-  submit <cluster> <server> [-r <rev>]
-      Submit the cluster to the server and start its execution using condor. The
-      optional argument <rev> specifies the Multi2Sim SVN revision to use for
-      the simulation. If not specified, the latest revision is used.
-      A cluster must be in state 'Created', 'Completed', or 'Killed' for it to
-      be (re-)submitted. The cluster will transition to state 'Submitted'.
+      -r <revision>
+          Multi2Sim SVN revision to use for the cluster execution. If this
+	  option is omitted, the latest SVN update will be fetched automatically
+	  from the Multi2Sim server.
+
+      --configure-args <args>
+          Arguments to be passed to the './configure' script when building the
+	  Multi2Sim distribution package used for simulation. The arguments
+	  should be listed within double quotes. For simulations aiming
+	  simulator verification, it is recommend to always used at least:
+	      --configure-args "--enable-debug"
 
   state <cluster> [-v]
       Return the current state of a cluster. Additional information about the
@@ -308,8 +318,8 @@ then
 		case "$1" in
 		-p) num_threads=$2 ; shift 2 ;;
 		--send) send_files="$send_files $2" ; shift 2 ;;
-		--sim-arg) sim_args="$sim_args $2" ; shift 2 ;;
-		--bench-arg) bench_args="$bench_args $2" ; shift 2 ;;
+		--sim-args) sim_args="$sim_args $2" ; shift 2 ;;
+		--bench-args) bench_args="$bench_args $2" ; shift 2 ;;
 		--data-set) data_set="$2" ; shift 2 ;;
 		--) shift ; break ;;
 		*) error "$1: invalid option" ;;
@@ -382,14 +392,16 @@ elif [ "$command" == "submit" ]
 then
 
 	# Options
-	temp=`getopt -o r: -n $prog_name -- "$@"`
+	temp=`getopt -o r: -l configure-args: -n $prog_name -- "$@"`
 	[ $? == 0 ] || exit 1
 	eval set -- "$temp"
 	rev=
+	configure_args=
 	while true
 	do
 		case "$1" in
 		-r) rev=$2 ; shift 2 ;;
+		--configure-args) configure_args=$2 ; shift 2 ;;
 		--) shift ; break ;;
 		*) error "$1: invalid option" ;;
 		esac
@@ -398,7 +410,7 @@ then
 	# Get arguments
 	if [ $# != 2 ]
 	then
-		echo >&2 "syntax: submit <cluster> <server> [-r <rev>]"
+		echo >&2 "syntax: submit <cluster> <server> [<options>]"
 		exit 1
 	fi
 	cluster_name=$1
@@ -435,12 +447,9 @@ then
 
 	# Prepare Multi2Sim revision in server
 	rev_arg=
-	if [ -n "$rev" ]
-	then
-		rev_arg="-r $rev"
-	fi
+	[ -z "$rev" ] || rev_arg="-r $rev"
 	$HOME/$M2S_CLIENT_KIT_BIN_PATH/gen-m2s-bin.sh \
-		$rev_arg $server_port \
+		$rev_arg --configure-args "$configure_args" $server_port \
 		|| exit 1
 
 	# Info
