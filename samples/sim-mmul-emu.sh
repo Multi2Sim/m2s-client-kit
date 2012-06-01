@@ -159,7 +159,11 @@ then
 	done
 
 	# Summary. Exit with error code 1 if not all simulations passed
-	echo "$passed_count passed, $failed_count failed, $crashed_count crashed, $unknown_count unknown"
+	echo -n "$total total, "
+	echo -n "$passed_count passed, "
+	echo -n "$failed_count failed, "
+	echo -n "$crashed_count crashed, "
+	echo "$unknown_count unknown"
 	[ $total == $passed_count ] || exit 1
 else
 
