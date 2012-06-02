@@ -1103,7 +1103,7 @@ then
 		fi
 
 		# Delay
-		sleep 1
+		sleep 10
 	done
 
 else
