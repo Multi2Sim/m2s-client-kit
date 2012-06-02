@@ -173,7 +173,7 @@ commands are:
   wait <cluster1> [<cluster2> [...]]
       Wait for a list of clusters to finish execution. The command finishes once
       all clusters are in state 'Created', 'Completed', 'Killed', or 'Invalid'.
-      The server is queried every minute for the status of the clusters.
+      The server is queried periodically to update the state of all clusters.
 
 EOF
 	exit 1
