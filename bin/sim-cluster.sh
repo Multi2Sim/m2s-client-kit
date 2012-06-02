@@ -170,6 +170,11 @@ commands are:
       If no value for <cluster> is provided, list all existing clusters. If a
       value is given, list all jobs added to <cluster>.
 
+  wait <cluster1> [<cluster2> [...]]
+      Wait for a list of clusters to finish execution. The command finishes once
+      all clusters are in state 'Created', 'Completed', 'Killed', or 'Invalid'.
+      The server is queried every minute for the status of the clusters.
+
 EOF
 	exit 1
 }
@@ -1038,6 +1043,69 @@ then
 		fi
 	done
 	echo "$num_jobs job(s) in cluster '$cluster_name'"
+
+elif [ "$command" == "wait" ]
+then
+	# Get arguments
+	if [ $# -lt 1 ]
+	then
+		echo >&2 "syntax: wait <cluster1> [<cluster2> [...]]"
+		exit 1
+	fi
+	cluster_list=$*
+
+	# Loop querying cluster state
+	while true
+	do
+		# Query all clusters
+		invalid_count=0
+		created_count=0
+		submitted_count=0
+		completed_count=0
+		killed_count=0
+		total=`echo "$cluster_list" | wc -w`
+		for cluster in $cluster_list
+		do
+			state=`$prog_name state $cluster` || exit 1
+			if [ "$state" == "Created" ]
+			then
+				created_count=`expr $created_count + 1`
+			elif [ "$state" == "Submitted" ]
+			then
+				submitted_count=`expr $submitted_count + 1`
+			elif [ "$state" == "Completed" ]
+			then
+				completed_count=`expr $completed_count + 1`
+			elif [ "$state" == "Killed" ]
+			then
+				killed_count=`expr $killed_count + 1`
+			else
+				invalid_count=`expr $invalid_count + 1`
+			fi
+		done
+
+		# Output
+		date=`date +%I:%M%P`
+		echo -ne "\033[2K\r"
+		echo -n "$total total, "
+		echo -n "$created_count created, "
+		echo -n "$submitted_count submitted, "
+		echo -n "$completed_count completed, "
+		echo -n "$killed_count killed, "
+		echo -n "$invalid_count invalid "
+		echo -n "(as of $date)"
+
+		# End if no cluster is running (state='Submitted')
+		if [ "$submitted_count" == 0 ]
+		then
+			echo
+			exit
+		fi
+
+		# Delay
+		sleep 1
+	done
+
 else
 	
 	error "$command: invalid command"
