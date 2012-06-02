@@ -304,7 +304,7 @@ elif [ "$command" == "add" ]
 then
 	
 	# Options
-	temp=`getopt -o p: -l send:,sim-arg:,bench-arg:,data-set: \
+	temp=`getopt -o p: -l send:,sim-args:,bench-args:,data-set: \
 		-n $prog_name -- "$@"`
 	[ $? == 0 ] || exit 1
 	eval set -- "$temp"
