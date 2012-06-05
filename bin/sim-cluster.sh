@@ -153,9 +153,13 @@ commands are:
 
       This command is useful for post-processing of statistics generated in the
       server, without the burden of importing unnecessary simulation files, such
-      as simulator executable, benchmark binaries, or data files. The 'import'
-      command copies, among others, every file generated during the simulation
-      with a name prefixed by string "report-".
+      as simulator executable, benchmark binaries, or data files. The imported
+      files are, as found in any subdirectory of the running path:
+          sim.out    Benchmark output
+	  sim.ref    Benchmark reference output
+	  sim.err    Simulator output
+	  report-*   Any report file with the 'report-' prefix.
+	  *-config   Any configuration file with the '-config' suffix.
       The cluster must be in state 'Submitted', 'Completed', or 'Killed' for
       this command to be valid.
 
@@ -979,7 +983,7 @@ then
 		package=$HOME/'$M2S_SERVER_KIT_TMP_PATH/$cluster_name'-report.tar.gz
 		cd $HOME/'$M2S_SERVER_KIT_RUN_PATH/$cluster_name' || exit 1
 		tar -czf $package $(find -regex \
-			"\(.*/sim.err$\)\|\(.*/report-[^/]*$\)\|\(.*/sim.out$\)\|\(.*/-config$\)") \
+			"\(.*/sim.err$\)\|\(.*/report-[^/]*$\)\|\(.*/sim.out$\)\|\(.*/sim.ref\)\|\(.*/-config$\)") \
 			> /dev/null 2>&1 || exit 1
 	' || error "could not create package in server"
 
