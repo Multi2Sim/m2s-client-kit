@@ -133,6 +133,11 @@ commands are:
       Killed
           The cluster has been killed before completing execution.
 
+  wait <cluster1> [<cluster2> [...]]
+      Wait for a list of clusters to finish execution. The command finishes once
+      all clusters are in state 'Created', 'Completed', 'Killed', or 'Invalid'.
+      The server is queried periodically to update the state of all clusters.
+
   kill <cluster>
       Kill all jobs associated with the cluster in the server. The cluster must
       be in state 'Submitted' for this operation to be valid. After this
@@ -170,10 +175,10 @@ commands are:
       If no value for <cluster> is provided, list all existing clusters. If a
       value is given, list all jobs added to <cluster>.
 
-  wait <cluster1> [<cluster2> [...]]
-      Wait for a list of clusters to finish execution. The command finishes once
-      all clusters are in state 'Created', 'Completed', 'Killed', or 'Invalid'.
-      The server is queried periodically to update the state of all clusters.
+  list-bench <server> [<suite>]
+      If no optional argument is given, this command lists the benchmark suites
+      available in the server. If a benchmark suite is given, the command lists
+      the benchmarks available in the server belonging to that suite.
 
 EOF
 	exit 1
@@ -1046,6 +1051,7 @@ then
 
 elif [ "$command" == "wait" ]
 then
+
 	# Get arguments
 	if [ $# -lt 1 ]
 	then
@@ -1105,6 +1111,61 @@ then
 		# Delay
 		sleep 10
 	done
+
+elif [ "$command" == "list-bench" ]
+then
+
+	# Get arguments
+	if [ $# != 1 -a $# != 2 ]
+	then
+		echo >&2 "syntax: list-bench <server> [<suite>]"
+		exit 1
+	fi
+	server_port=$1
+	suite=$2
+
+	# Split server and port
+	server=`echo $server_port | awk -F: '{ print $1 }'`
+	port=`echo $server_port | awk -F: '{ print $2 }'`
+	[ -n "$port" ] || port=22
+
+	# Connect to server and list benchmarks
+	ssh -p $port $server '
+		function error()
+		{
+			echo -e "\nerror: $1\n" >&2
+			exit 1
+		}
+
+		# Go to benchmarks directory
+		suite="'"$suite"'"
+		cd $HOME/'$M2S_SERVER_KIT_BENCH_PATH' 2>/dev/null \
+			error "Multi2Sim server suite missing"
+
+		# Go to suite
+		if [ -n "$suite" ]
+		then
+			cd $suite 2>/dev/null \
+				|| error "$suite: invalid benchmark suite"
+		fi
+
+		# List directories
+		dir_list=`find -maxdepth 1 -type d`
+		for dir in $dir_list
+		do
+			# Clear "./" prefix
+			[ "${dir::2}" != "./" ] || dir=${dir:2}
+
+			# Skip empty entry or hidden files
+			if [ -z "$dir" -o "${dir::1}" == "." ]
+			then
+				continue
+			fi
+
+			# Dump
+			echo $dir
+		done
+	' || exit 1
 
 else
 	
