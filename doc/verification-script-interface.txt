@@ -1,0 +1,77 @@
+A verification script follows the interface detailed below. It can call other
+verification scripts recursively, and can in turn be called by other
+verification scripts as well. A verification script is associated with one or
+more clusters, which are automatically created, submitted, killed, etc. by each
+command of the script.
+
+The generic syntax is:
+	<script-name>.sh <command> [<arguments>]
+where <command> can take any of the possible values.
+
+  submit <server>[:<port>] [<options>]
+      Create one or more clusters and submit them to the server. The clusters
+      can be created by explicit calls to 'sim-cluster.sh', or by recursively
+      calling other verification scripts. The following optional arguments can
+      be used:
+
+      -r <revision>
+          Multi2Sim SVN revision to use for the cluster execution. If this
+	  option is omitted, the latest SVN update will be fetched automatically
+	  from the Multi2Sim server.
+
+      --configure-args <args>
+          Arguments to be passed to the './configure' script when building the
+	  Multi2Sim distribution package used for simulation. The arguments
+	  should be listed within double quotes. For simulations aiming
+	  simulator verification, it is recommend to always used at least:
+	      --configure-args "--enable-debug"
+
+  kill
+      Kill all clusters associated with the verification script. This command
+      recursively calls the 'kill' command of secondary verification scripts, or
+      runs 'sim-cluster.sh kill' for clusters explicitly created by this script
+      that are currently in state 'Submitted'.
+
+  state
+      Return a common state for all associated clusters. The state is computed
+      as a combination of the cluster states and the states of secondary
+      scripts. The reported state can be:
+
+      Invalid
+          All clusters associated with this script and secondary verification
+	  scripts are in state 'Invalid' (do not exist).
+
+      Submitted
+          At least one of the clusters associated with this, or a secondary,
+	  verification script is in state 'Submitted'.
+
+      Completed
+          All clusters associated with this and all secondary verification
+	  scripts are in state 'Completed'.
+
+      Killed
+          At least one of the clusters associated with this or a secondary
+	  verification script is in state 'Killed'. If any other cluster is in
+	  state 'Submitted', the reported state is 'Submitted' instead.
+
+  wait
+      Wait for all associated clusters and secondary verification scripts to
+      reach state 'Completed'. A summary of the global state is reported with a
+      string that updates periodically in real time.
+
+  process [-f]
+      Import output files generated during the execution of clusters associated
+      with this and secondary verification scripts. Unless option '-f' is
+      specified, output files are imported only when a local copy of the
+      results is not present in the client.
+      Output files are then processed by generating plots, analyzing results,
+      etc., and a verification error code is return (0 for passed, non-zero for
+      failed verification). Failed verifications are propagated recursively
+      through secondary verification scripts.
+
+  remove
+      Remove all clusters created by this and secondary verification scripts.
+      The server and client copies of the execution and result directories are
+      deleted. The global state must be 'Completed' or 'Killed' before executing
+      this command.
+
