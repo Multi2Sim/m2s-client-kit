@@ -198,6 +198,13 @@ then
 	echo -n "$crashed_count crashed, "
 	echo "$unknown_count unknown"
 	[ $total == $passed_count ] || exit 1
+
+elif [ "$command" == remove ]
+then
+
+	# Remove cluster
+	$sim_cluster_sh remove $cluster_name
+
 else
 
 	error "$command: invalid command"

@@ -23,7 +23,9 @@ function syntax()
 {
 	cat << EOF
 
-Run a verification of the x86 SSE instruction set emulation.
+Run a verification of the x86 SSE instruction set emulation. To add more
+instructions to this process, just add new benchmark executables in the
+'test-x86-sse' suite of the Multi2Sim server kit.
 
 * Secondary verification scripts
 	None
@@ -148,6 +150,10 @@ then
 		$sim_cluster_sh import -a $cluster_name \
 			|| exit 1
 	fi
+
+	# Get list of benchmarks
+	server_port=`$sim_cluster_sh server $cluster_name` || exit 1
+	bench_list=`sim-cluster.sh list-bench $server_port test-x86-sse` || exit 1
 
 	# Check output for each problem size
 	passed_count=0
