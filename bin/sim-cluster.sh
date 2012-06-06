@@ -143,7 +143,7 @@ commands are:
       be in state 'Submitted' for this operation to be valid. After this
       operation, the cluster transitions to state 'Killed'.
       
-  import <cluster>
+  import <cluster> [-a]
       Copy simulation output and report files into a similar directory hierarchy
       from the server into the client. The source and destination paths are,
       respectively:
@@ -160,6 +160,8 @@ commands are:
 	  sim.err    Simulator output
 	  report-*   Any report file with the 'report-' prefix.
 	  *-config   Any configuration file with the '-config' suffix.
+      If optional flag '-a' is specified, all files in the running directory
+      will be imported, including benchmark executable and data files.
       The cluster must be in state 'Submitted', 'Completed', or 'Killed' for
       this command to be valid.
 
@@ -946,10 +948,25 @@ then
 
 elif [ "$command" == "import" ]
 then
+	
+	# Options
+	temp=`getopt -o a -n $prog_name -- "$@"`
+	[ $? == 0 ] || exit 1
+	eval set -- "$temp"
+	import_all=0
+	while true
+	do
+		case "$1" in
+		-a) import_all=1 ; shift 1 ;;
+		--) shift ; break ;;
+		*) error "$1: invalid option" ;;
+		esac
+	done
+
 	# Get arguments
 	if [ $# != 1 ]
 	then
-		echo >&2 "syntax: import <cluster>"
+		echo >&2 "syntax: import <cluster> [-a]"
 		exit 1
 	fi
 	cluster_name=$1
@@ -980,11 +997,18 @@ then
 	# Connect to server and create package
 	echo -n " - create package"
 	ssh $server -p $port '
+		import_all="'"$import_all"'"
 		package=$HOME/'$M2S_SERVER_KIT_TMP_PATH/$cluster_name'-report.tar.gz
 		cd $HOME/'$M2S_SERVER_KIT_RUN_PATH/$cluster_name' || exit 1
-		tar -czf $package $(find -regex \
-			"\(.*/sim.err$\)\|\(.*/report-[^/]*$\)\|\(.*/sim.out$\)\|\(.*/sim.ref\)\|\(.*/-config$\)") \
-			> /dev/null 2>&1 || exit 1
+		if [ "$import_all" == 0 ]
+		then
+			tar -czf $package `find -regex \
+				"\(.*/sim.err$\)\|\(.*/report-[^/]*$\)\|\(.*/sim.out$\)\|\(.*/sim.ref\)\|\(.*/-config$\)"` \
+				> /dev/null 2>&1 || exit 1
+		else
+			tar -czvf $package `find -not -regex "\(.*\/\..*\)"` \
+				> /dev/null 2>&1 || exit 1
+		fi
 	' || error "could not create package in server"
 
 	# Create directory locally
