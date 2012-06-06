@@ -186,6 +186,12 @@ commands are:
       available in the server. If a benchmark suite is given, the command lists
       the benchmarks available in the server belonging to that suite.
 
+  server <cluster>
+      Print the server where a cluster is or has been running. The syntax of the
+      output string is <server>[:<port>], where the port is only specified if
+      other than 22. The cluster must be in state 'Submitted', 'Completed', or
+      'Killed'.
+
 EOF
 	exit 1
 }
@@ -1194,6 +1200,45 @@ then
 			echo $dir
 		done
 	' || exit 1
+
+elif [ "$command" == "server" ]
+then
+
+	# Get arguments
+	if [ $# != 1 ]
+	then
+		echo >&2 "syntax: server <cluster>"
+		exit 1
+	fi
+	cluster_name=$1
+	cluster_section="Cluster.$cluster_name"
+
+	# Read cluster properties
+	inifile_script=`mktemp`
+	temp=`mktemp`
+	echo "exists $cluster_section" >> $inifile_script
+	echo "read $cluster_section State" >> $inifile_script
+	echo "read $cluster_section Server" >> $inifile_script
+	echo "read $cluster_section Port" >> $inifile_script
+	$inifile_py $inifile run $inifile_script > $temp
+	for i in 1
+	do
+		read section_exists
+		read state
+		read server
+		read port
+	done < $temp
+	rm -f $inifile_script $temp
+
+	# Check valid state of cluster
+	[ "$section_exists" == 1 ] || error "cluster does not exist"
+	[ "$state" != "Created" ] || error "cluster must be in state 'Submitted', 'Completed', or 'Killed'"
+
+	# Print server and port
+	[ -n "$server" ] || error "invalid server stored for cluster"
+	echo -n $server
+	[ "$port" == 22 ] || echo -n ":$port"
+	echo
 
 else
 	

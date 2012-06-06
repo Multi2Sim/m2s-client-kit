@@ -11,9 +11,8 @@ inifile_py="$HOME/$M2S_CLIENT_KIT_BIN_PATH/inifile.py"
 
 cluster_name="test-x86-sse"
 
-bench_list=
-bench_list+=" movss_xmmm32_xmm"
-bench_list+=" movss_xmm_xmmm32"
+num_iter=10000
+
 
 
 #
@@ -88,11 +87,15 @@ then
 	[ $# == 1 ] || error "syntax: submit <server>[:<port>] [<options>]"
 	server_port=$1
 
+	# Get list of benchmarks
+	bench_list=`sim-cluster.sh list-bench $server_port test-x86-sse` || exit 1
+
 	# Create cluster
 	$sim_cluster_sh create $cluster_name || exit 1
 	for bench in $bench_list
 	do
 		$sim_cluster_sh add $cluster_name $bench test-x86-sse/$bench \
+			-p $num_iter \
 			|| exit 1
 	done
 
@@ -136,11 +139,13 @@ then
 		esac
 	done
 
-	# Import cluster if needed
+	# Import cluster if needed.
+	# Use '-a' option in 'sim-cluster.sh import' to receive the benchmark
+	# binaries as well.
 	cluster_path="$HOME/$M2S_CLIENT_KIT_RESULT_PATH/$cluster_name"
 	if [ ! -d "$cluster_path" -o "$force" == 1 ]
 	then
-		$sim_cluster_sh import $cluster_name \
+		$sim_cluster_sh import -a $cluster_name \
 			|| exit 1
 	fi
 
@@ -152,10 +157,18 @@ then
 	total=0
 	for bench in $bench_list
 	do
+		exe="$cluster_path/$bench/ctx-0/test-$bench"
+		report_state="$cluster_path/$bench/ctx-0/report-state"
 		sim_err="$cluster_path/$bench/sim.err"
-		sim_out="$cluster_path/$bench/ctx-0/sim.out"
-		sim_ref="$cluster_path/$bench/ctx-0/sim.ref"
 		total=`expr $total + 1`
+
+		# Unknown if any output file does not exist
+		if [ ! -e "$report_state" -o ! -e "$sim_err" -o ! -e "$exe" ]
+		then
+			unknown_count=`expr $unknown_count + 1`
+			echo "$bench - unknown"
+			continue
+		fi
 
 		# Look for 'fatal'/'panic' in Multi2Sim output
 		grep -i "\(^fatal\)\|\(^panic\)" $sim_err > /dev/null 2>&1
@@ -176,8 +189,8 @@ then
 			continue
 		fi
 
-		# Compare reference and effective outputs
-		diff $sim_out $sim_ref > /dev/null
+		# Run program natively comparing output
+		$exe -i $report_state > /dev/null 2>&1
 		retval=$?
 
 		# Outputs match
@@ -197,6 +210,13 @@ then
 	echo -n "$crashed_count crashed, "
 	echo "$unknown_count unknown"
 	[ $total == $passed_count ] || exit 1
+
+elif [ "$command" == remove ]
+then
+
+	# Remove cluster
+	$sim_cluster_sh remove $cluster_name
+
 else
 
 	error "$command: invalid command"
