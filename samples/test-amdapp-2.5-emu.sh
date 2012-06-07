@@ -9,8 +9,7 @@ prog_name=`echo $0 | awk -F/ '{ print $NF }'`
 sim_cluster_sh="$HOME/$M2S_CLIENT_KIT_BIN_PATH/sim-cluster.sh"
 
 
-cluster_name="mmul-emu"
-matrix_size_list="16 32 64 128 256 512 1024"
+cluster_name="amdapp-2.5-emu"
 
 
 #
@@ -21,15 +20,15 @@ function syntax()
 {
 	cat << EOF
 
-Run a simulation for benchmark MatrixMultiplication in suite AMDAPP-2.5, using a
-functional emulation, and activating the self-check option in the benchmark.
-Square matrices are multiplied with sizes ranging between 16 x 16 and 1k x 1k.
+Run emulation for AMDAPP-2.5 benchmarks, activating the self-check option. The
+result of the simulations are then checked for 'Passed' or 'Failed' messages to
+validate the Multi2Sim Evergreen emulator.
 
 * Secondary verification scripts
 	None
 
 * Associated clusters
-	mmul-emu
+	amdapp-2.5-emu
 
 --
 
@@ -89,12 +88,31 @@ then
 
 	# Create cluster
 	$sim_cluster_sh create $cluster_name || exit 1
-	for x in $matrix_size_list
+
+	# MatrixMultiplication
+	bench_name="MatrixMultiplication"
+	size_list="16 32 64 128 256 512"
+	size_index=0
+	for size in $size_list
 	do
-		$sim_cluster_sh add $cluster_name "size-$x" \
-			AMDAPP-2.5/MatrixMultiplication \
-			--bench-arg "-x $x -y $x -z $x -q -e" \
+		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+			AMDAPP-2.5/$bench_name \
+			--bench-arg "-x $size -y $size -z $size -q -e" \
 			|| exit 1
+		size_index=`expr $size_index + 1`
+	done
+
+	# MatrixTranspose
+	bench_name="MatrixTranspose"
+	size_list="16 32 64 128 256 512 1024"
+	size_index=0
+	for size in $size_list
+	do
+		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+			AMDAPP-2.5/$bench_name \
+			--bench-arg "-x $size -y $size -q -e" \
+			|| exit 1
+		size_index=`expr $size_index + 1`
 	done
 
 	# Submit cluster
@@ -145,16 +163,19 @@ then
 			|| exit 1
 	fi
 
-	# Check output for each problem size
+	# Get list of jobs
+	job_list=`$sim_cluster_sh list $cluster_name` || exit 1
+
+	# Check output for each job in the cluster
 	passed_count=0
 	failed_count=0
 	crashed_count=0
 	unknown_count=0
 	total=0
-	for x in $matrix_size_list
+	for job in $job_list
 	do
-		sim_out="$cluster_path/size-$x/ctx-0/sim.out"
-		sim_err="$cluster_path/size-$x/sim.err"
+		sim_out="$cluster_path/$job/ctx-0/sim.out"
+		sim_err="$cluster_path/$job/sim.err"
 		total=`expr $total + 1`
 
 		# Look for 'Passed!' in simulation output
@@ -172,7 +193,7 @@ then
 		if [ "$retval" == 0 ]
 		then
 			failed_count=`expr $failed_count + 1`
-			echo "Size $x - failed"
+			echo "$job - failed"
 			continue
 		fi
 
@@ -182,13 +203,13 @@ then
 		if [ "$retval" == 0 ]
 		then
 			crashed_count=`expr $crashed_count + 1`
-			echo "Size $x - crashed"
+			echo "$job - crashed"
 			continue
 		fi
 
 		# Unknown
 		unknown_count=`expr $unknown_count + 1`
-		echo "Size $x - unknown"
+		echo "$job - unknown"
 	done
 
 	# Summary. Exit with error code 1 if not all simulations passed

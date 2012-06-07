@@ -179,7 +179,8 @@ commands are:
 
   list [<cluster>]
       If no value for <cluster> is provided, list all existing clusters. If a
-      value is given, list all jobs added to <cluster>.
+      value is given, list all jobs added to <cluster>. A summary of the listed
+      clusters is provided in the standard error output.
 
   list-bench <server> [<suite>]
       If no optional argument is given, this command lists the benchmark suites
@@ -1060,7 +1061,7 @@ then
 				num_clusters=`expr $num_clusters + 1`
 			fi
 		done
-		echo "$num_clusters cluster(s) created"
+		echo >&2 "$num_clusters cluster(s) created"
 		exit
 	fi
 
@@ -1081,7 +1082,7 @@ then
 			num_jobs=`expr $num_jobs + 1`
 		fi
 	done
-	echo "$num_jobs job(s) in cluster '$cluster_name'"
+	echo >&2 "$num_jobs job(s) in cluster '$cluster_name'"
 
 elif [ "$command" == "wait" ]
 then
