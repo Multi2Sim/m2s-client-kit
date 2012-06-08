@@ -1,0 +1,60 @@
+[CacheGeometry geo-cpu-l1]
+Sets = 128
+Assoc = 2
+BlockSize = 256
+Latency = 2
+Policy = LRU
+Ports = 2
+
+[CacheGeometry geo-cpu-l2]
+Sets = 512
+Assoc = 4
+BlockSize = 256
+Latency = 20
+Policy = LRU
+Ports = 4
+
+; 1 l1 cpu caches
+
+[Module mod-cpu-l1]
+Type = Cache
+Geometry = geo-cpu-l1
+LowNetwork = net-cpu-l1-l2
+LowModules = mod-cpu-l2
+
+; 1 l2 cpu cache
+
+[Module mod-cpu-l2]
+Type = Cache
+Geometry = geo-cpu-l2
+HighNetwork = net-cpu-l1-l2
+LowNetwork = net-cpu-l2-mm
+LowModules = mod-cpu-mm
+
+; 1 mm
+
+[Module mod-cpu-mm]
+Type = MainMemory
+BlockSize = 256
+Latency = 100
+HighNetwork = net-cpu-l2-mm
+
+
+; Two networks between 2 sets of cores
+
+[Network net-cpu-l1-l2]
+DefaultInputBufferSize = 1024 
+DefaultOutputBufferSize = 1024
+DefaultBandwidth = 256 
+
+[Network net-cpu-l2-mm]
+DefaultInputBufferSize = 1024 
+DefaultOutputBufferSize = 1024
+DefaultBandwidth = 256 
+
+[Entry core-0]
+Type = CPU
+Core = 0
+Thread = 0
+DataModule = mod-cpu-l1
+InstModule = mod-cpu-l1
