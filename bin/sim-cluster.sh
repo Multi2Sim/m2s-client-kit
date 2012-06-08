@@ -48,16 +48,17 @@ commands are:
 
           SERVER:~/m2s-server-kit/run/<cluster_name>
 
-  add <cluster> <job_name> <suite_bench> [<suite_bench2> [...]] [<options>]
+  add <cluster> <job_name> [<benchmarks>] [<options>]
       Add a new job to the cluster, where <job_name> is the identifier of the
       new job. This identifier can contain '/' characters. The folder in the
       server where the job will reside is
 
           SERVER:~/m2s-server-kit/run/<cluster_name>/<job_name>
       
-      Each element <suite_bench> is a benchmark to run as a different context of
-      the same simulation. <suite_bench> is given as <suite>/<benchmark>, i.e.,
-      the benchmark suite followed by the benchmark, separated with a '/'.
+      Argument <benchmarks> is a list of applications to run as different
+      contexts on the same simulation, passed as different sections of the
+      context configuration file of Multi2Sim. Each benchmarks should be given
+      as <suite>/<benchmark>. For example: AMDAPP-2.5/MatrixMultiplication.
       Suites and benchmarks should be given as they appear in folder
 
           SERVER:~/m2s-server-kit/benchmarks
@@ -350,10 +351,10 @@ then
 	done
 
 	# Get arguments
-	if [ $# -lt 3 ]
+	if [ $# -lt 2 ]
 	then
-		echo -n >&2 "syntax: add <cluster_name> <job_name> <suite_bench>"
-		echo >&2 " [<suite_bench2> [...]] [<options>]"
+		echo -n >&2 "syntax: add <cluster_name> <job_name>"
+		echo >&2 " [<benchmarks>] [<options>]"
 		exit 1
 	fi
 	cluster_name=$1
@@ -500,7 +501,7 @@ then
 		# Unpack server package
 		server_package="$HOME/'$M2S_SERVER_KIT_TMP_PATH'/sim-cluster.tar.gz"
 		cd $HOME/'$M2S_SERVER_KIT_TMP_PATH' && \
-			tar -xzf $server_package > /dev/null 2>&1 || exit 1
+			tar -xzmf $server_package > /dev/null 2>&1 || exit 1
 		rm -f $server_package
 
 		# Initialize
@@ -1013,7 +1014,7 @@ then
 				"\(.*/sim.err$\)\|\(.*/report-[^/]*$\)\|\(.*/sim.out$\)\|\(.*/sim.ref\)\|\(.*/-config$\)"` \
 				> /dev/null 2>&1 || exit 1
 		else
-			tar -czvf $package `find -not -regex "\(.*\/\..*\)"` \
+			tar -czf $package `find -not -regex "\(.*\/\..*\)"` \
 				> /dev/null 2>&1 || exit 1
 		fi
 	' || error "could not create package in server"
@@ -1030,7 +1031,7 @@ then
 		>/dev/null 2>&1 || error "could not import package"
 
 	# Unpack in client
-	tar -xvf ${cluster_name}-report.tar.gz \
+	tar -xzmvf ${cluster_name}-report.tar.gz \
 		>/dev/null 2>&1 || error "could not unpack"
 	rm -f ${cluster_name}-report.tar.gz
 

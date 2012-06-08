@@ -1,0 +1,27 @@
+# L1-1 performs a load on a value that is modified in L1-0
+
+# Directory structures
+# L1 is 128 sets, 4 ways
+# L2 is 1024 sets, 32 ways
+# MM is 128 sets, 8 ways
+
+[Commands]
+Command[0] = SetBlock mod-cpu0-l1 0 3 0x0 M
+Command[1] = SetBlock mod-cpu0-l2 0 31 0x0 E
+Command[2] = SetOwner mod-cpu0-l2 0 31 0 mod-cpu0-l1
+Command[3] = SetSharers mod-cpu0-l2 0 31 0 mod-cpu0-l1
+Command[4] = SetBlock mod-cpu-mm 0 7 0x0 E
+Command[5] = SetOwner mod-cpu-mm 0 7 0 mod-cpu0-l2
+Command[6] = SetSharers mod-cpu-mm 0 7 0 mod-cpu0-l2
+Command[7] = Access mod-cpu1-l1 LOAD 0x0
+Command[8] = CheckBlock mod-cpu0-l1 0 3 0x0 S
+Command[9] = CheckBlock mod-cpu1-l1 0 3 0x0 S
+Command[10] = CheckBlock mod-cpu0-l2 0 31 0x0 O
+Command[11] = CheckBlock mod-cpu1-l2 0 31 0x0 S
+Command[12] = CheckBlock mod-cpu-mm 0 7 0x0 E
+# L1-0, L1-1, L2-0, and L2-1 are sharers
+Command[13] = CheckSharers mod-cpu0-l2 0 31 0 mod-cpu0-l1
+Command[14] = CheckSharers mod-cpu1-l2 0 31 0 mod-cpu1-l1
+Command[15] = CheckSharers mod-cpu-mm 0 7 0 mod-cpu0-l2 mod-cpu1-l2
+Command[16] = CheckOwner mod-cpu-mm 0 7 0 mod-cpu0-l2
+Command[16] = CheckOwner mod-cpu0-l2 0 31 0 NONE

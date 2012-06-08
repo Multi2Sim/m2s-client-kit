@@ -1,0 +1,24 @@
+; L1-1 performs a load on a value that is exclusive in L1-0
+
+; Directory configuration
+; L1: 128 sets, 2 ways
+; L2: 512 sets, 4 ways
+; MM: 128 sets, 8 ways
+
+[Commands]
+Command[0] = SetBlock mod-cpu-l1-0 0 1 0x0 E
+Command[1] = SetBlock mod-cpu-l2 0 3 0x0 E
+Command[2] = SetBlock mod-cpu-mm 0 7 0x0 E
+Command[3] = SetOwner mod-cpu-l2 0 3 0 mod-cpu-l1-0
+Command[4] = SetSharers mod-cpu-l2 0 3 0 mod-cpu-l1-0
+Command[5] = SetOwner mod-cpu-mm 0 7 0 mod-cpu-l2
+Command[6] = SetSharers mod-cpu-mm 0 7 0 mod-cpu-l2
+Command[7] = Access mod-cpu-l1-1 LOAD 0x0
+Command[8] = CheckBlock mod-cpu-l1-0 0 1 0x0 S
+Command[9] = CheckBlock mod-cpu-l1-1 0 1 0x0 S
+Command[10] = CheckBlock mod-cpu-l2 0 3 0x0 E
+Command[11] = CheckBlock mod-cpu-mm 0 7 0x0 E
+Command[12] = CheckSharers mod-cpu-l2 0 3 0 mod-cpu-l1-0 mod-cpu-l1-1
+Command[13] = CheckSharers mod-cpu-mm 0 7 0 mod-cpu-l2
+Command[14] = CheckOwner mod-cpu-l2 0 3 0 None
+Command[15] = CheckOwner mod-cpu-mm 0 7 0 mod-cpu-l2
