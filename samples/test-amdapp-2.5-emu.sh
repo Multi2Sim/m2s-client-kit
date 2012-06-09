@@ -89,9 +89,113 @@ then
 	# Create cluster
 	$sim_cluster_sh create $cluster_name || exit 1
 
+	# BinarySearch
+	bench_name="BinarySearch"
+	size_list="2048 4096 8192 16384 32768 65536 131072 262144"
+	size_index=0
+	for size in $size_list
+	do
+		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+			AMDAPP-2.5/$bench_name \
+			--bench-arg "-x $size -q -e" \
+			|| exit 1
+		size_index=`expr $size_index + 1`
+	done
+
+	# BinomialOption
+	bench_name="BinomialOption"
+	size_list="128 192 256 320 384 512 640"
+	size_index=0
+	for size in $size_list
+	do
+		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+			AMDAPP-2.5/$bench_name \
+			--bench-arg "-x $size -q -e" \
+			|| exit 1
+		size_index=`expr $size_index + 1`
+	done
+
+	# BitonicSort
+	bench_name="BitonicSort"
+	size_list="1024 2048 3072 4096 5120 7168 8192 10240"
+	size_index=0
+	for size in $size_list
+	do
+		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+			AMDAPP-2.5/$bench_name \
+			--bench-arg "-x $size -q -e" \
+			|| exit 1
+		size_index=`expr $size_index + 1`
+	done
+	
+	# DCT
+	bench_name="DCT"
+	size_list="128 256 512 768 896 1024 1280"
+	size_index=0
+	for size in $size_list
+	do
+		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+			AMDAPP-2.5/$bench_name \
+			--bench-arg "-x $size -y $size -q -e" \
+			|| exit 1
+		size_index=`expr $size_index + 1`
+	done
+
+	# DwtHaar1D
+	bench_name="DwtHaar1D"
+	size_list="2048 4096 8192 16384 32768 65536 131072"
+	size_index=0
+	for size in $size_list
+	do
+		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+			AMDAPP-2.5/$bench_name \
+			--bench-arg "-x $size -q -e" \
+			|| exit 1
+		size_index=`expr $size_index + 1`
+	done
+
+	# FastWalshTransform
+	bench_name="FastWalshTransform"
+	size_list="2048 4096 16384 32768 65536 131072 524288"
+	size_index=0
+	for size in $size_list
+	do
+		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+			AMDAPP-2.5/$bench_name \
+			--bench-arg "-x $size -q -e" \
+			|| exit 1
+		size_index=`expr $size_index + 1`
+	done
+
+	# FloydWarshall
+	bench_name="FloydWarshall"
+	size_list="64 128 256 512"
+	size_index=0
+	for size in $size_list
+	do
+		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+			AMDAPP-2.5/$bench_name \
+			--bench-arg "-x $size -q -e" \
+			|| exit 1
+		size_index=`expr $size_index + 1`
+	done
+
+	# Histogram
+	bench_name="Histogram"
+	size_list="256 512 768 1024 1152 1280 2048 2560"
+	size_index=0
+	for size in $size_list
+	do
+		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+			AMDAPP-2.5/$bench_name \
+			--bench-arg "-x $size -y $size -q -e" \
+			|| exit 1
+		size_index=`expr $size_index + 1`
+	done
+	
 	# MatrixMultiplication
 	bench_name="MatrixMultiplication"
-	size_list="16 32 64 128 256 512"
+	size_list="16 32 64 128 256 512 1024"
 	size_index=0
 	for size in $size_list
 	do
@@ -115,6 +219,101 @@ then
 		size_index=`expr $size_index + 1`
 	done
 
+	# PrefixSum
+	bench_name="PrefixSum"
+	size_list="16384 32768 65536 131072 524288 1048576"
+	size_index=0
+	for size in $size_list
+	do
+		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+			AMDAPP-2.5/$bench_name \
+			--bench-arg "-x $size -q -e" \
+			|| exit 1
+		size_index=`expr $size_index + 1`
+	done
+
+
+	# RadixSort
+	bench_name="RadixSort"
+	size_list="512000 1024000 1536000 2048000 2560000"
+	size_index=0
+	for size in $size_list
+	do
+		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+			AMDAPP-2.5/$bench_name \
+			--bench-arg "-x $size -q -e" \
+			|| exit 1
+		size_index=`expr $size_index + 1`
+	done
+
+	# RecursiveGaussian
+	bench_name="RecursiveGaussian"
+	size_list="1 2 3 4 5 6 7 8 9 10"
+	size_index=0
+	for size in $size_list
+	do
+		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+			AMDAPP-2.5/$bench_name \
+			--bench-arg "-x $size -q -e" \
+			|| exit 1
+		size_index=`expr $size_index + 1`
+	done
+
+	# Reduction
+	bench_name="Reduction"
+	size_list="409600 819200 1228800 1638400 2048000 3276800 4096000"
+	size_index=0
+	for size in $size_list
+	do
+		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+			AMDAPP-2.5/$bench_name \
+			--bench-arg "-x $size -q -e" \
+			|| exit 1
+		size_index=`expr $size_index + 1`
+	done
+	
+	# ScanLargeArrays
+	bench_name="ScanLargeArrays"
+	size_list="1024 2048 4096 8192 16384 32768 65536 131072 262144"
+	size_index=0
+	for size in $size_list
+	do
+		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+			AMDAPP-2.5/$bench_name \
+			--bench-arg "-x $size -q -e" \
+			|| exit 1
+		size_index=`expr $size_index + 1`
+	done
+
+	
+	# SobelFilter
+	bench_name="SobelFilter"
+	size_list="1 2 3 4 5 6 7 8 9 10"
+	size_index=0
+	for size in $size_list
+	do
+		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+			AMDAPP-2.5/$bench_name \
+			--bench-arg "-x $size -q -e" \
+			|| exit 1
+		size_index=`expr $size_index + 1`
+	done
+
+	# URNG
+	bench_name="URNG"
+	size_list="1 2 3 4 5 6 7 8 9 10"
+	size_index=0
+	for size in $size_list
+	do
+		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+			AMDAPP-2.5/$bench_name \
+			--bench-arg "-x $size -q -e" \
+			|| exit 1
+		size_index=`expr $size_index + 1`
+	done			
+	
+	
+	
 	# Submit cluster
 	$sim_cluster_sh submit $cluster_name $server_port \
 		$revision_arg $configure_args_arg \
