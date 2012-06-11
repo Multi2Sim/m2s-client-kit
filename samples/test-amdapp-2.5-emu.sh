@@ -207,7 +207,7 @@ then
 	
 	# MatrixMultiplication
 	bench_name="MatrixMultiplication"
-	size_list="16 32 64 128 256 512 1024"
+	size_list="16 32 64 128 256 512"
 	size_index=0
 	for size in $size_list
 	do
@@ -399,7 +399,7 @@ then
 		fi
 
 		# Look for 'Failed'/'Error' in simulation output
-		grep -i "\(^Failed\)\|\(^Error\)" $sim_out > /dev/null 2>&1
+		grep -i "\(^[ ]*Failed\)\|\(^[ ]*Error\)" $sim_out > /dev/null 2>&1
 		retval=$?
 		if [ "$retval" == 0 ]
 		then
