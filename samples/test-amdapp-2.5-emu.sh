@@ -127,7 +127,19 @@ then
 			|| exit 1
 		size_index=`expr $size_index + 1`
 	done
-	
+
+	# BlackScholes
+	bench_name="BlackScholes"
+	size_list="262144 1048576 8388608"
+	size_index=0
+	for size in $size_list
+	do
+		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+			AMDAPP-2.5/$bench_name \
+			--bench-arg "-x $size -q -e" \
+			|| exit 1
+		size_index=`expr $size_index + 1`
+	done	
 	# DCT
 	bench_name="DCT"
 	size_list="128 256 512 768 896 1024 1280"
