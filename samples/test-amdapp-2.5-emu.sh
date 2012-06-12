@@ -7,7 +7,7 @@ M2S_CLIENT_KIT_DOC_PATH="$M2S_CLIENT_KIT_PATH/doc"
 
 prog_name=`echo $0 | awk -F/ '{ print $NF }'`
 sim_cluster_sh="$HOME/$M2S_CLIENT_KIT_BIN_PATH/sim-cluster.sh"
-
+inifile_py="$HOME/$M2S_CLIENT_KIT_BIN_PATH/inifile.py"
 
 cluster_name="amdapp-2.5-emu"
 
@@ -374,6 +374,15 @@ then
 			|| exit 1
 	fi
 
+	# Get list of benchmarks
+	cd $cluster_path
+	bench_list=
+	dir_list=`find -maxdepth 1 -type d -regex "\./.*" | sort`
+	for dir in $dir_list
+	do
+		bench_list="$bench_list ${dir:2}"
+	done
+
 	# Get list of jobs
 	job_list=`$sim_cluster_sh list $cluster_name` || exit 1
 
@@ -382,6 +391,7 @@ then
 	failed_count=0
 	crashed_count=0
 	unknown_count=0
+	exit_code=0
 	total=0
 	for job in $job_list
 	do
@@ -429,7 +439,176 @@ then
 	echo -n "$failed_count failed, "
 	echo -n "$crashed_count crashed, "
 	echo "$unknown_count unknown"
-	[ $total == $passed_count ] || exit 1
+	[ $total == $passed_count ] || exit_code=1
+
+
+	#
+	# Generate CPU/GPU cycles plot
+	#
+
+	# Create temporary files
+	inifile_script=`mktemp`
+	inifile_script_output=`mktemp`
+	cpu_time_list=`mktemp`
+	gpu_time_list=`mktemp`
+
+	# Iterate through benchmarks
+	for bench in $bench_list
+	do
+		# Reset statistic files
+		cpu_time_list=0
+		cpu_inst_list=0
+		gpu_time_list=0
+		gpu_inst_list=0
+
+		# Iterate through input sizes
+		temp=`mktemp`
+		input_size=-1
+		while true
+		do
+			# Input size directory
+			input_size=`expr $input_size + 1`
+			input_size_dir="$cluster_path/$bench/$input_size"
+			[ -d "$input_size_dir" ] || break
+
+			# Read results
+			sim_err="$input_size_dir/sim.err"
+			cp /dev/null $inifile_script
+			echo "read CPU Time 0" >> $inifile_script
+			echo "read CPU Instructions 0" >> $inifile_script
+			echo "read GPU Time 0" >> $inifile_script
+			echo "read GPU Instructions 0" >> $inifile_script
+			$inifile_py $sim_err run $inifile_script > $inifile_script_output
+			for i in 1
+			do
+				read cpu_time
+				read cpu_inst
+				read gpu_time
+				read gpu_inst
+			done < $inifile_script_output
+
+			# Add to lists
+			cpu_time_list="$cpu_time_list, $cpu_time"
+			cpu_inst_list="$cpu_inst_list, $cpu_inst"
+			gpu_time_list="$gpu_time_list, $gpu_time"
+			gpu_inst_list="$gpu_inst_list, $gpu_inst"
+		done
+
+		python -c "
+import matplotlib.pyplot as plt
+
+
+#
+# CPU Emulation Time
+#
+
+cpu_time_list = [ $cpu_time_list ]
+cpu_time_list.pop(0)
+
+fig = plt.gcf()
+fig.set_size_inches(4.0, 2.5)
+
+plt.plot([ $cpu_time_list ], 'bo-')
+plt.title('CPU Emulation Time')
+plt.xlabel('Problem Size')
+plt.ylabel('Time (s)')
+plt.margins(0.05, 0)
+plt.grid(True)
+plt.savefig('$cluster_path/$bench/cpu-time.png', dpi=100, bbox_inches='tight')
+
+
+#
+# CPU Instructions
+#
+
+cpu_inst_list = [ $cpu_inst_list ]
+cpu_inst_list.pop(0)
+cpu_inst_list[:] = [ x / 1000 for x in cpu_inst_list ]
+
+plt.clf()
+plt.plot([ $cpu_inst_list ], 'bo-')
+plt.title('CPU Emulated Instructions')
+plt.xlabel('Problem Size')
+plt.ylabel('Instructions (x 1k)')
+plt.margins(0.05, 0)
+plt.grid(True)
+plt.savefig('$cluster_path/$bench/cpu-inst.png', dpi=100, bbox_inches='tight')
+
+
+#
+# GPU Emulation Time
+#
+
+gpu_time_list = [ $gpu_time_list ]
+gpu_time_list.pop(0)
+
+plt.clf()
+plt.plot([ $gpu_time_list ], 'bo-')
+plt.title('GPU Emulation Time')
+plt.xlabel('Problem Size')
+plt.ylabel('Time (s)')
+plt.margins(0.05, 0)
+plt.grid(True)
+plt.savefig('$cluster_path/$bench/gpu-time.png', dpi=100, bbox_inches='tight')
+
+
+#
+# GPU Instructions
+#
+
+gpu_inst_list = [ $gpu_inst_list ]
+gpu_inst_list.pop(0)
+gpu_inst_list[:] = [ x / 1000 for x in gpu_inst_list ]
+
+plt.clf()
+plt.plot([ $gpu_inst_list ], 'bo-')
+plt.title('GPU Emulated Instructions')
+plt.xlabel('Problem Size')
+plt.ylabel('Instructions (x 1k)')
+plt.margins(0.05, 0)
+plt.grid(True)
+plt.savefig('$cluster_path/$bench/gpu-inst.png', dpi=100, bbox_inches='tight')
+		"
+
+	done
+	
+	# Remove temporary file
+	rm -f $inifile_script_output
+	rm -f $inifile_script
+	rm -f $cpu_time_list
+	rm -f $gpu_time_list
+
+
+
+	#
+	# Create HTML report
+	#
+
+	# Header
+	html_file="$cluster_path/report.html"
+	cp /dev/null $html_file
+	echo "<html><body>" >> $html_file
+	echo "<h1>Report for '$cluster_name'</h1>" >> $html_file
+
+	# Benchmarks
+	for bench in $bench_list
+	do
+		echo "<h2>$bench</h2>" >> $html_file
+		echo "<img src=\"$cluster_path/$bench/cpu-time.png\" width=300px/>" >> $html_file
+		echo "<img src=\"$cluster_path/$bench/cpu-inst.png\" width=300px/>" >> $html_file
+		echo "<img src=\"$cluster_path/$bench/gpu-time.png\" width=300px/>" >> $html_file
+		echo "<img src=\"$cluster_path/$bench/gpu-inst.png\" width=300px/>" >> $html_file
+	done
+
+	# End
+	echo "</body></html>" >> $html_file
+
+
+	#
+	# Exit code
+	#
+
+	exit $exit_code
 
 elif [ "$command" == remove ]
 then
