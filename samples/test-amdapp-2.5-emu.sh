@@ -396,6 +396,11 @@ then
 		bench_list="$bench_list ${dir:2}"
 	done
 
+
+	#
+	# Verification of Emulation
+	#
+
 	# Get list of jobs
 	job_list=`$sim_cluster_sh list $cluster_name` || exit 1
 
@@ -462,8 +467,6 @@ then
 	# Create temporary files
 	inifile_script=`mktemp`
 	inifile_script_output=`mktemp`
-	cpu_time_list=`mktemp`
-	gpu_time_list=`mktemp`
 
 	# Iterate through benchmarks
 	for bench in $bench_list
@@ -475,7 +478,6 @@ then
 		gpu_inst_list=0
 
 		# Iterate through input sizes
-		temp=`mktemp`
 		input_size=-1
 		while true
 		do
@@ -521,7 +523,7 @@ cpu_time_list.pop(0)
 fig = plt.gcf()
 fig.set_size_inches(4.0, 2.5)
 
-plt.plot([ $cpu_time_list ], 'bo-')
+plt.plot(cpu_time_list, 'bo-')
 plt.title('CPU Emulation Time')
 plt.xlabel('Problem Size')
 plt.ylabel('Time (s)')
@@ -539,7 +541,7 @@ cpu_inst_list.pop(0)
 cpu_inst_list[:] = [ x / 1000 for x in cpu_inst_list ]
 
 plt.clf()
-plt.plot([ $cpu_inst_list ], 'bo-')
+plt.plot(cpu_inst_list, 'bo-')
 plt.title('CPU Emulated Instructions')
 plt.xlabel('Problem Size')
 plt.ylabel('Instructions (x 1k)')
@@ -556,7 +558,7 @@ gpu_time_list = [ $gpu_time_list ]
 gpu_time_list.pop(0)
 
 plt.clf()
-plt.plot([ $gpu_time_list ], 'bo-')
+plt.plot(gpu_time_list, 'bo-')
 plt.title('GPU Emulation Time')
 plt.xlabel('Problem Size')
 plt.ylabel('Time (s)')
@@ -574,7 +576,7 @@ gpu_inst_list.pop(0)
 gpu_inst_list[:] = [ x / 1000 for x in gpu_inst_list ]
 
 plt.clf()
-plt.plot([ $gpu_inst_list ], 'bo-')
+plt.plot(gpu_inst_list, 'bo-')
 plt.title('GPU Emulated Instructions')
 plt.xlabel('Problem Size')
 plt.ylabel('Instructions (x 1k)')
@@ -588,8 +590,6 @@ plt.savefig('$cluster_path/$bench/gpu-inst.png', dpi=100, bbox_inches='tight')
 	# Remove temporary file
 	rm -f $inifile_script_output
 	rm -f $inifile_script
-	rm -f $cpu_time_list
-	rm -f $gpu_time_list
 
 
 
