@@ -12,7 +12,9 @@ M2S_SERVER_KIT_TMP_PATH="$M2S_SERVER_KIT_PATH/tmp"
 M2S_SERVER_KIT_BENCH_PATH="$M2S_SERVER_KIT_PATH/benchmarks"
 M2S_SERVER_KIT_M2S_BIN_PATH="$M2S_SERVER_KIT_TMP_PATH/m2s-bin"
 
+sim_cluster_sh="$HOME/$M2S_CLIENT_KIT_BIN_PATH/sim-cluster.sh"
 inifile_py="$HOME/$M2S_CLIENT_KIT_BIN_PATH/inifile.py"
+
 inifile="$HOME/$M2S_CLIENT_KIT_TMP_PATH/sim-cluster.ini"
 
 prog_name=`echo $0 | awk -F/ '{ print $NF }'`
@@ -1108,7 +1110,7 @@ then
 		total=`echo "$cluster_list" | wc -w`
 		for cluster in $cluster_list
 		do
-			state=`$prog_name state $cluster` || exit 1
+			state=`$sim_cluster_sh state $cluster` || exit 1
 			if [ "$state" == "Created" ]
 			then
 				created_count=`expr $created_count + 1`
