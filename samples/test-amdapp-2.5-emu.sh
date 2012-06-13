@@ -128,6 +128,19 @@ then
 		size_index=`expr $size_index + 1`
 	done
 
+	# BoxFilter
+	bench_name="BoxFilter"
+	size_list="1"
+	size_index=0
+	for size in $size_list
+	do
+		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+			AMDAPP-2.5/$bench_name \
+			--bench-arg " -q -e" \
+			|| exit 1
+		size_index=`expr $size_index + 1`
+	done
+	
 	# BlackScholes
 	bench_name="BlackScholes"
 	size_list="262144 1048576 8388608"
