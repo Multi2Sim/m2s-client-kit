@@ -235,7 +235,7 @@ then
 	do
 		# Reset statistic files
 		cpu_time_list=0
-		cpu_inst_list=0
+		cpu_cycles_list=0
 
 		# Iterate through number of threads
 		for nthreads in $nthreads_list
@@ -245,17 +245,17 @@ then
 			sim_err="$job_dir/sim.err"
 			cp /dev/null $inifile_script
 			echo "read CPU Time 0" >> $inifile_script
-			echo "read CPU Instructions 0" >> $inifile_script
+			echo "read CPU Cycles 0" >> $inifile_script
 			$inifile_py $sim_err run $inifile_script > $inifile_script_output
 			for i in 1
 			do
 				read cpu_time
-				read cpu_inst
+				read cpu_cycles 
 			done < $inifile_script_output
 
 			# Add to lists
 			cpu_time_list="$cpu_time_list, $cpu_time"
-			cpu_inst_list="$cpu_inst_list, $cpu_inst"
+			cpu_cycles_list="$cpu_cycles_list, $cpu_cycles"
 		done
 
 		python -c "
@@ -263,11 +263,12 @@ import matplotlib.pyplot as plt
 
 
 #
-# CPU Emulation Time
+# CPU Emulation Time (for Multi2Sim)
 #
 
 cpu_time_list = [ $cpu_time_list ]
 cpu_time_list.pop(0)
+cpu_time_list[:] = [ x / 60 / 60 for x in cpu_time_list ]
 
 fig = plt.gcf()
 fig.set_size_inches(4.0, 2.5)
@@ -275,7 +276,7 @@ fig.set_size_inches(4.0, 2.5)
 plt.plot(cpu_time_list, 'bo-')
 plt.title('Emulation Time')
 plt.xlabel('Number of threads')
-plt.ylabel('Time (s)')
+plt.ylabel('Time (h)')
 plt.margins(0.05, 0)
 plt.grid(True)
 plt.ylim(ymin = 0)
@@ -284,23 +285,23 @@ plt.savefig('$cluster_path/$bench/cpu-time.png', dpi=100, bbox_inches='tight')
 
 
 #
-# CPU Instructions
+# Execution Time (for benchmark)
 #
 
-cpu_inst_list = [ $cpu_inst_list ]
-cpu_inst_list.pop(0)
-cpu_inst_list[:] = [ x / 1000000 for x in cpu_inst_list ]
+cpu_cycles_list = [ $cpu_cycles_list ]
+cpu_cycles_list.pop(0)
+cpu_cycles_list[:] = [ x / 1000000 for x in cpu_cycles_list ]
 
 plt.clf()
-plt.plot(cpu_inst_list, 'bo-')
+plt.plot(cpu_cycles_list, 'bo-')
 plt.title('x86 Instructions')
 plt.xlabel('Number of threads')
-plt.ylabel('Instructions (x 1M)')
+plt.ylabel('Cycles (x 1M)')
 plt.margins(0.05, 0)
 plt.grid(True)
 plt.ylim(ymin = 0)
 plt.xticks(range(len(cpu_time_list)), '$nthreads_list'.split())
-plt.savefig('$cluster_path/$bench/cpu-inst.png', dpi=100, bbox_inches='tight')
+plt.savefig('$cluster_path/$bench/cpu-cycles.png', dpi=100, bbox_inches='tight')
 "
 	done
 	
@@ -326,7 +327,7 @@ plt.savefig('$cluster_path/$bench/cpu-inst.png', dpi=100, bbox_inches='tight')
 	do
 		echo "<h2>$bench</h2>" >> $html_file
 		echo "<img src=\"$cluster_path/$bench/cpu-time.png\" width=300px/>" >> $html_file
-		echo "<img src=\"$cluster_path/$bench/cpu-inst.png\" width=300px/>" >> $html_file
+		echo "<img src=\"$cluster_path/$bench/cpu-cycles.png\" width=300px/>" >> $html_file
 	done
 
 	# End
