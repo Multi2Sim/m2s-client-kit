@@ -302,7 +302,7 @@ plt.grid(True)
 plt.ylim(ymin = 0)
 plt.xticks(range(len(cpu_time_list)), '$nthreads_list'.split())
 plt.savefig('$cluster_path/$bench/cpu-cycles.png', dpi=100, bbox_inches='tight')
-"
+" || exit 1
 	done
 	
 	# Remove temporary file

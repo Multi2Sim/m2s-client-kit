@@ -583,7 +583,7 @@ plt.ylabel('Instructions (x 1k)')
 plt.margins(0.05, 0)
 plt.grid(True)
 plt.savefig('$cluster_path/$bench/gpu-inst.png', dpi=100, bbox_inches='tight')
-		"
+" || exit 1
 
 	done
 	
