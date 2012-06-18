@@ -260,7 +260,7 @@ then
 
 	# RadixSort
 	bench_name="RadixSort"
-	size_list="512000 1024000 1536000 2048000 2560000"
+	size_list="8192 16384 32768 65536"
 	size_index=0
 	for size in $size_list
 	do
