@@ -273,7 +273,7 @@ plt.savefig('$cluster_path/$bench/cpu-time.png', dpi=100, bbox_inches='tight')
 
 cpu_inst_list = [ $cpu_inst_list ]
 cpu_inst_list.pop(0)
-cpu_inst_list[:] = [ x / 1000000 for x in cpu_inst_list ]
+cpu_inst_list[:] = [ x / 1.0e6 for x in cpu_inst_list ]
 
 plt.clf()
 plt.plot(cpu_inst_list, 'bo-')

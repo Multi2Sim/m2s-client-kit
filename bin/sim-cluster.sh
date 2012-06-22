@@ -646,12 +646,15 @@ then
 
 				# Create context_path
 				context_path="$job_path/ctx-$context_id"
-				mkdir -p $context_path || exit 1
+				mkdir -p $context_path || error "cannot create context directory"
 
 				# Copy data and executable
-				cp -r $bench_path/$data/* $context_path && \
-					cp $bench_path/$exe $context_path \
+				# Option "-C" in "rsync" automatically discards ".svn" directories.
+				rsync -aC $bench_path/$data/ $context_path/ \
 					|| error "cannot copy benchmark"
+					
+				#cp -r $bench_path/$data/* $context_path && \
+				#	cp $bench_path/$exe $context_path
 
 				# Add entry to context configuration file
 				echo "[ Context $context_id ]" >> $ctx_config_path
