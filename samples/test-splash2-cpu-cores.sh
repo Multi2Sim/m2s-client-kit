@@ -231,8 +231,15 @@ then
 	inifile_script_output=`mktemp`
 
 	# Iterate through benchmarks
+	bench_index=0
+	bench_count=`echo $bench_list | wc -w`
 	for bench in $bench_list
 	do
+		# Progress
+		bench_index=`expr $bench_index + 1`
+		progress=`expr $bench_index \* 100 / $bench_count`
+		echo -ne "\rPlotting ... ${progress}%"
+
 		# Reset statistic files
 		cpu_time_list=0
 		cpu_cycles_list=0
@@ -290,7 +297,7 @@ plt.savefig('$cluster_path/$bench/cpu-time.png', dpi=100, bbox_inches='tight')
 
 cpu_cycles_list = [ $cpu_cycles_list ]
 cpu_cycles_list.pop(0)
-cpu_cycles_list[:] = [ x / 1000000 for x in cpu_cycles_list ]
+cpu_cycles_list[:] = [ x / 1000000.0 for x in cpu_cycles_list ]
 
 plt.clf()
 plt.plot(cpu_cycles_list, 'bo-')
@@ -308,6 +315,7 @@ plt.savefig('$cluster_path/$bench/cpu-cycles.png', dpi=100, bbox_inches='tight')
 	# Remove temporary file
 	rm -f $inifile_script_output
 	rm -f $inifile_script
+	echo
 
 
 
