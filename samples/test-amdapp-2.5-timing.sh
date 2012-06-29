@@ -4,6 +4,7 @@ M2S_CLIENT_KIT_PATH="m2s-client-kit"
 M2S_CLIENT_KIT_BIN_PATH="$M2S_CLIENT_KIT_PATH/bin"
 M2S_CLIENT_KIT_RESULT_PATH="$M2S_CLIENT_KIT_PATH/result"
 M2S_CLIENT_KIT_DOC_PATH="$M2S_CLIENT_KIT_PATH/doc"
+M2S_CLIENT_KIT_TMP_PATH="$M2S_CLIENT_KIT_PATH/tmp"
 
 prog_name=`echo $0 | awk -F/ '{ print $NF }'`
 sim_cluster_sh="$HOME/$M2S_CLIENT_KIT_BIN_PATH/sim-cluster.sh"
@@ -42,6 +43,37 @@ function error()
 {
 	echo -e "\nerror: $1\n" >&2
 	exit 1
+}
+
+
+# List subdirectories in path "$1" of level "$2"
+list_dirs()
+{
+        local path=$1
+        local level=$2
+        local dirs=
+        local i x found
+        local fulldirs=$(find $path -mindepth $level -maxdepth $level -type d)
+        
+	for i in $fulldirs
+	do
+                i=$(echo $i | awk -F/ '{print $NF}')
+                found=0
+
+                for x in $dirs
+		do
+                        if [ $x == $i ]
+			then
+				found=1
+			fi
+                done
+
+                if [ $found == 0 ]
+		then
+			dirs="$dirs $i"
+			echo $i
+		fi
+        done
 }
 
 
@@ -87,311 +119,265 @@ then
 	# Create cluster
 	$sim_cluster_sh create $cluster_name || exit 1
 
-	# BinarySearch
-	bench_name="BinarySearch"
-	size_list="2048 4096 8192 16384 32768 65536 131072 262144"
-	size_index=0
-	for size in $size_list
-	do
-		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			AMDAPP-2.5/$bench_name \
-			--sim-arg "--gpu-sim detailed" \
-			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
-			--sim-arg "--report-mem report-mem" \
-			--bench-arg "-x $size -q -e" \
-			|| exit 1
-		size_index=`expr $size_index + 1`
-	done
 
-	# BinomialOption
-	bench_name="BinomialOption"
-	size_list="128 192 256 320 384 512 640"
-	size_index=0
-	for size in $size_list
+	# Add jobs
+	num_compute_units_list="2 4 6 8 10 12 14 16 18 20"
+	for num_compute_units in $num_compute_units_list
 	do
-		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			AMDAPP-2.5/$bench_name \
-			--sim-arg "--gpu-sim detailed" \
-			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
-			--sim-arg "--report-mem report-mem" \
-			--bench-arg "-x $size -q -e" \
-			|| exit 1
-		size_index=`expr $size_index + 1`
-	done
+		# Create configuration file
+		gpu_config="$HOME/$M2S_CLIENT_KIT_TMP_PATH/gpu-config"
+		cp /dev/null $gpu_config || exit 1
+		echo "[ Device ]" >> $gpu_config
+		echo "NumComputeUnits = $num_compute_units" >> $gpu_config
 
-	# BitonicSort
-	bench_name="BitonicSort"
-	size_list="1024 2048 3072 4096 5120 7168 8192 10240"
-	size_index=0
-	for size in $size_list
-	do
-		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+		# BinarySearch
+		bench_name="BinarySearch"
+		size="2097152"
+		$sim_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			AMDAPP-2.5/$bench_name \
 			--sim-arg "--gpu-sim detailed" \
+			--sim-arg "--gpu-config gpu-config" \
 			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
 			--sim-arg "--report-mem report-mem" \
-			--bench-arg "-x $size -q -e" \
+			--bench-arg "-x $size -q" \
+			--send "$gpu_config" \
 			|| exit 1
-		size_index=`expr $size_index + 1`
-	done
-
-	# BoxFilter
-	bench_name="BoxFilter"
-	size_list="1"
-	size_index=0
-	for size in $size_list
-	do
-		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			AMDAPP-2.5/$bench_name \
-			--sim-arg "--gpu-sim detailed" \
-			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
-			--sim-arg "--report-mem report-mem" \
-			--bench-arg " -q -e" \
-			|| exit 1
-		size_index=`expr $size_index + 1`
-	done
 	
-	# BlackScholes
-	bench_name="BlackScholes"
-	size_list="262144 1048576 8388608"
-	size_index=0
-	for size in $size_list
-	do
-		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+		# BinomialOption
+		bench_name="BinomialOption"
+		size="128"
+		$sim_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			AMDAPP-2.5/$bench_name \
 			--sim-arg "--gpu-sim detailed" \
+			--sim-arg "--gpu-config gpu-config" \
 			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
 			--sim-arg "--report-mem report-mem" \
-			--bench-arg "-x $size -q -e" \
+			--bench-arg "-x $size -q" \
+			--send "$gpu_config" \
 			|| exit 1
-		size_index=`expr $size_index + 1`
+	
+		# BitonicSort
+		bench_name="BitonicSort"
+		size="1024"
+		$sim_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
+			AMDAPP-2.5/$bench_name \
+			--sim-arg "--gpu-sim detailed" \
+			--sim-arg "--gpu-config gpu-config" \
+			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
+			--sim-arg "--report-mem report-mem" \
+			--bench-arg "-x $size -q" \
+			--send "$gpu_config" \
+			|| exit 1
+	
+		# BlackScholes
+		bench_name="BlackScholes"
+		size="1048576"
+		$sim_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
+			AMDAPP-2.5/$bench_name \
+			--sim-arg "--gpu-sim detailed" \
+			--sim-arg "--gpu-config gpu-config" \
+			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
+			--sim-arg "--report-mem report-mem" \
+			--bench-arg "-x $size -q" \
+			--send "$gpu_config" \
+			|| exit 1
+	
+		# BoxFilter
+		#bench_name="BoxFilter"
+		#size="1"
+		#$sim_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
+		#	AMDAPP-2.5/$bench_name \
+		#	--sim-arg "--gpu-sim detailed" \
+		#	--sim-arg "--gpu-config gpu-config" \
+		#	--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
+		#	--sim-arg "--report-mem report-mem" \
+		#	--bench-arg " -q" \
+		#	--send "$gpu_config" \
+		#	|| exit 1
+		
+		# DCT
+		bench_name="DCT"
+		size="512"
+		$sim_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
+			AMDAPP-2.5/$bench_name \
+			--sim-arg "--gpu-sim detailed" \
+			--sim-arg "--gpu-config gpu-config" \
+			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
+			--sim-arg "--report-mem report-mem" \
+			--bench-arg "-x $size -y $size -q" \
+			--send "$gpu_config" \
+			|| exit 1
+	
+		# DwtHaar1D
+		bench_name="DwtHaar1D"
+		size="131072"
+		$sim_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
+			AMDAPP-2.5/$bench_name \
+			--sim-arg "--gpu-sim detailed" \
+			--sim-arg "--gpu-config gpu-config" \
+			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
+			--sim-arg "--report-mem report-mem" \
+			--bench-arg "-x $size -q" \
+			--send "$gpu_config" \
+			|| exit 1
+	
+		# FastWalshTransform
+		bench_name="FastWalshTransform"
+		size="262144"
+		$sim_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
+			AMDAPP-2.5/$bench_name \
+			--sim-arg "--gpu-sim detailed" \
+			--sim-arg "--gpu-config gpu-config" \
+			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
+			--sim-arg "--report-mem report-mem" \
+			--bench-arg "-x $size -q" \
+			--send "$gpu_config" \
+			|| exit 1
+	
+		# FloydWarshall
+		bench_name="FloydWarshall"
+		size="128"
+		$sim_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
+			AMDAPP-2.5/$bench_name \
+			--sim-arg "--gpu-sim detailed" \
+			--sim-arg "--gpu-config gpu-config" \
+			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
+			--sim-arg "--report-mem report-mem" \
+			--bench-arg "-x $size -q" \
+			--send "$gpu_config" \
+			|| exit 1
+	
+		# Histogram
+		bench_name="Histogram"
+		size="1792"
+		$sim_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
+			AMDAPP-2.5/$bench_name \
+			--sim-arg "--gpu-sim detailed" \
+			--sim-arg "--gpu-config gpu-config" \
+			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
+			--sim-arg "--report-mem report-mem" \
+			--bench-arg "-x $size -y $size -q" \
+			--send "$gpu_config" \
+			|| exit 1
+		
+		# MatrixMultiplication
+		bench_name="MatrixMultiplication"
+		size="256"
+		$sim_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
+			AMDAPP-2.5/$bench_name \
+			--sim-arg "--gpu-sim detailed" \
+			--sim-arg "--gpu-config gpu-config" \
+			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
+			--sim-arg "--report-mem report-mem" \
+			--bench-arg "-x $size -y $size -z $size -q" \
+			--send "$gpu_config" \
+			|| exit 1
+	
+		# MatrixTranspose
+		bench_name="MatrixTranspose"
+		size="1024"
+		$sim_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
+			AMDAPP-2.5/$bench_name \
+			--sim-arg "--gpu-sim detailed" \
+			--sim-arg "--gpu-config gpu-config" \
+			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
+			--sim-arg "--report-mem report-mem" \
+			--bench-arg "-x $size -y $size -q" \
+			--send "$gpu_config" \
+			|| exit 1
+	
+		# PrefixSum
+		bench_name="PrefixSum"
+		size="16384"
+		$sim_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
+			AMDAPP-2.5/$bench_name \
+			--sim-arg "--gpu-sim detailed" \
+			--sim-arg "--gpu-config gpu-config" \
+			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
+			--sim-arg "--report-mem report-mem" \
+			--bench-arg "-x $size -q" \
+			--send "$gpu_config" \
+			|| exit 1
+	
+		# RadixSort
+		bench_name="RadixSort"
+		size="65536"
+		$sim_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
+			AMDAPP-2.5/$bench_name \
+			--sim-arg "--gpu-sim detailed" \
+			--sim-arg "--gpu-config gpu-config" \
+			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
+			--sim-arg "--report-mem report-mem" \
+			--bench-arg "-x $size -q" \
+			--send "$gpu_config" \
+			|| exit 1
+	
+		# RecursiveGaussian
+		bench_name="RecursiveGaussian"
+		size="3"
+		$sim_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
+			AMDAPP-2.5/$bench_name \
+			--sim-arg "--gpu-sim detailed" \
+			--sim-arg "--gpu-config gpu-config" \
+			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
+			--sim-arg "--report-mem report-mem" \
+			--bench-arg "-x $size -q" \
+			--send "$gpu_config" \
+			|| exit 1
+	
+		# Reduction
+		bench_name="Reduction"
+		size="1638400"
+		$sim_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
+			AMDAPP-2.5/$bench_name \
+			--sim-arg "--gpu-sim detailed" \
+			--sim-arg "--gpu-config gpu-config" \
+			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
+			--sim-arg "--report-mem report-mem" \
+			--bench-arg "-x $size -q" \
+			--send "$gpu_config" \
+			|| exit 1
+		
+		# ScanLargeArrays
+		bench_name="ScanLargeArrays"
+		size="262144"
+		$sim_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
+			AMDAPP-2.5/$bench_name \
+			--sim-arg "--gpu-sim detailed" \
+			--sim-arg "--gpu-config gpu-config" \
+			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
+			--sim-arg "--report-mem report-mem" \
+			--bench-arg "-x $size -q" \
+			--send "$gpu_config" \
+			|| exit 1
+	
+		
+		# SobelFilter
+		bench_name="SobelFilter"
+		size="5"
+		$sim_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
+			AMDAPP-2.5/$bench_name \
+			--sim-arg "--gpu-sim detailed" \
+			--sim-arg "--gpu-config gpu-config" \
+			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
+			--sim-arg "--report-mem report-mem" \
+			--bench-arg "-x $size -q" \
+			--send "$gpu_config" \
+			|| exit 1
+	
+		# URNG
+		bench_name="URNG"
+		size="2"
+		$sim_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
+			AMDAPP-2.5/$bench_name \
+			--sim-arg "--gpu-sim detailed" \
+			--sim-arg "--gpu-config gpu-config" \
+			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
+			--sim-arg "--report-mem report-mem" \
+			--bench-arg "-x $size -q" \
+			--send "$gpu_config" \
+			|| exit 1
 	done	
-	# DCT
-	bench_name="DCT"
-	size_list="128 256 512 768 896 1024 1280"
-	size_index=0
-	for size in $size_list
-	do
-		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			AMDAPP-2.5/$bench_name \
-			--sim-arg "--gpu-sim detailed" \
-			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
-			--sim-arg "--report-mem report-mem" \
-			--bench-arg "-x $size -y $size -q -e" \
-			|| exit 1
-		size_index=`expr $size_index + 1`
-	done
-
-	# DwtHaar1D
-	bench_name="DwtHaar1D"
-	size_list="2048 4096 8192 16384 32768 65536 131072"
-	size_index=0
-	for size in $size_list
-	do
-		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			AMDAPP-2.5/$bench_name \
-			--sim-arg "--gpu-sim detailed" \
-			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
-			--sim-arg "--report-mem report-mem" \
-			--bench-arg "-x $size -q -e" \
-			|| exit 1
-		size_index=`expr $size_index + 1`
-	done
-
-	# FastWalshTransform
-	bench_name="FastWalshTransform"
-	size_list="2048 4096 16384 32768 65536 131072 524288"
-	size_index=0
-	for size in $size_list
-	do
-		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			AMDAPP-2.5/$bench_name \
-			--sim-arg "--gpu-sim detailed" \
-			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
-			--sim-arg "--report-mem report-mem" \
-			--bench-arg "-x $size -q -e" \
-			|| exit 1
-		size_index=`expr $size_index + 1`
-	done
-
-	# FloydWarshall
-	bench_name="FloydWarshall"
-	size_list="64 128 256 512"
-	size_index=0
-	for size in $size_list
-	do
-		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			AMDAPP-2.5/$bench_name \
-			--sim-arg "--gpu-sim detailed" \
-			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
-			--sim-arg "--report-mem report-mem" \
-			--bench-arg "-x $size -q -e" \
-			|| exit 1
-		size_index=`expr $size_index + 1`
-	done
-
-	# Histogram
-	bench_name="Histogram"
-	size_list="256 512 768 1024 1152 1280 2048 2560"
-	size_index=0
-	for size in $size_list
-	do
-		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			AMDAPP-2.5/$bench_name \
-			--sim-arg "--gpu-sim detailed" \
-			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
-			--sim-arg "--report-mem report-mem" \
-			--bench-arg "-x $size -y $size -q -e" \
-			|| exit 1
-		size_index=`expr $size_index + 1`
-	done
-	
-	# MatrixMultiplication
-	bench_name="MatrixMultiplication"
-	size_list="16 32 64 128 256 512"
-	size_index=0
-	for size in $size_list
-	do
-		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			AMDAPP-2.5/$bench_name \
-			--sim-arg "--gpu-sim detailed" \
-			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
-			--sim-arg "--report-mem report-mem" \
-			--bench-arg "-x $size -y $size -z $size -q -e" \
-			|| exit 1
-		size_index=`expr $size_index + 1`
-	done
-
-	# MatrixTranspose
-	bench_name="MatrixTranspose"
-	size_list="16 32 64 128 256 512 1024"
-	size_index=0
-	for size in $size_list
-	do
-		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			AMDAPP-2.5/$bench_name \
-			--sim-arg "--gpu-sim detailed" \
-			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
-			--sim-arg "--report-mem report-mem" \
-			--bench-arg "-x $size -y $size -q -e" \
-			|| exit 1
-		size_index=`expr $size_index + 1`
-	done
-
-	# PrefixSum
-	bench_name="PrefixSum"
-	size_list="16384 32768 65536 131072 524288 1048576"
-	size_index=0
-	for size in $size_list
-	do
-		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			AMDAPP-2.5/$bench_name \
-			--sim-arg "--gpu-sim detailed" \
-			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
-			--sim-arg "--report-mem report-mem" \
-			--bench-arg "-x $size -q -e" \
-			|| exit 1
-		size_index=`expr $size_index + 1`
-	done
-
-
-	# RadixSort
-	bench_name="RadixSort"
-	size_list="8192 16384 32768 65536"
-	size_index=0
-	for size in $size_list
-	do
-		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			AMDAPP-2.5/$bench_name \
-			--sim-arg "--gpu-sim detailed" \
-			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
-			--sim-arg "--report-mem report-mem" \
-			--bench-arg "-x $size -q -e" \
-			|| exit 1
-		size_index=`expr $size_index + 1`
-	done
-
-	# RecursiveGaussian
-	bench_name="RecursiveGaussian"
-	size_list="3 5 7 9 11"
-	size_index=0
-	for size in $size_list
-	do
-		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			AMDAPP-2.5/$bench_name \
-			--sim-arg "--gpu-sim detailed" \
-			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
-			--sim-arg "--report-mem report-mem" \
-			--bench-arg "-x $size -q -e" \
-			|| exit 1
-		size_index=`expr $size_index + 1`
-	done
-
-	# Reduction
-	bench_name="Reduction"
-	size_list="409600 819200 1228800 1638400 2048000 3276800 4096000"
-	size_index=0
-	for size in $size_list
-	do
-		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			AMDAPP-2.5/$bench_name \
-			--sim-arg "--gpu-sim detailed" \
-			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
-			--sim-arg "--report-mem report-mem" \
-			--bench-arg "-x $size -q -e" \
-			|| exit 1
-		size_index=`expr $size_index + 1`
-	done
-	
-	# ScanLargeArrays
-	bench_name="ScanLargeArrays"
-	size_list="1024 2048 4096 8192 16384 32768 65536 131072 262144"
-	size_index=0
-	for size in $size_list
-	do
-		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			AMDAPP-2.5/$bench_name \
-			--sim-arg "--gpu-sim detailed" \
-			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
-			--sim-arg "--report-mem report-mem" \
-			--bench-arg "-x $size -q -e" \
-			|| exit 1
-		size_index=`expr $size_index + 1`
-	done
-
-	
-	# SobelFilter
-	bench_name="SobelFilter"
-	size_list="1 2 3 4 5 6 7 8 9 10"
-	size_index=0
-	for size in $size_list
-	do
-		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			AMDAPP-2.5/$bench_name \
-			--sim-arg "--gpu-sim detailed" \
-			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
-			--sim-arg "--report-mem report-mem" \
-			--bench-arg "-x $size -q -e" \
-			|| exit 1
-		size_index=`expr $size_index + 1`
-	done
-
-	# URNG
-	bench_name="URNG"
-	size_list="1 2 3 4 5 6 7 8 9 10"
-	size_index=0
-	for size in $size_list
-	do
-		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			AMDAPP-2.5/$bench_name \
-			--sim-arg "--gpu-sim detailed" \
-			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
-			--sim-arg "--report-mem report-mem" \
-			--bench-arg "-x $size -q -e" \
-			|| exit 1
-		size_index=`expr $size_index + 1`
-	done			
-	
 	
 	
 	# Submit cluster
@@ -460,34 +446,21 @@ then
 	job_list=`$sim_cluster_sh list $cluster_name` || exit 1
 
 	# Check output for each job in the cluster
-	passed_count=0
-	failed_count=0
+	avail_count=0
+	missing_count=0
 	crashed_count=0
-	unknown_count=0
 	exit_code=0
 	total=0
 	for job in $job_list
 	do
-		sim_out="$cluster_path/$job/ctx-0/sim.out"
 		sim_err="$cluster_path/$job/sim.err"
 		total=`expr $total + 1`
 
-		# Look for 'Passed!' in simulation output
-		grep -i "^Passed\!" $sim_out > /dev/null 2>&1
-		retval=$?
-		if [ "$retval" == 0 ]
+		# Check if results are available
+		if [ ! -e "$sim_err" ]
 		then
-			passed_count=`expr $passed_count + 1`
-			continue
-		fi
-
-		# Look for 'Failed'/'Error' in simulation output
-		grep -i "\(^[ ]*Failed\)\|\(^[ ]*Error\)" $sim_out > /dev/null 2>&1
-		retval=$?
-		if [ "$retval" == 0 ]
-		then
-			failed_count=`expr $failed_count + 1`
-			echo "$job - failed"
+			missing_count=`expr $missing_count + 1`
+			echo "$job - missing"
 			continue
 		fi
 
@@ -501,18 +474,25 @@ then
 			continue
 		fi
 
-		# Unknown
-		unknown_count=`expr $unknown_count + 1`
-		echo "$job - unknown"
+		# Check if GPU results section is available
+		section_exists=`$inifile_py $sim_err exists GPU`
+		if [ "$section_exists" == 0 ]
+		then
+			missing_count=`expr $missing_count + 1`
+			echo "$job - missing"
+			continue
+		fi
+
+		# Available
+		avail_count=`expr $avail_count + 1`
 	done
 
 	# Summary. Exit with error code 1 if not all simulations passed
 	echo -n "$total total, "
-	echo -n "$passed_count passed, "
-	echo -n "$failed_count failed, "
+	echo -n "$avail_count available, "
 	echo -n "$crashed_count crashed, "
-	echo "$unknown_count unknown"
-	[ $total == $passed_count ] || exit_code=1
+	echo "$missing_count missing"
+	[ $total == $avail_count ] || exit_code=1
 
 
 	#
@@ -523,45 +503,43 @@ then
 	inifile_script=`mktemp`
 	inifile_script_output=`mktemp`
 
+	# Directory lists
+	bench_list=`list_dirs $cluster_path 1 | sort`
+	num_compute_units_list=`list_dirs $cluster_path 2 | sort -n`
+
 	# Iterate through benchmarks
+	bench_index=0
+	bench_count=`echo $bench_list | wc -w`
 	for bench in $bench_list
 	do
-		# Reset statistic files
-		cpu_time_list=0
-		cpu_inst_list=0
-		gpu_time_list=0
-		gpu_inst_list=0
+		# Reset statistic lists
+		gpu_compute_units_list=0
+		gpu_cycles_list=0
 
-		# Iterate through input sizes
-		input_size=-1
-		while true
+		# Progress
+		progress=`expr $bench_index \* 100 / $bench_count`
+		echo -ne "\rPlotting ... ${progress}%"
+
+		# Iterate through number of compute units
+		for num_compute_units in $num_compute_units_list
 		do
-			# Input size directory
-			input_size=`expr $input_size + 1`
-			input_size_dir="$cluster_path/$bench/$input_size"
-			[ -d "$input_size_dir" ] || break
+			# Job directory
+			job_dir="$cluster_path/$bench/$num_compute_units"
+			sim_err="$job_dir/sim.err"
+			[ -e "$sim_err" ] || continue
 
 			# Read results
-			sim_err="$input_size_dir/sim.err"
 			cp /dev/null $inifile_script
-			echo "read CPU Time 0" >> $inifile_script
-			echo "read CPU Instructions 0" >> $inifile_script
-			echo "read GPU Time 0" >> $inifile_script
-			echo "read GPU Instructions 0" >> $inifile_script
+			echo "read GPU Cycles 0" >> $inifile_script
 			$inifile_py $sim_err run $inifile_script > $inifile_script_output
 			for i in 1
 			do
-				read cpu_time
-				read cpu_inst
-				read gpu_time
-				read gpu_inst
+				read gpu_cycles
 			done < $inifile_script_output
 
 			# Add to lists
-			cpu_time_list="$cpu_time_list, $cpu_time"
-			cpu_inst_list="$cpu_inst_list, $cpu_inst"
-			gpu_time_list="$gpu_time_list, $gpu_time"
-			gpu_inst_list="$gpu_inst_list, $gpu_inst"
+			gpu_compute_units_list="$gpu_compute_units_list, $num_compute_units"
+			gpu_cycles_list="$gpu_cycles_list, $gpu_cycles"
 		done
 
 		python -c "
@@ -570,88 +548,38 @@ import numpy
 
 
 #
-# CPU Emulation Time
+# GPU Cycles
 #
 
-cpu_time_list = [ $cpu_time_list ]
-cpu_time_list.pop(0)
+gpu_cycles_list = [ $gpu_cycles_list ]
+gpu_cycles_list.pop(0)
+gpu_cycles_list[:] = [ x / 1.0e3 for x in gpu_cycles_list ]
+
+gpu_compute_units_list = [ $gpu_compute_units_list ]
+gpu_compute_units_list.pop(0)
 
 fig = plt.gcf()
 fig.set_size_inches(4.0, 2.5)
 
-plt.plot(cpu_time_list, 'bo-')
-plt.title('CPU Emulation Time')
-plt.xlabel('Problem Size')
-plt.ylabel('Time (s)')
+plt.plot(gpu_cycles_list, 'bo-')
+plt.title('GPU Execution Time')
+plt.xlabel('Number of compute units')
+plt.ylabel('Execution Time (1k cycles)')
 plt.margins(0.05, 0)
 plt.grid(True)
 plt.ylim(ymin = 0)
-plt.xticks(numpy.arange(len(cpu_time_list)))
-plt.savefig('$cluster_path/$bench/cpu-time.png', dpi=100, bbox_inches='tight')
+plt.xticks(numpy.arange(len(gpu_compute_units_list)), gpu_compute_units_list)
+plt.savefig('$cluster_path/$bench/gpu-cycles.png', dpi=100, bbox_inches='tight')
 
-
-#
-# CPU Instructions
-#
-
-cpu_inst_list = [ $cpu_inst_list ]
-cpu_inst_list.pop(0)
-cpu_inst_list[:] = [ x / 1000.0 for x in cpu_inst_list ]
-
-plt.clf()
-plt.plot(cpu_inst_list, 'bo-')
-plt.title('CPU Emulated Instructions')
-plt.xlabel('Problem Size')
-plt.ylabel('Instructions (x 1k)')
-plt.margins(0.05, 0)
-plt.grid(True)
-plt.ylim(ymin = 0)
-plt.xticks(numpy.arange(len(cpu_inst_list)))
-plt.savefig('$cluster_path/$bench/cpu-inst.png', dpi=100, bbox_inches='tight')
-
-
-#
-# GPU Emulation Time
-#
-
-gpu_time_list = [ $gpu_time_list ]
-gpu_time_list.pop(0)
-
-plt.clf()
-plt.plot(gpu_time_list, 'bo-')
-plt.title('GPU Emulation Time')
-plt.xlabel('Problem Size')
-plt.ylabel('Time (s)')
-plt.margins(0.05, 0)
-plt.grid(True)
-plt.ylim(ymin = 0)
-plt.xticks(numpy.arange(len(gpu_time_list)))
-plt.savefig('$cluster_path/$bench/gpu-time.png', dpi=100, bbox_inches='tight')
-
-
-#
-# GPU Instructions
-#
-
-gpu_inst_list = [ $gpu_inst_list ]
-gpu_inst_list.pop(0)
-gpu_inst_list[:] = [ x / 1.0e3 for x in gpu_inst_list ]
-
-plt.clf()
-plt.plot(gpu_inst_list, 'bo-')
-plt.title('GPU Emulated Instructions')
-plt.xlabel('Problem Size')
-plt.ylabel('Instructions (x 1k)')
-plt.margins(0.05, 0)
-plt.grid(True)
-plt.ylim(ymin = 0)
-plt.xticks(numpy.arange(len(gpu_inst_list)))
-plt.savefig('$cluster_path/$bench/gpu-inst.png', dpi=100, bbox_inches='tight')
 " || exit 1
+
+		# Next
+		bench_index=`expr $bench_index + 1`
 
 	done
 	
-	# Remove temporary file
+	# Remove temporary files
+	echo -e "\rPlotting ... 100%"
 	rm -f $inifile_script_output
 	rm -f $inifile_script
 
@@ -671,10 +599,7 @@ plt.savefig('$cluster_path/$bench/gpu-inst.png', dpi=100, bbox_inches='tight')
 	for bench in $bench_list
 	do
 		echo "<h2>$bench</h2>" >> $html_file
-		echo "<img src=\"$cluster_path/$bench/cpu-time.png\" width=300px/>" >> $html_file
-		echo "<img src=\"$cluster_path/$bench/cpu-inst.png\" width=300px/>" >> $html_file
-		echo "<img src=\"$cluster_path/$bench/gpu-time.png\" width=300px/>" >> $html_file
-		echo "<img src=\"$cluster_path/$bench/gpu-inst.png\" width=300px/>" >> $html_file
+		echo "<img src=\"$cluster_path/$bench/gpu-cycles.png\" width=300px/>" >> $html_file
 	done
 
 	# End
