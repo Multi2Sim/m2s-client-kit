@@ -128,19 +128,6 @@ then
 		size_index=`expr $size_index + 1`
 	done
 
-	# BoxFilter
-	bench_name="BoxFilter"
-	size_list="1"
-	size_index=0
-	for size in $size_list
-	do
-		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			AMDAPP-2.5/$bench_name \
-			--bench-arg " -q -e" \
-			|| exit 1
-		size_index=`expr $size_index + 1`
-	done
-	
 	# BlackScholes
 	# NOTE: sizes "8192 16384 32768 65536 131072 262144" provide exactly
 	# the same number of simulated instructions.
@@ -156,6 +143,19 @@ then
 		size_index=`expr $size_index + 1`
 	done
 
+	# BoxFilter
+	bench_name="BoxFilter"
+	size_list="1"
+	size_index=0
+	for size in $size_list
+	do
+		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+			AMDAPP-2.5/$bench_name \
+			--bench-arg " -q -e" \
+			|| exit 1
+		size_index=`expr $size_index + 1`
+	done
+	
 	# DCT
 	bench_name="DCT"
 	size_list="128 256 512 768 896 1024"
@@ -223,7 +223,7 @@ then
 	
 	# MatrixMultiplication
 	bench_name="MatrixMultiplication"
-	size_list="16 32 64 128 192 256"
+	size_list="32 64 128 192 256"
 	size_index=0
 	for size in $size_list
 	do
@@ -620,10 +620,10 @@ plt.savefig('$cluster_path/$bench/gpu-inst.png', dpi=100, bbox_inches='tight')
 	for bench in $bench_list
 	do
 		echo "<h2>$bench</h2>" >> $html_file
-		echo "<img src=\"$cluster_path/$bench/cpu-time.png\" width=300px/>" >> $html_file
-		echo "<img src=\"$cluster_path/$bench/cpu-inst.png\" width=300px/>" >> $html_file
-		echo "<img src=\"$cluster_path/$bench/gpu-time.png\" width=300px/>" >> $html_file
-		echo "<img src=\"$cluster_path/$bench/gpu-inst.png\" width=300px/>" >> $html_file
+		echo "<img src=\"$bench/cpu-time.png\" width=300px/>" >> $html_file
+		echo "<img src=\"$bench/cpu-inst.png\" width=300px/>" >> $html_file
+		echo "<img src=\"$bench/gpu-time.png\" width=300px/>" >> $html_file
+		echo "<img src=\"$bench/gpu-inst.png\" width=300px/>" >> $html_file
 	done
 
 	# End
