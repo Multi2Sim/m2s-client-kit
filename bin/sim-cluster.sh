@@ -107,6 +107,11 @@ commands are:
 	  option is omitted, the latest SVN update will be fetched automatically
 	  from the Multi2Sim server.
 
+      --tag <tag>
+          If this option is omitted, the development trunk is used. If the
+	  option is specified, subdirectory <tag> in the 'tags' directory of the
+	  Multi2Sim repository is used, representing a stable Multi2Sim release.
+
       --configure-args <args>
           Arguments to be passed to the './configure' script when building the
 	  Multi2Sim distribution package used for simulation. The arguments
@@ -418,15 +423,17 @@ elif [ "$command" == "submit" ]
 then
 
 	# Options
-	temp=`getopt -o r: -l configure-args: -n $prog_name -- "$@"`
+	temp=`getopt -o r: -l configure-args:,tag: -n $prog_name -- "$@"`
 	[ $? == 0 ] || exit 1
 	eval set -- "$temp"
 	rev=
+	tag=
 	configure_args=
 	while true
 	do
 		case "$1" in
 		-r) rev=$2 ; shift 2 ;;
+		--tag) tag=$2 ; shift 2 ;;
 		--configure-args) configure_args=$2 ; shift 2 ;;
 		--) shift ; break ;;
 		*) error "$1: invalid option" ;;
@@ -473,9 +480,11 @@ then
 
 	# Prepare Multi2Sim revision in server
 	rev_arg=
+	tag_arg=
 	[ -z "$rev" ] || rev_arg="-r $rev"
+	[ -z "$tag" ] || tag_arg="--tag $tag"
 	$HOME/$M2S_CLIENT_KIT_BIN_PATH/gen-m2s-bin.sh \
-		$rev_arg --configure-args "$configure_args" $server_port \
+		$rev_arg $tag_arg --configure-args "$configure_args" $server_port \
 		|| exit 1
 
 	# Info
@@ -648,14 +657,20 @@ then
 				context_path="$job_path/ctx-$context_id"
 				mkdir -p $context_path || error "cannot create context directory"
 
-				# Copy data and executable
+				# Copy files in the benchmark directory, non-recursively
 				# Option "-C" in "rsync" automatically discards ".svn" directories.
-				rsync -aC $bench_path/$data/ $context_path/ \
-					|| error "cannot copy benchmark"
-					
-				#cp -r $bench_path/$data/* $context_path && \
-				#	cp $bench_path/$exe $context_path
+				# Option "-a" is equal to "-rlptgoD", so the "-r" is omitted.
+				rsync -lptgoDC $bench_path/* $context_path/ \
+					> /dev/null || error "cannot copy benchmark"
 
+				# Copy files in the data directory associated with the specified
+				# data set. This is done recursively
+				if [ -n "$data" -a -d "$bench_path/$data" ]
+				then
+					rsync -aC $bench_path/$data/ $context_path/ \
+						|| error "cannot copy benchmark data"
+				fi
+					
 				# Add entry to context configuration file
 				echo "[ Context $context_id ]" >> $ctx_config_path
 				echo "Cwd = $context_path" >> $ctx_config_path

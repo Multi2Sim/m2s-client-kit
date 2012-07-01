@@ -1,10 +1,11 @@
 #!/bin/bash
 
 M2S_SVN_URL="http://multi2sim.org/svn/multi2sim"
+M2S_SVN_TAGS_URL="http://multi2sim.org/svn/multi2sim/tags"
 M2S_SVN_TRUNK_URL="http://multi2sim.org/svn/multi2sim/trunk"
 
 M2S_CLIENT_KIT_PATH="m2s-client-kit"
-M2S_CLIENT_KIT_M2S_PATH="$M2S_CLIENT_KIT_PATH/tmp/m2s"
+M2S_CLIENT_KIT_M2S_PATH="$M2S_CLIENT_KIT_PATH/tmp/multi2sim"
 
 M2S_SERVER_KIT_PATH="m2s-server-kit"
 M2S_SERVER_KIT_TMP_PATH="$M2S_SERVER_KIT_PATH/tmp"
@@ -39,12 +40,20 @@ Syntax:
 
 Generate an Multi2Sim binary in <server>:~/m2s-server-kit/tmp/m2s-bin/. The
 script first checks which if the destination already contains a valid binary. If
-it does, a new one is not generated.
+it does, the previously generated binary is used instead. By default, the latest
+SVN revision of the Multi2Sim development trunk is fetched and built.
 
 Options:
 
   -r <rev>
-      Multi2Sim SVN revision number for generation of binary.
+      Choose a specific SVN revision to fetch. If this argument is not
+      specified, the latest available SVN revision is used.
+
+  --tag <tag>
+
+      Use a Multi2Sim version release instead of the trunk. The name in argument
+      <tag> must be an existing subdirectory in the 'tags' directory of the
+      Multi2Sim SVN repository.
 
   --configure-args <args>
       Arguments for the 'configure' script run when compiling the package in the
@@ -75,14 +84,16 @@ EOF
 rm -f $log_file
 
 # Options
-temp=`getopt -o r: -l configure-args: -n $prog_name -- "$@"`
+temp=`getopt -o r: -l configure-args:,tag: -n $prog_name -- "$@"`
 if [ $? != 0 ] ; then exit 1 ; fi
 eval set -- "$temp"
 rev=
 configure_args=
+tag=
 while true ; do
 	case "$1" in
 	-r) rev=$2 ; shift 2 ;;
+	--tag) tag=$2 ; shift 2 ;;
 	--configure-args) configure_args=$2 ; shift 2 ;;
 	--) shift ; break ;;
 	*) echo "$1: invalid option" ; exit 1 ;;
@@ -99,7 +110,8 @@ port=$(echo $server_port | awk -F: '{print $2}')
 [ -n "$port" ] || port=22
 
 # If revision was not given, obtain latest
-if [ -z "$rev" ]; then
+if [ -z "$rev" ]
+then
 	temp=$(mktemp)
 	svn info $M2S_SVN_URL > $temp 2>> $log_file || error "cannot obtain SVN info"
 	rev=$(sed -n "s,^Revision: ,,gp" $temp)
@@ -107,7 +119,13 @@ if [ -z "$rev" ]; then
 fi
 
 # Info
-echo -n "Checking for Multi2Sim Rev. $rev"
+if [ -z "$tag" ]
+then
+	tag_name="trunk"
+else
+	tag_name="tag '$tag'"
+fi
+echo -n "Checking Multi2Sim $tag_name, SVN Rev. $rev"
 
 # Check information of last binary generated. This information is stored in an
 # INI file at "<server>:~/m2s-server-kit/tmp/m2s-bin/build.ini"
@@ -131,12 +149,14 @@ ssh -p $port $server '
 	temp=`mktemp`
 	echo "exists Build" >> $inifile_script
 	echo "read Build Revision" >> $inifile_script
+	echo "read Build Tag" >> $inifile_script
 	echo "read Build ConfigureArgs" >> $inifile_script
 	$inifile_py $build_ini run $inifile_script > $temp || exit 2
 	for i in 1
 	do
 		read section_exists
 		read revision
+		read tag
 		read configure_args
 	done < $temp
 	rm -f $inifile_script $temp
@@ -144,6 +164,7 @@ ssh -p $port $server '
 	# Check matches
 	[ "$section_exists" == 1 ] || exit 1
 	[ "$revision" == "'$rev'" ] || exit 1
+	[ "$tag" == "'$tag'" ] || exit 1
 	[ "$configure_args" == "'$configure_args'" ] || exit 1
 
 	# Build matches
@@ -151,23 +172,28 @@ ssh -p $port $server '
 ' >> $log_file 2>&1
 case $? in
 	0)
+		# Build matches
 		echo -n " - up to date"
 		echo " - ok"
 		exit 0
 		;;
 	1)
+		# Build does not match
 		;;
-	*) error "server failed"
+	*)
+		# Error in server
+		error "server failed"
 esac
 
 # Obtain revision locally
 echo -n " - obtain local revision"
-if [ -d $HOME/$M2S_CLIENT_KIT_M2S_PATH ]
+cd && rm -rf $M2S_CLIENT_KIT_M2S_PATH
+if [ -z "$tag" ]
 then
-	cd $HOME/$M2S_CLIENT_KIT_M2S_PATH
-	svn up -r $rev >/dev/null || error "cannot get SVN revision"
-else
 	svn co $M2S_SVN_TRUNK_URL $HOME/$M2S_CLIENT_KIT_M2S_PATH \
+		-r $rev >/dev/null || error "cannot get local copy"
+else
+	svn co $M2S_SVN_TAGS_URL/$tag $HOME/$M2S_CLIENT_KIT_M2S_PATH \
 		-r $rev >/dev/null || error "cannot get local copy"
 fi
 
@@ -225,6 +251,7 @@ ssh -p $port $server '
 	inifile_py="$HOME/'$M2S_SERVER_KIT_BIN_INI_FILE_PATH'"
 	inifile_script=`mktemp`
 	echo "write Build Revision '$rev'" >> $inifile_script
+	echo "write Build Tag '$tag'" >> $inifile_script
 	echo "write Build ConfigureArgs \"'"$configure_args"'\"" >> $inifile_script
 	$inifile_py $build_ini run $inifile_script || exit 1
 	rm -f $inifile_script
