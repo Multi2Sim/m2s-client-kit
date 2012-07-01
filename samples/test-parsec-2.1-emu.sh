@@ -4,7 +4,6 @@ M2S_CLIENT_KIT_PATH="m2s-client-kit"
 M2S_CLIENT_KIT_BIN_PATH="$M2S_CLIENT_KIT_PATH/bin"
 M2S_CLIENT_KIT_RESULT_PATH="$M2S_CLIENT_KIT_PATH/result"
 M2S_CLIENT_KIT_DOC_PATH="$M2S_CLIENT_KIT_PATH/doc"
-M2S_CLIENT_KIT_TMP_PATH="$M2S_CLIENT_KIT_PATH/tmp"
 
 prog_name=`echo $0 | awk -F/ '{ print $NF }'`
 sim_cluster_sh="$HOME/$M2S_CLIENT_KIT_BIN_PATH/sim-cluster.sh"
@@ -12,12 +11,11 @@ inifile_py="$HOME/$M2S_CLIENT_KIT_BIN_PATH/inifile.py"
 
 nthreads_list="1 2 4 8 16"
 
-cluster_name="splash2-cpu-cores"
+cluster_name="parsec-2.1-emu"
 cluster_desc="
-Run a timing simulation with all SPLASH-2 benchmarks, changing the number of CPU
-cores between 1 and 16, through all powers of 2. For each simulation, the number
-of CPU cores is equal to the number of software threads created by the
-benchmark, as passed in their corresponding command-line option.
+Run emulation of the PARSEC-2.1 benchmark suite. For each benchmark, the number of
+threads is set to powers of 2 between 1 and 16. The default (Medium) input size
+is used as the data set.
 
 Cluster: $cluster_name
 Secondary scripts: -
@@ -87,7 +85,7 @@ then
 	server_port=$1
 
 	# Get benchmark list
-	bench_list=`$sim_cluster_sh list-bench $server_port splash2` || exit 1
+	bench_list=`$sim_cluster_sh list-bench $server_port parsec-2.1` || exit 1
 
 	# Create cluster
 	$sim_cluster_sh create $cluster_name || exit 1
@@ -97,16 +95,8 @@ then
 	do
 		for nthreads in $nthreads_list
 		do
-			# Create CPU configuration file
-			cpu_config_file="$HOME/$M2S_CLIENT_KIT_TMP_PATH/cpu-config"
-			cp /dev/null $cpu_config_file
-			echo "[ General ]" >> $cpu_config_file
-			echo "Cores = $nthreads" >> $cpu_config_file
-
-			# Add job
 			$sim_cluster_sh add $cluster_name $bench/$nthreads \
-				--sim-arg "--cpu-sim detailed --cpu-config cpu-config" \
-				--send $cpu_config_file -p $nthreads splash2/$bench || exit 1
+				-p $nthreads parsec-2.1/$bench || exit 1
 		done
 	done
 	
@@ -187,6 +177,14 @@ then
 		sim_err="$cluster_path/$job/sim.err"
 		total=`expr $total + 1`
 
+		# Look for section [CPU] in error output
+		section_exists=`$inifile_py $sim_err exists CPU`
+		if [ "$section_exists" == 1 ]
+		then
+			available_count=`expr $available_count + 1`
+			continue
+		fi
+
 		# Look for 'fatal'/'panic' in Multi2Sim output
 		grep -i "\(^fatal\)\|\(^panic\)" $sim_err > /dev/null 2>&1
 		retval=$?
@@ -197,22 +195,9 @@ then
 			continue
 		fi
 
-		# Analyze reason for simulation end
-		sim_end=`$inifile_py $sim_err read CPU SimEnd`
-		if [ -z "$sim_end" ]
-		then
-			unknown_count=`expr $unknown_count + 1`
-			echo "$job - unknown"
-			continue
-		elif [ "$sim_end" == "Stall" ]
-		then
-			crashed_count=`expr $crashed_count + 1`
-			echo "$job - stall"
-			continue
-		fi
-
-		# Job available
-		available_count=`expr $available_count + 1`
+		# Unknown
+		unknown_count=`expr $unknown_count + 1`
+		echo "$job - unknown"
 	done
 
 	# Summary. Exit with error code 1 if any simulation is
@@ -234,18 +219,11 @@ then
 	inifile_script_output=`mktemp`
 
 	# Iterate through benchmarks
-	bench_index=0
-	bench_count=`echo $bench_list | wc -w`
 	for bench in $bench_list
 	do
-		# Progress
-		bench_index=`expr $bench_index + 1`
-		progress=`expr $bench_index \* 100 / $bench_count`
-		echo -ne "\rPlotting ... ${progress}%"
-
 		# Reset statistic files
 		cpu_time_list=0
-		cpu_cycles_list=0
+		cpu_inst_list=0
 
 		# Iterate through number of threads
 		for nthreads in $nthreads_list
@@ -255,17 +233,17 @@ then
 			sim_err="$job_dir/sim.err"
 			cp /dev/null $inifile_script
 			echo "read CPU Time 0" >> $inifile_script
-			echo "read CPU Cycles 0" >> $inifile_script
+			echo "read CPU Instructions 0" >> $inifile_script
 			$inifile_py $sim_err run $inifile_script > $inifile_script_output
 			for i in 1
 			do
 				read cpu_time
-				read cpu_cycles 
+				read cpu_inst
 			done < $inifile_script_output
 
 			# Add to lists
 			cpu_time_list="$cpu_time_list, $cpu_time"
-			cpu_cycles_list="$cpu_cycles_list, $cpu_cycles"
+			cpu_inst_list="$cpu_inst_list, $cpu_inst"
 		done
 
 		python -c "
@@ -273,12 +251,11 @@ import matplotlib.pyplot as plt
 
 
 #
-# CPU Emulation Time (for Multi2Sim)
+# CPU Emulation Time
 #
 
 cpu_time_list = [ $cpu_time_list ]
 cpu_time_list.pop(0)
-cpu_time_list[:] = [ x / 60 / 60 for x in cpu_time_list ]
 
 fig = plt.gcf()
 fig.set_size_inches(4.0, 2.5)
@@ -286,7 +263,7 @@ fig.set_size_inches(4.0, 2.5)
 plt.plot(cpu_time_list, 'bo-')
 plt.title('Emulation Time')
 plt.xlabel('Number of threads')
-plt.ylabel('Time (h)')
+plt.ylabel('Time (s)')
 plt.margins(0.05, 0)
 plt.grid(True)
 plt.ylim(ymin = 0)
@@ -295,30 +272,29 @@ plt.savefig('$cluster_path/$bench/cpu-time.png', dpi=100, bbox_inches='tight')
 
 
 #
-# Execution Time (for benchmark)
+# CPU Instructions
 #
 
-cpu_cycles_list = [ $cpu_cycles_list ]
-cpu_cycles_list.pop(0)
-cpu_cycles_list[:] = [ x / 1000000.0 for x in cpu_cycles_list ]
+cpu_inst_list = [ $cpu_inst_list ]
+cpu_inst_list.pop(0)
+cpu_inst_list[:] = [ x / 1.0e6 for x in cpu_inst_list ]
 
 plt.clf()
-plt.plot(cpu_cycles_list, 'bo-')
+plt.plot(cpu_inst_list, 'bo-')
 plt.title('x86 Instructions')
 plt.xlabel('Number of threads')
-plt.ylabel('Cycles (x 1M)')
+plt.ylabel('Instructions (x 1M)')
 plt.margins(0.05, 0)
 plt.grid(True)
 plt.ylim(ymin = 0)
 plt.xticks(range(len(cpu_time_list)), '$nthreads_list'.split())
-plt.savefig('$cluster_path/$bench/cpu-cycles.png', dpi=100, bbox_inches='tight')
+plt.savefig('$cluster_path/$bench/cpu-inst.png', dpi=100, bbox_inches='tight')
 " || exit 1
 	done
 	
 	# Remove temporary file
 	rm -f $inifile_script_output
 	rm -f $inifile_script
-	echo
 
 
 
@@ -338,7 +314,7 @@ plt.savefig('$cluster_path/$bench/cpu-cycles.png', dpi=100, bbox_inches='tight')
 	do
 		echo "<h2>$bench</h2>" >> $html_file
 		echo "<img src=\"$cluster_path/$bench/cpu-time.png\" width=300px/>" >> $html_file
-		echo "<img src=\"$cluster_path/$bench/cpu-cycles.png\" width=300px/>" >> $html_file
+		echo "<img src=\"$cluster_path/$bench/cpu-inst.png\" width=300px/>" >> $html_file
 	done
 
 	# End

@@ -19,6 +19,11 @@ where <command> can take any of the possible values.
 	  option is omitted, the latest SVN update will be fetched automatically
 	  from the Multi2Sim server.
 
+      --tag <tag>
+          If this option is omitted, the development trunk is used. If the
+	  option is specified, subdirectory <tag> in the 'tags' directory of the
+	  Multi2Sim repository is used, representing a stable Multi2Sim release.
+
       --configure-args <args>
           Arguments to be passed to the './configure' script when building the
 	  Multi2Sim distribution package used for simulation. The arguments
