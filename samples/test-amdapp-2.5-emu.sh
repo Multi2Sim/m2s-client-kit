@@ -476,6 +476,8 @@ then
 	inifile_script_output=`mktemp`
 
 	# Iterate through benchmarks
+	bench_index=0
+	bench_count=`echo $bench_list | wc -w`
 	for bench in $bench_list
 	do
 		# Reset statistic files
@@ -483,6 +485,10 @@ then
 		cpu_inst_list=0
 		gpu_time_list=0
 		gpu_inst_list=0
+
+		# Progress
+		progress=`expr $bench_index \* 100 / $bench_count`
+		echo -ne "\rPlotting ... ${progress}%"
 
 		# Iterate through input sizes
 		input_size=-1
@@ -601,9 +607,13 @@ plt.xticks(numpy.arange(len(gpu_inst_list)))
 plt.savefig('$cluster_path/$bench/gpu-inst.png', dpi=100, bbox_inches='tight')
 " || exit 1
 
+		# Next
+		bench_index=`expr $bench_index + 1`
+
 	done
 	
 	# Remove temporary file
+	echo -e "\rPlotting ... 100%"
 	rm -f $inifile_script_output
 	rm -f $inifile_script
 
