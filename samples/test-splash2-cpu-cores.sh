@@ -284,7 +284,7 @@ fig = plt.gcf()
 fig.set_size_inches(4.0, 2.5)
 
 plt.plot(cpu_time_list, 'bo-')
-plt.title('Emulation Time')
+plt.title('Simulation Time')
 plt.xlabel('Number of threads')
 plt.ylabel('Time (h)')
 plt.margins(0.05, 0)
@@ -304,7 +304,7 @@ cpu_cycles_list[:] = [ x / 1000000.0 for x in cpu_cycles_list ]
 
 plt.clf()
 plt.plot(cpu_cycles_list, 'bo-')
-plt.title('x86 Instructions')
+plt.title('Performance')
 plt.xlabel('Number of threads')
 plt.ylabel('Cycles (x 1M)')
 plt.margins(0.05, 0)
