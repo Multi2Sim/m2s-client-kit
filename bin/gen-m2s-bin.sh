@@ -231,7 +231,7 @@ ssh -p $port $server '
 	# Unpack
 	cd '$M2S_SERVER_KIT_TMP_PATH' || exit 1
 	rm -rf '$dist_file_name'
-	tar -xzvf '$dist_file' || exit 1
+	tar -xmzvf '$dist_file' || exit 1
 	rm -f '$dist_file'
 	cd '$dist_file_name' || exit 1
 
