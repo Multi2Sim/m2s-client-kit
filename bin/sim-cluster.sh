@@ -623,7 +623,8 @@ then
 				bench_ini="$bench_path/benchmark.ini"
 				[ -e $bench_ini ] || error "$bench_ini: file not found"
 				data_set_exists=`$inifile_py $bench_ini exists $data_set`
-				[ "$data_set_exists" == 1 ] || error "$data_set: invalid data set"
+				[ "$data_set_exists" == 1 ] || \
+					error "$suite_bench: $data_set: invalid data set"
 
 				# Parse benchmark.ini file, replacing NTHREADS variable
 				bench_ini_parsed=`mktemp`

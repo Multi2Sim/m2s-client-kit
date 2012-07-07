@@ -145,7 +145,9 @@ echo
 
 # List of machines
 #server_port_list="fusion1.ece.neu.edu tierra1.gap.upv.es:3322"
-server_port_list="hg0.gap.upv.es:3322"
+#server_port_list="hg0.gap.upv.es:3322"
+server_port_list="boston.disca.upv.es"
+		
 
 # Iterate through machine list
 for server_port in $server_port_list
@@ -171,6 +173,70 @@ do
 
 	# Connect to server
 	ssh -p $port $server '
+
+		# Test development version build
+		#   $1 - Test name
+		#   $2 [$3 ...] - Configure flags
+		function test_dev_build()
+		{	
+			local test_name=$1
+			shift
+			local configure_args="$*"
+
+			# Info
+			echo ">>> test-build begin $test_name"
+
+			# Build test
+			cd $temp_dir 2>&1 && \
+				rm -rf $dev_dir 2>&1 && \
+				tar -xzf $dev_package_path 2>&1 && \
+				cd $dev_dir 2>&1 && \
+				aclocal 2>&1 && \
+				autoconf 2>&1 && \
+				automake --add-missing 2>&1 && \
+				./configure 2>&1 && \
+				make 2>&1
+
+			# Diagnose
+			if [ $? == 0 ]
+			then
+				echo ">>> test-build passed $test_name"
+			else
+				echo ">>> test-build failed $test_name"
+			fi
+			echo ">>> test-build end $test_name"
+		}
+
+		# Test distribution version build
+		#   $1 - Test name
+		#   $2 [$3 ...] - Configure flags
+		function test_dist_build()
+		{
+			local test_name=$1
+			shift
+			local configure_args="$*"
+
+			# Info
+			echo ">>> test-build begin $test_name"
+
+			# Build test
+			cd $temp_dir 2>&1 && \
+				rm -rf $dist_dir 2>&1 && \
+				tar -xzf $dist_package_path 2>&1 && \
+				cd $dist_dir 2>&1 && \
+				./configure 2>&1 && \
+				make 2>&1
+
+			# Diagnose
+			if [ $? == 0 ]
+			then
+				echo ">>> test-build passed $test_name"
+			else
+				echo ">>> test-build failed $test_name"
+			fi
+			echo ">>> test-build end $test_name"
+		}
+
 		# Copy packages to temporary directory
 		temp_dir=`mktemp -d`
 		mv multi2sim-dev.tar.gz $temp_dir || exit 1
@@ -185,41 +251,21 @@ do
 		tar -xzf $dev_package_path
 		tar -xzf $dist_package_path
 
-		#
 		# Tests on development package
-		#
+		test_dev_build dev-default
+		test_dev_build dev-debug --enable-debug
+		test_dev_build dev-debug-no-gtk --enable-debug --disable-gtk
+		test_dev_build dev-debug-no-glut --enable-debug --disable-glut
+		test_dev_build dev-no-gtk --disable-gtk
+		test_dev_build dev-no-glut --disable-glut
 
-		# Test 1 - default build
-		echo ">>> test-build begin dev-default"
-		cd $temp_dir 2>&1 && \
-			rm -rf $dev_dir 2>&1 && \
-			tar -xzf $dev_package_path 2>&1 && \
-			cd $dev_dir 2>&1 && \
-			aclocal 2>&1 && \
-			autoconf 2>&1 && \
-			automake --add-missing 2>&1 && \
-			./configure 2>&1 && \
-			make 2>&1 && \
-			echo ">>> test-build passed dev-default"
-		echo ">>> test-build end dev-default"
-
-
-		#
 		# Tests on distribution package
-		#
-
-		# Test 1 - default build
-		echo ">>> test-build begin dist-default"
-		cd $temp_dir 2>&1 && \
-			rm -rf $dist_dir 2>&1 && \
-			tar -xzf $dist_package_path 2>&1 && \
-			cd $dist_dir 2>&1 && \
-			./configure 2>&1 && \
-			make 2>&1 && \
-			echo ">>> test-build passed dist-default"
-		echo ">>> test-build end dist-default"
-
-
+		test_dist_build dist-default
+		test_dist_build dist-debug --enable-debug
+		test_dist_build dist-debug-no-gtk --enable-debug --disable-gtk
+		test_dist_build dist-debug-no-glut --enable-debug --disable-glut
+		test_dist_build dist-no-gtk --disable-gtk
+		test_dist_build dist-no-glut --disable-glut
 
 		# Remove temporary directory
 		rm -rf $temp_dir
