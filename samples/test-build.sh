@@ -63,9 +63,6 @@ EOF
 # Main Script
 #
 
-# Clear log
-rm -f $log_file
-
 # Options
 temp=`getopt -o r: -l tag: -n $prog_name -- "$@"`
 if [ $? != 0 ] ; then exit 1 ; fi
@@ -144,9 +141,9 @@ dist_version=`awk -F"[\(\), ]+" '/^AM_INIT_AUTOMAKE/ { print $3 }' configure.ac`
 echo
 
 # List of machines
-#server_port_list="fusion1.ece.neu.edu tierra1.gap.upv.es:3322"
+server_port_list="129.10.53.109 fusion1.ece.neu.edu tierra1.gap.upv.es:3322"
 #server_port_list="hg0.gap.upv.es:3322"
-server_port_list="boston.disca.upv.es"
+#server_port_list="boston.disca.upv.es hg0.gap.upv.es:3322"
 		
 
 # Iterate through machine list
@@ -194,7 +191,7 @@ do
 				aclocal 2>&1 && \
 				autoconf 2>&1 && \
 				automake --add-missing 2>&1 && \
-				./configure 2>&1 && \
+				./configure $configure_args 2>&1 && \
 				make 2>&1
 
 			# Diagnose
@@ -224,7 +221,7 @@ do
 				rm -rf $dist_dir 2>&1 && \
 				tar -xzf $dist_package_path 2>&1 && \
 				cd $dist_dir 2>&1 && \
-				./configure 2>&1 && \
+				./configure $configure_args 2>&1 && \
 				make 2>&1
 
 			# Diagnose
@@ -254,18 +251,18 @@ do
 		# Tests on development package
 		test_dev_build dev-default
 		test_dev_build dev-debug --enable-debug
-		test_dev_build dev-debug-no-gtk --enable-debug --disable-gtk
-		test_dev_build dev-debug-no-glut --enable-debug --disable-glut
-		test_dev_build dev-no-gtk --disable-gtk
-		test_dev_build dev-no-glut --disable-glut
+		#test_dev_build dev-debug-no-gtk --enable-debug --disable-gtk
+		#test_dev_build dev-debug-no-glut --enable-debug --disable-glut
+		#test_dev_build dev-no-gtk --disable-gtk
+		#test_dev_build dev-no-glut --disable-glut
 
 		# Tests on distribution package
 		test_dist_build dist-default
 		test_dist_build dist-debug --enable-debug
-		test_dist_build dist-debug-no-gtk --enable-debug --disable-gtk
-		test_dist_build dist-debug-no-glut --enable-debug --disable-glut
-		test_dist_build dist-no-gtk --disable-gtk
-		test_dist_build dist-no-glut --disable-glut
+		#test_dist_build dist-debug-no-gtk --enable-debug --disable-gtk
+		#test_dist_build dist-debug-no-glut --enable-debug --disable-glut
+		#test_dist_build dist-no-gtk --disable-gtk
+		#test_dist_build dist-no-glut --disable-glut
 
 		# Remove temporary directory
 		rm -rf $temp_dir
@@ -273,8 +270,18 @@ do
 done
 
 
+#
+# Analyze the log
+#
+
+awk '
+/^>>> test-build/ { print $0 }
+' $log_file
+
+
+
+
 # End
 rm -rf $temp_dir
-########rm -f $log_file
 exit 0
 
