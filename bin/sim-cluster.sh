@@ -490,6 +490,17 @@ then
 	# Info
 	echo -n "submitting cluster '$cluster_name'"
 
+	# Check if 'm2s-client-kit' is in its latest SVN revision
+	cd $HOME/$M2S_CLIENT_KIT_PATH || error "cannot cd to client kit path"
+	temp=$(mktemp)
+	svn info $M2S_SVN_URL > $temp || error "failed running 'svn info'"
+	rev_current=$(sed -n "s,^Revision: ,,gp" $temp)
+	svn info -r HEAD $M2S_SVN_URL > $temp || error "failed running 'svn info'"
+	rev_latest=$(sed -n "s,^Revision: ,,gp" $temp)
+	rm -f $temp
+	[ "$rev_current" == "$rev_latest" ] || \
+		echo -n " - WARNING: m2s-client-kit out of date"
+
 	# Send configuration to server
 	echo -n " - sending files"
 	server_package="$HOME/$M2S_CLIENT_KIT_TMP_PATH/sim-cluster.tar.gz"
@@ -730,7 +741,7 @@ then
 
 	# Done
 	echo " - $num_jobs jobs submitted - ok"
-
+	
 elif [ "$command" == "remove" ]
 then
 
