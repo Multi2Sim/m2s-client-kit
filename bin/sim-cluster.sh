@@ -490,16 +490,16 @@ then
 	# Info
 	echo -n "submitting cluster '$cluster_name'"
 
-	# Check if 'm2s-client-kit' is in its latest SVN revision
+	# Check if 'm2s-client-kit' is up to date
 	cd $HOME/$M2S_CLIENT_KIT_PATH || error "cannot cd to client kit path"
 	temp=$(mktemp)
-	svn info $M2S_SVN_URL > $temp || error "failed running 'svn info'"
+	svn info > $temp || error "failed running 'svn info'"
 	rev_current=$(sed -n "s,^Revision: ,,gp" $temp)
-	svn info -r HEAD $M2S_SVN_URL > $temp || error "failed running 'svn info'"
+	svn info -r HEAD > $temp || error "failed running 'svn info'"
 	rev_latest=$(sed -n "s,^Revision: ,,gp" $temp)
 	rm -f $temp
 	[ "$rev_current" == "$rev_latest" ] || \
-		echo -n " - WARNING: m2s-client-kit out of date"
+		echo -n " - [WARNING: m2s-client-kit out of date]"
 
 	# Send configuration to server
 	echo -n " - sending files"
@@ -519,6 +519,18 @@ then
 			echo -e "\nerror: $1\n" >&2
 			exit 1
 		}
+
+		# Check that m2s-server-kit is up to date
+		cd $HOME/'$M2S_SERVER_KIT_PATH' || exit 1
+		temp=$(mktemp)
+		svn info > $temp || error "failed running \"svn info\""
+		rev_current=$(sed -n "s,^Revision: ,,gp" $temp)
+		svn info -r HEAD > $temp || error "failed running \"svn info\""
+		rev_latest=$(sed -n "s,^Revision: ,,gp" $temp)
+		rm -f $temp
+		[ "$rev_current" == "$rev_latest" ] || \
+			echo -n " - [WARNING: m2s-sever-kit out of date]"
+
 
 		# Unpack server package
 		server_package="$HOME/'$M2S_SERVER_KIT_TMP_PATH'/sim-cluster.tar.gz"
@@ -625,8 +637,8 @@ then
 				[ "$tokens" == 2 ] || error "$suite_bench: invalid format for suite/benchmark"
 				suite_name=`echo $suite_bench | awk -F/ "{ print \\$1 }"`
 				bench_name=`echo $suite_bench | awk -F/ "{ print \\$2 }"`
-				suite_path="$HOME/'$M2S_SERVER_KIT_BENCH_PATH'/$suite_name"
-				bench_path="$HOME/'$M2S_SERVER_KIT_BENCH_PATH'/$suite_name/$bench_name"
+				suite_path="$HOME/m2s-bench-${suite_name}"
+				bench_path="$suite_path/$bench_name"
 				[ -d $suite_path ] || error "$suite_name: invalid benchmark suite"
 				[ -d $bench_path ] || error "$bench_name: invalid benchmark"
 
