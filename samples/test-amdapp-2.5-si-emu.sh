@@ -99,7 +99,7 @@ then
 	for size in $size_list
 	do
 		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			SI-AMDAPP-2.5/$bench_name \
+			amdapp-2.5-si/$bench_name \
 			--sim-arg "--si-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -113,7 +113,7 @@ then
 	for size in $size_list
 	do
 		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			SI-AMDAPP-2.5/$bench_name \
+			amdapp-2.5-si/$bench_name \
 			--sim-arg "--si-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -127,7 +127,7 @@ then
 	for size in $size_list
 	do
 		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			SI-AMDAPP-2.5/$bench_name \
+			amdapp-2.5-si/$bench_name \
 			--sim-arg "--si-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -143,7 +143,7 @@ then
 	for size in $size_list
 	do
 		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			SI-AMDAPP-2.5/$bench_name \
+			amdapp-2.5-si/$bench_name \
 			--sim-arg "--si-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -157,7 +157,7 @@ then
 	for size in $size_list
 	do
 		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			SI-AMDAPP-2.5/$bench_name \
+			amdapp-2.5-si/$bench_name \
 			--sim-arg "--si-sim functional" \
 			--bench-arg " -q -e" \
 			|| exit 1
@@ -171,7 +171,7 @@ then
 	for size in $size_list
 	do
 		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			SI-AMDAPP-2.5/$bench_name \
+			amdapp-2.5-si/$bench_name \
 			--sim-arg "--si-sim functional" \
 			--bench-arg "-x $size -y $size -q -e" \
 			|| exit 1
@@ -185,7 +185,7 @@ then
 	for size in $size_list
 	do
 		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			SI-AMDAPP-2.5/$bench_name \
+			amdapp-2.5-si/$bench_name \
 			--sim-arg "--si-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -199,7 +199,7 @@ then
 	for size in $size_list
 	do
 		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			SI-AMDAPP-2.5/$bench_name \
+			amdapp-2.5-si/$bench_name \
 			--sim-arg "--si-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -213,7 +213,7 @@ then
 	for size in $size_list
 	do
 		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			SI-AMDAPP-2.5/$bench_name \
+			amdapp-2.5-si/$bench_name \
 			--sim-arg "--si-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -227,7 +227,7 @@ then
 	for size in $size_list
 	do
 		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			SI-AMDAPP-2.5/$bench_name \
+			amdapp-2.5-si/$bench_name \
 			--sim-arg "--si-sim functional" \
 			--bench-arg "-x $size -y $size -q -e" \
 			|| exit 1
@@ -241,7 +241,7 @@ then
 	for size in $size_list
 	do
 		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			SI-AMDAPP-2.5/$bench_name \
+			amdapp-2.5-si/$bench_name \
 			--sim-arg "--si-sim functional" \
 			--bench-arg "-x $size -y $size -z $size -q -e" \
 			|| exit 1
@@ -255,7 +255,7 @@ then
 	for size in $size_list
 	do
 		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			SI-AMDAPP-2.5/$bench_name \
+			amdapp-2.5-si/$bench_name \
 			--sim-arg "--si-sim functional" \
 			--bench-arg "-x $size -y $size -q -e" \
 			|| exit 1
@@ -269,7 +269,7 @@ then
 	for size in $size_list
 	do
 		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			SI-AMDAPP-2.5/$bench_name \
+			amdapp-2.5-si/$bench_name \
 			--sim-arg "--si-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -285,7 +285,7 @@ then
 	for size in $size_list
 	do
 		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			SI-AMDAPP-2.5/$bench_name \
+			amdapp-2.5-si/$bench_name \
 			--sim-arg "--si-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -299,7 +299,7 @@ then
 	for size in $size_list
 	do
 		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			SI-AMDAPP-2.5/$bench_name \
+			amdapp-2.5-si/$bench_name \
 			--sim-arg "--si-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -313,7 +313,7 @@ then
 	for size in $size_list
 	do
 		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			SI-AMDAPP-2.5/$bench_name \
+			amdapp-2.5-si/$bench_name \
 			--sim-arg "--si-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -327,7 +327,7 @@ then
 	for size in $size_list
 	do
 		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			SI-AMDAPP-2.5/$bench_name \
+			amdapp-2.5-si/$bench_name \
 			--sim-arg "--si-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -342,7 +342,7 @@ then
 	for size in $size_list
 	do
 		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			SI-AMDAPP-2.5/$bench_name \
+			amdapp-2.5-si/$bench_name \
 			--sim-arg "--si-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -356,7 +356,7 @@ then
 	for size in $size_list
 	do
 		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			SI-AMDAPP-2.5/$bench_name \
+			amdapp-2.5-si/$bench_name \
 			--sim-arg "--si-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
