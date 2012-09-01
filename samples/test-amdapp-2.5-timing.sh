@@ -7,7 +7,7 @@ M2S_CLIENT_KIT_DOC_PATH="$M2S_CLIENT_KIT_PATH/doc"
 M2S_CLIENT_KIT_TMP_PATH="$M2S_CLIENT_KIT_PATH/tmp"
 
 prog_name=`echo $0 | awk -F/ '{ print $NF }'`
-sim_cluster_sh="$HOME/$M2S_CLIENT_KIT_BIN_PATH/sim-cluster.sh"
+m2s_cluster_sh="$HOME/$M2S_CLIENT_KIT_BIN_PATH/m2s-cluster.sh"
 inifile_py="$HOME/$M2S_CLIENT_KIT_BIN_PATH/inifile.py"
 
 cluster_name="amdapp-2.5-timing"
@@ -120,7 +120,7 @@ then
 	server_port=$1
 
 	# Create cluster
-	$sim_cluster_sh create $cluster_name || exit 1
+	$m2s_cluster_sh create $cluster_name || exit 1
 
 
 	# Add jobs
@@ -136,7 +136,7 @@ then
 		# BinarySearch
 		bench_name="BinarySearch"
 		size="2097152"
-		$sim_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
+		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			AMDAPP-2.5/$bench_name \
 			--sim-arg "--gpu-sim detailed" \
 			--sim-arg "--gpu-config gpu-config" \
@@ -149,7 +149,7 @@ then
 		# BinomialOption
 		bench_name="BinomialOption"
 		size="128"
-		$sim_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
+		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			AMDAPP-2.5/$bench_name \
 			--sim-arg "--gpu-sim detailed" \
 			--sim-arg "--gpu-config gpu-config" \
@@ -162,7 +162,7 @@ then
 		# BitonicSort
 		bench_name="BitonicSort"
 		size="1024"
-		$sim_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
+		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			AMDAPP-2.5/$bench_name \
 			--sim-arg "--gpu-sim detailed" \
 			--sim-arg "--gpu-config gpu-config" \
@@ -175,7 +175,7 @@ then
 		# BlackScholes
 		bench_name="BlackScholes"
 		size="1048576"
-		$sim_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
+		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			AMDAPP-2.5/$bench_name \
 			--sim-arg "--gpu-sim detailed" \
 			--sim-arg "--gpu-config gpu-config" \
@@ -188,7 +188,7 @@ then
 		# BoxFilter
 		#bench_name="BoxFilter"
 		#size="1"
-		#$sim_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
+		#$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 		#	AMDAPP-2.5/$bench_name \
 		#	--sim-arg "--gpu-sim detailed" \
 		#	--sim-arg "--gpu-config gpu-config" \
@@ -201,7 +201,7 @@ then
 		# DCT
 		bench_name="DCT"
 		size="512"
-		$sim_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
+		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			AMDAPP-2.5/$bench_name \
 			--sim-arg "--gpu-sim detailed" \
 			--sim-arg "--gpu-config gpu-config" \
@@ -214,7 +214,7 @@ then
 		# DwtHaar1D
 		bench_name="DwtHaar1D"
 		size="131072"
-		$sim_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
+		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			AMDAPP-2.5/$bench_name \
 			--sim-arg "--gpu-sim detailed" \
 			--sim-arg "--gpu-config gpu-config" \
@@ -227,7 +227,7 @@ then
 		# FastWalshTransform
 		bench_name="FastWalshTransform"
 		size="262144"
-		$sim_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
+		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			AMDAPP-2.5/$bench_name \
 			--sim-arg "--gpu-sim detailed" \
 			--sim-arg "--gpu-config gpu-config" \
@@ -240,7 +240,7 @@ then
 		# FloydWarshall
 		bench_name="FloydWarshall"
 		size="128"
-		$sim_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
+		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			AMDAPP-2.5/$bench_name \
 			--sim-arg "--gpu-sim detailed" \
 			--sim-arg "--gpu-config gpu-config" \
@@ -253,7 +253,7 @@ then
 		# Histogram
 		bench_name="Histogram"
 		size="1792"
-		$sim_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
+		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			AMDAPP-2.5/$bench_name \
 			--sim-arg "--gpu-sim detailed" \
 			--sim-arg "--gpu-config gpu-config" \
@@ -266,7 +266,7 @@ then
 		# MatrixMultiplication
 		bench_name="MatrixMultiplication"
 		size="256"
-		$sim_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
+		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			AMDAPP-2.5/$bench_name \
 			--sim-arg "--gpu-sim detailed" \
 			--sim-arg "--gpu-config gpu-config" \
@@ -279,7 +279,7 @@ then
 		# MatrixTranspose
 		bench_name="MatrixTranspose"
 		size="1024"
-		$sim_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
+		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			AMDAPP-2.5/$bench_name \
 			--sim-arg "--gpu-sim detailed" \
 			--sim-arg "--gpu-config gpu-config" \
@@ -292,7 +292,7 @@ then
 		# PrefixSum
 		bench_name="PrefixSum"
 		size="16384"
-		$sim_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
+		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			AMDAPP-2.5/$bench_name \
 			--sim-arg "--gpu-sim detailed" \
 			--sim-arg "--gpu-config gpu-config" \
@@ -305,7 +305,7 @@ then
 		# RadixSort
 		bench_name="RadixSort"
 		size="65536"
-		$sim_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
+		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			AMDAPP-2.5/$bench_name \
 			--sim-arg "--gpu-sim detailed" \
 			--sim-arg "--gpu-config gpu-config" \
@@ -318,7 +318,7 @@ then
 		# RecursiveGaussian
 		bench_name="RecursiveGaussian"
 		size="3"
-		$sim_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
+		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			AMDAPP-2.5/$bench_name \
 			--sim-arg "--gpu-sim detailed" \
 			--sim-arg "--gpu-config gpu-config" \
@@ -331,7 +331,7 @@ then
 		# Reduction
 		bench_name="Reduction"
 		size="1638400"
-		$sim_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
+		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			AMDAPP-2.5/$bench_name \
 			--sim-arg "--gpu-sim detailed" \
 			--sim-arg "--gpu-config gpu-config" \
@@ -344,7 +344,7 @@ then
 		# ScanLargeArrays
 		bench_name="ScanLargeArrays"
 		size="262144"
-		$sim_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
+		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			AMDAPP-2.5/$bench_name \
 			--sim-arg "--gpu-sim detailed" \
 			--sim-arg "--gpu-config gpu-config" \
@@ -358,7 +358,7 @@ then
 		# SobelFilter
 		bench_name="SobelFilter"
 		size="5"
-		$sim_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
+		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			AMDAPP-2.5/$bench_name \
 			--sim-arg "--gpu-sim detailed" \
 			--sim-arg "--gpu-config gpu-config" \
@@ -371,7 +371,7 @@ then
 		# URNG
 		bench_name="URNG"
 		size="2"
-		$sim_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
+		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			AMDAPP-2.5/$bench_name \
 			--sim-arg "--gpu-sim detailed" \
 			--sim-arg "--gpu-config gpu-config" \
@@ -384,7 +384,7 @@ then
 	
 	
 	# Submit cluster
-	$sim_cluster_sh submit $cluster_name $server_port \
+	$m2s_cluster_sh submit $cluster_name $server_port \
 		$revision_arg $tag_arg $configure_args_arg \
 		|| exit 1
 	
@@ -392,19 +392,19 @@ elif [ "$command" == kill ]
 then
 
 	# Kill cluster
-	$sim_cluster_sh kill $cluster_name
+	$m2s_cluster_sh kill $cluster_name
 
 elif [ "$command" == state ]
 then
 
 	# Return state of cluster
-	$sim_cluster_sh state $cluster_name
+	$m2s_cluster_sh state $cluster_name
 
 elif [ "$command" == wait ]
 then
 
 	# Wait for cluster
-	$sim_cluster_sh wait $cluster_name
+	$m2s_cluster_sh wait $cluster_name
 
 elif [ "$command" == process ]
 then
@@ -427,7 +427,7 @@ then
 	cluster_path="$HOME/$M2S_CLIENT_KIT_RESULT_PATH/$cluster_name"
 	if [ ! -d "$cluster_path" -o "$force" == 1 ]
 	then
-		$sim_cluster_sh import $cluster_name \
+		$m2s_cluster_sh import $cluster_name \
 			|| exit 1
 	fi
 
@@ -446,7 +446,7 @@ then
 	#
 
 	# Get list of jobs
-	job_list=`$sim_cluster_sh list $cluster_name` || exit 1
+	job_list=`$m2s_cluster_sh list $cluster_name` || exit 1
 
 	# Check output for each job in the cluster
 	avail_count=0
@@ -619,7 +619,7 @@ elif [ "$command" == remove ]
 then
 
 	# Remove cluster
-	$sim_cluster_sh remove $cluster_name
+	$m2s_cluster_sh remove $cluster_name
 
 else
 

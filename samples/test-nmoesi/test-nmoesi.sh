@@ -8,7 +8,7 @@ M2S_CLIENT_KIT_TMP_PATH="$M2S_CLIENT_KIT_PATH/tmp"
 M2S_CLIENT_KIT_SCRIPT_PATH="$M2S_CLIENT_KIT_PATH/samples/test-nmoesi"
 
 prog_name=`echo $0 | awk -F/ '{ print $NF }'`
-sim_cluster_sh="$HOME/$M2S_CLIENT_KIT_BIN_PATH/sim-cluster.sh"
+m2s_cluster_sh="$HOME/$M2S_CLIENT_KIT_BIN_PATH/m2s-cluster.sh"
 inifile_py="$HOME/$M2S_CLIENT_KIT_BIN_PATH/inifile.py"
 
 cluster_name="test-nmoesi"
@@ -91,7 +91,7 @@ then
 	server_port=$1
 
 	# Create cluster
-	$sim_cluster_sh create $cluster_name || exit 1
+	$m2s_cluster_sh create $cluster_name || exit 1
 
 	# Create test cases
 	config_id=0
@@ -136,7 +136,7 @@ then
 			cat $test_path/commands >> $HOME/$M2S_CLIENT_KIT_TMP_PATH/mem-config || exit 1
 
 			# Add job
-			$sim_cluster_sh add $cluster_name "config-$config_id/test-$test_id" \
+			$m2s_cluster_sh add $cluster_name "config-$config_id/test-$test_id" \
 				--sim-args "$cpu_config_arg $gpu_config_arg $mem_config_arg" \
 				--sim-args "--cpu-sim detailed" \
 				$cpu_config_send_arg $gpu_config_send_arg $mem_config_send_arg \
@@ -151,7 +151,7 @@ then
 	done
 
 	# Submit cluster
-	$sim_cluster_sh submit $cluster_name $server_port \
+	$m2s_cluster_sh submit $cluster_name $server_port \
 		$revision_arg $tag_arg $configure_args_arg \
 		|| exit 1
 	
@@ -159,19 +159,19 @@ elif [ "$command" == kill ]
 then
 
 	# Kill cluster
-	$sim_cluster_sh kill $cluster_name
+	$m2s_cluster_sh kill $cluster_name
 
 elif [ "$command" == state ]
 then
 
 	# Return state of cluster
-	$sim_cluster_sh state $cluster_name
+	$m2s_cluster_sh state $cluster_name
 
 elif [ "$command" == wait ]
 then
 
 	# Wait for cluster
-	$sim_cluster_sh wait $cluster_name
+	$m2s_cluster_sh wait $cluster_name
 
 elif [ "$command" == process ]
 then
@@ -191,12 +191,12 @@ then
 	done
 
 	# Import cluster if needed.
-	# Use '-a' option in 'sim-cluster.sh import' to receive the benchmark
+	# Use '-a' option in 'm2s-cluster.sh import' to receive the benchmark
 	# binaries as well.
 	cluster_path="$HOME/$M2S_CLIENT_KIT_RESULT_PATH/$cluster_name"
 	if [ ! -d "$cluster_path" -o "$force" == 1 ]
 	then
-		$sim_cluster_sh import -a $cluster_name \
+		$m2s_cluster_sh import -a $cluster_name \
 			|| exit 1
 	fi
 
@@ -272,7 +272,7 @@ elif [ "$command" == remove ]
 then
 
 	# Remove cluster
-	$sim_cluster_sh remove $cluster_name
+	$m2s_cluster_sh remove $cluster_name
 
 else
 
