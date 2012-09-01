@@ -6,7 +6,7 @@ M2S_CLIENT_KIT_RESULT_PATH="$M2S_CLIENT_KIT_PATH/result"
 M2S_CLIENT_KIT_DOC_PATH="$M2S_CLIENT_KIT_PATH/doc"
 
 prog_name=`echo $0 | awk -F/ '{ print $NF }'`
-sim_cluster_sh="$HOME/$M2S_CLIENT_KIT_BIN_PATH/sim-cluster.sh"
+m2s_cluster_sh="$HOME/$M2S_CLIENT_KIT_BIN_PATH/m2s-cluster.sh"
 inifile_py="$HOME/$M2S_CLIENT_KIT_BIN_PATH/inifile.py"
 
 cluster_name="amdapp-2.5-emu"
@@ -90,7 +90,7 @@ then
 	server_port=$1
 
 	# Create cluster
-	$sim_cluster_sh create $cluster_name || exit 1
+	$m2s_cluster_sh create $cluster_name || exit 1
 
 	# BinarySearch
 	bench_name="BinarySearch"
@@ -98,7 +98,7 @@ then
 	size_index=0
 	for size in $size_list
 	do
-		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
 			AMDAPP-2.5/$bench_name \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -111,7 +111,7 @@ then
 	size_index=0
 	for size in $size_list
 	do
-		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
 			AMDAPP-2.5/$bench_name \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -124,7 +124,7 @@ then
 	size_index=0
 	for size in $size_list
 	do
-		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
 			AMDAPP-2.5/$bench_name \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -139,7 +139,7 @@ then
 	size_index=0
 	for size in $size_list
 	do
-		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
 			AMDAPP-2.5/$bench_name \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -152,7 +152,7 @@ then
 	size_index=0
 	for size in $size_list
 	do
-		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
 			AMDAPP-2.5/$bench_name \
 			--bench-arg " -q -e" \
 			|| exit 1
@@ -165,7 +165,7 @@ then
 	size_index=0
 	for size in $size_list
 	do
-		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
 			AMDAPP-2.5/$bench_name \
 			--bench-arg "-x $size -y $size -q -e" \
 			|| exit 1
@@ -178,7 +178,7 @@ then
 	size_index=0
 	for size in $size_list
 	do
-		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
 			AMDAPP-2.5/$bench_name \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -191,7 +191,7 @@ then
 	size_index=0
 	for size in $size_list
 	do
-		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
 			AMDAPP-2.5/$bench_name \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -204,7 +204,7 @@ then
 	size_index=0
 	for size in $size_list
 	do
-		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
 			AMDAPP-2.5/$bench_name \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -217,7 +217,7 @@ then
 	size_index=0
 	for size in $size_list
 	do
-		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
 			AMDAPP-2.5/$bench_name \
 			--bench-arg "-x $size -y $size -q -e" \
 			|| exit 1
@@ -230,7 +230,7 @@ then
 	size_index=0
 	for size in $size_list
 	do
-		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
 			AMDAPP-2.5/$bench_name \
 			--bench-arg "-x $size -y $size -z $size -q -e" \
 			|| exit 1
@@ -243,7 +243,7 @@ then
 	size_index=0
 	for size in $size_list
 	do
-		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
 			AMDAPP-2.5/$bench_name \
 			--bench-arg "-x $size -y $size -q -e" \
 			|| exit 1
@@ -256,7 +256,7 @@ then
 	size_index=0
 	for size in $size_list
 	do
-		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
 			AMDAPP-2.5/$bench_name \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -271,7 +271,7 @@ then
 	size_index=0
 	for size in $size_list
 	do
-		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
 			AMDAPP-2.5/$bench_name \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -284,7 +284,7 @@ then
 	size_index=0
 	for size in $size_list
 	do
-		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
 			AMDAPP-2.5/$bench_name \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -297,7 +297,7 @@ then
 	size_index=0
 	for size in $size_list
 	do
-		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
 			AMDAPP-2.5/$bench_name \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -310,7 +310,7 @@ then
 	size_index=0
 	for size in $size_list
 	do
-		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
 			AMDAPP-2.5/$bench_name \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -324,7 +324,7 @@ then
 	size_index=0
 	for size in $size_list
 	do
-		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
 			AMDAPP-2.5/$bench_name \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -337,7 +337,7 @@ then
 	size_index=0
 	for size in $size_list
 	do
-		$sim_cluster_sh add $cluster_name "$bench_name/$size_index" \
+		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
 			AMDAPP-2.5/$bench_name \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -347,7 +347,7 @@ then
 	
 	
 	# Submit cluster
-	$sim_cluster_sh submit $cluster_name $server_port \
+	$m2s_cluster_sh submit $cluster_name $server_port \
 		$revision_arg $tag_arg $configure_args_arg \
 		|| exit 1
 	
@@ -355,19 +355,19 @@ elif [ "$command" == kill ]
 then
 
 	# Kill cluster
-	$sim_cluster_sh kill $cluster_name
+	$m2s_cluster_sh kill $cluster_name
 
 elif [ "$command" == state ]
 then
 
 	# Return state of cluster
-	$sim_cluster_sh state $cluster_name
+	$m2s_cluster_sh state $cluster_name
 
 elif [ "$command" == wait ]
 then
 
 	# Wait for cluster
-	$sim_cluster_sh wait $cluster_name
+	$m2s_cluster_sh wait $cluster_name
 
 elif [ "$command" == process ]
 then
@@ -390,7 +390,7 @@ then
 	cluster_path="$HOME/$M2S_CLIENT_KIT_RESULT_PATH/$cluster_name"
 	if [ ! -d "$cluster_path" -o "$force" == 1 ]
 	then
-		$sim_cluster_sh import $cluster_name \
+		$m2s_cluster_sh import $cluster_name \
 			|| exit 1
 	fi
 
@@ -409,7 +409,7 @@ then
 	#
 
 	# Get list of jobs
-	job_list=`$sim_cluster_sh list $cluster_name` || exit 1
+	job_list=`$m2s_cluster_sh list $cluster_name` || exit 1
 
 	# Check output for each job in the cluster
 	passed_count=0
@@ -653,7 +653,7 @@ elif [ "$command" == remove ]
 then
 
 	# Remove cluster
-	$sim_cluster_sh remove $cluster_name
+	$m2s_cluster_sh remove $cluster_name
 
 else
 

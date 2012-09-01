@@ -10,7 +10,7 @@ where <command> can take any of the possible values.
 
   submit <server>[:<port>] [<options>]
       Create one or more clusters and submit them to the server. The clusters
-      can be created by explicit calls to 'sim-cluster.sh', or by recursively
+      can be created by explicit calls to 'm2s-cluster.sh', or by recursively
       calling other verification scripts. The following optional arguments can
       be used:
 
@@ -34,7 +34,7 @@ where <command> can take any of the possible values.
   kill
       Kill all clusters associated with the verification script. This command
       recursively calls the 'kill' command of secondary verification scripts, or
-      runs 'sim-cluster.sh kill' for clusters explicitly created by this script
+      runs 'm2s-cluster.sh kill' for clusters explicitly created by this script
       that are currently in state 'Submitted'.
 
   state

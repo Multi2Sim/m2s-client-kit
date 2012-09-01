@@ -12,10 +12,10 @@ M2S_SERVER_KIT_TMP_PATH="$M2S_SERVER_KIT_PATH/tmp"
 M2S_SERVER_KIT_BENCH_PATH="$M2S_SERVER_KIT_PATH/benchmarks"
 M2S_SERVER_KIT_M2S_BIN_PATH="$M2S_SERVER_KIT_TMP_PATH/m2s-bin"
 
-sim_cluster_sh="$HOME/$M2S_CLIENT_KIT_BIN_PATH/sim-cluster.sh"
+m2s_cluster_sh="$HOME/$M2S_CLIENT_KIT_BIN_PATH/m2s-cluster.sh"
 inifile_py="$HOME/$M2S_CLIENT_KIT_BIN_PATH/inifile.py"
 
-inifile="$HOME/$M2S_CLIENT_KIT_TMP_PATH/sim-cluster.ini"
+inifile="$HOME/$M2S_CLIENT_KIT_TMP_PATH/m2s-cluster.ini"
 
 prog_name=`echo $0 | awk -F/ '{ print $NF }'`
 
@@ -320,7 +320,7 @@ then
 	fi
 
 	# Clear all sending files
-	rm -f $HOME/$M2S_CLIENT_KIT_TMP_PATH/sim-cluster-file-*
+	rm -f $HOME/$M2S_CLIENT_KIT_TMP_PATH/m2s-cluster-file-*
 
 	# Start cluster
 	inifile_script=$(mktemp)
@@ -393,7 +393,7 @@ then
 	num_send_files=`$inifile_py $inifile read $cluster_section NumSendFiles`
 	for send_file in $send_files
 	do
-		send_file_copy="$HOME/$M2S_CLIENT_KIT_TMP_PATH/sim-cluster-file-$num_send_files"
+		send_file_copy="$HOME/$M2S_CLIENT_KIT_TMP_PATH/m2s-cluster-file-$num_send_files"
 		num_send_files=`expr $num_send_files + 1`
 		cp $send_file $send_file_copy 2>/dev/null \
 			|| error "$send_file: file not found"
@@ -503,9 +503,9 @@ then
 
 	# Send configuration to server
 	echo -n " - sending files"
-	server_package="$HOME/$M2S_CLIENT_KIT_TMP_PATH/sim-cluster.tar.gz"
+	server_package="$HOME/$M2S_CLIENT_KIT_TMP_PATH/m2s-cluster.tar.gz"
 	cd $HOME/$M2S_CLIENT_KIT_TMP_PATH || error "cannot cd to temp path"
-	file_list=`ls sim-cluster-file-* sim-cluster.ini 2>/dev/null`
+	file_list=`ls m2s-cluster-file-* m2s-cluster.ini 2>/dev/null`
 	tar -czf $server_package $file_list || error "error creating package for server"
 	scp -q -P $port $server_package $server:$M2S_SERVER_KIT_TMP_PATH \
 		|| error "error sending package to server"
@@ -533,14 +533,14 @@ then
 
 
 		# Unpack server package
-		server_package="$HOME/'$M2S_SERVER_KIT_TMP_PATH'/sim-cluster.tar.gz"
+		server_package="$HOME/'$M2S_SERVER_KIT_TMP_PATH'/m2s-cluster.tar.gz"
 		cd $HOME/'$M2S_SERVER_KIT_TMP_PATH' && \
 			tar -xzmf $server_package > /dev/null 2>&1 || exit 1
 		rm -f $server_package
 
 		# Initialize
 		inifile_py="$HOME/'$M2S_SERVER_KIT_BIN_PATH'/inifile.py"
-		inifile="$HOME/'$M2S_SERVER_KIT_TMP_PATH'/sim-cluster.ini"
+		inifile="$HOME/'$M2S_SERVER_KIT_TMP_PATH'/m2s-cluster.ini"
 		cluster_name='$cluster_name'
 		cluster_section='$cluster_section'
 
@@ -617,7 +617,7 @@ then
 			# Copy files
 			for send_file in $send_files
 			do
-				source="$HOME/'$M2S_SERVER_KIT_TMP_PATH'/sim-cluster-file-$send_file_id"
+				source="$HOME/'$M2S_SERVER_KIT_TMP_PATH'/m2s-cluster-file-$send_file_id"
 				dest="$job_path/`echo $send_file | awk -F/ "{ print \\$NF }"`"
 				cp $source $dest || exit 1
 				send_file_id=`expr $send_file_id + 1`
@@ -794,7 +794,7 @@ then
 		|| error "cluster must be in state 'Created', 'Completed', or 'Killed'"
 
 	# Remove all sending files
-	rm -f $HOME/$M2S_CLIENT_KIT_TMP_PATH/sim-cluster-file-*
+	rm -f $HOME/$M2S_CLIENT_KIT_TMP_PATH/m2s-cluster-file-*
 
 	# Get cluster jobs
 	num_jobs=`$inifile_py $inifile read $cluster_section NumJobs`
@@ -1152,7 +1152,7 @@ then
 		total=`echo "$cluster_list" | wc -w`
 		for cluster in $cluster_list
 		do
-			state=`$sim_cluster_sh state $cluster` || exit 1
+			state=`$m2s_cluster_sh state $cluster` || exit 1
 			if [ "$state" == "Created" ]
 			then
 				created_count=`expr $created_count + 1`
