@@ -545,7 +545,7 @@ then
 			exit 1
 		}
 
-		# Check that m2s-server-kit is up to date
+		# Check if m2s-server-kit is up to date
 		cd $HOME/'$M2S_SERVER_KIT_PATH' || exit 1
 		temp=$(mktemp)
 		svn info > $temp || error "failed running \"svn info\""
@@ -555,7 +555,6 @@ then
 		rm -f $temp
 		[ "$rev_current" == "$rev_latest" ] || \
 			echo -n " - [WARNING: m2s-sever-kit out of date]"
-
 
 		# Unpack server package
 		server_package="$HOME/'$M2S_SERVER_KIT_TMP_PATH'/m2s-cluster.tar.gz"
@@ -621,6 +620,9 @@ then
 		echo "Notification = Never" >> $condor_submit_path
 		echo "Executable = $cluster_path/m2s" >> $condor_submit_path
 
+		# Keep track of benchmark suites used in cluster
+		suite_list=""
+
 		# For each job
 		send_file_id=0
 		for job_name in $job_list
@@ -678,6 +680,11 @@ then
 				bench_path="$suite_path/$bench_name"
 				[ -d $suite_path ] || error "$suite_name: invalid benchmark suite"
 				[ -d $bench_path ] || error "$bench_name: invalid benchmark"
+
+				# Keep a list of benchmark suites used in the cluster, to check
+				# later whether they are at their latest versions.
+				echo $suite_list | grep -q "\<$suite_name\>"
+				[ $? == 0 ] || suite_list="$suite_list $suite_name"
 
 				# Check dataset
 				bench_ini="$bench_path/benchmark.ini"
@@ -757,6 +764,21 @@ then
 			echo "+GPBatchJob = True" >> $condor_submit_path
 			echo "+LongRunningJob = True" >> $condor_submit_path
 			echo "Queue" >> $condor_submit_path
+		done
+
+		# Now that the list of benchmark suites used in the cluster is
+		# complete, check that each of them is up to date
+		for suite_name in $suite_list
+		do
+			cd $HOME/m2s-bench-$suite_name || exit 1
+			temp=$(mktemp)
+			svn info > $temp || error "failed running \"svn info\""
+			rev_current=$(sed -n "s,^Revision: ,,gp" $temp)
+			svn info -r HEAD > $temp || error "failed running \"svn info\""
+			rev_latest=$(sed -n "s,^Revision: ,,gp" $temp)
+			rm -f $temp
+			[ "$rev_current" == "$rev_latest" ] || \
+				echo -n " - [WARNING: m2s-bench-$suite_name out of date]"
 		done
 
 		# Submit condor cluster
