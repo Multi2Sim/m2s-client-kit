@@ -1217,33 +1217,26 @@ then
 			exit 1
 		}
 
-		# Go to benchmarks directory
+		# List a specific benchmark suite
 		suite="'"$suite"'"
-		cd $HOME/'$M2S_SERVER_KIT_BENCH_PATH' 2>/dev/null \
-			error "Multi2Sim server suite missing"
-
-		# Go to suite
 		if [ -n "$suite" ]
 		then
-			cd $suite 2>/dev/null \
+			suite_dir="m2s-bench-$suite"
+			cd $suite_dir 2>/dev/null \
 				|| error "$suite: invalid benchmark suite"
+			dir_list=`find -maxdepth 1 -type d -regex "\./[^\.].*"`
+			for dir in $dir_list
+			do
+				echo ${dir:2}
+			done
+			exit
 		fi
 
-		# List directories
-		dir_list=`find -maxdepth 1 -type d`
+		# List all benchmark suites
+		dir_list=`find -maxdepth 1 -regex "\./m2s-bench-.*" -type d`
 		for dir in $dir_list
 		do
-			# Clear "./" prefix
-			[ "${dir::2}" != "./" ] || dir=${dir:2}
-
-			# Skip empty entry or hidden files
-			if [ -z "$dir" -o "${dir::1}" == "." ]
-			then
-				continue
-			fi
-
-			# Dump
-			echo $dir
+			echo ${dir:12}
 		done
 	' || exit 1
 
