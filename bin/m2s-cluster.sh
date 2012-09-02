@@ -119,6 +119,16 @@ commands are:
 	  simulator verification, it is recommend to always used at least:
 	      --configure-args "--enable-debug"
 
+      --exe <file>
+          Multi2Sim executable file to be used for simulations. This option
+	  overrides the default behavior of fetching a Multi2Sim version for the
+	  SVN repository. Instead, it allows the user to specify a custom
+	  version of the simulator. Options '-r', '--tag', and
+	  '--configure-args' are ignored if option '--exe' is used.
+	  The user should make sure that the executable can run correctly on the
+	  server environment. Preferably, the executable should be created
+	  through a compilation on the server.
+
   state <cluster> [-v]
       Return the current state of a cluster. Additional information about the
       cluster will be printed if optional flag '-v' is specified. The following
@@ -423,18 +433,20 @@ elif [ "$command" == "submit" ]
 then
 
 	# Options
-	temp=`getopt -o r: -l configure-args:,tag: -n $prog_name -- "$@"`
+	temp=`getopt -o r: -l configure-args:,tag:,exe: -n $prog_name -- "$@"`
 	[ $? == 0 ] || exit 1
 	eval set -- "$temp"
 	rev=
 	tag=
 	configure_args=
+	exe=
 	while true
 	do
 		case "$1" in
 		-r) rev=$2 ; shift 2 ;;
 		--tag) tag=$2 ; shift 2 ;;
 		--configure-args) configure_args=$2 ; shift 2 ;;
+		--exe) exe=$2 ; shift 2 ;;
 		--) shift ; break ;;
 		*) error "$1: invalid option" ;;
 		esac
@@ -479,13 +491,17 @@ then
 		|| error "cluster must be in state 'Created', 'Completed', or 'Killed'"
 
 	# Prepare Multi2Sim revision in server
-	rev_arg=
-	tag_arg=
-	[ -z "$rev" ] || rev_arg="-r $rev"
-	[ -z "$tag" ] || tag_arg="--tag $tag"
-	$HOME/$M2S_CLIENT_KIT_BIN_PATH/gen-m2s-bin.sh \
-		$rev_arg $tag_arg --configure-args "$configure_args" $server_port \
-		|| exit 1
+	# (only if a Multi2Sim executable was not specified)
+	if [ -z "$exe" ]
+	then
+		rev_arg=
+		tag_arg=
+		[ -z "$rev" ] || rev_arg="-r $rev"
+		[ -z "$tag" ] || tag_arg="--tag $tag"
+		$HOME/$M2S_CLIENT_KIT_BIN_PATH/gen-m2s-bin.sh \
+			$rev_arg $tag_arg --configure-args "$configure_args" $server_port \
+			|| exit 1
+	fi
 
 	# Info
 	echo -n "submitting cluster '$cluster_name'"
@@ -501,11 +517,20 @@ then
 	[ "$rev_current" == "$rev_latest" ] || \
 		echo -n " - [WARNING: m2s-client-kit out of date]"
 
+	# If an executable file was specified with option '--exe', make a copy
+	# of it in the temporary directory, named 'm2s-exe'.
+	if [ -n "$exe" ]
+	then
+		[ -f "$exe" ] || error "$exe: invalid executable"
+		cp $exe $HOME/$M2S_CLIENT_KIT_TMP_PATH/m2s-exe || \
+			error "cannot copy executable to temp path"
+	fi
+
 	# Send configuration to server
 	echo -n " - sending files"
 	server_package="$HOME/$M2S_CLIENT_KIT_TMP_PATH/m2s-cluster.tar.gz"
 	cd $HOME/$M2S_CLIENT_KIT_TMP_PATH || error "cannot cd to temp path"
-	file_list=`ls m2s-cluster-file-* m2s-cluster.ini 2>/dev/null`
+	file_list=`ls m2s-cluster-file-* m2s-cluster.ini m2s-exe 2>/dev/null`
 	tar -czf $server_package $file_list || error "error creating package for server"
 	scp -q -P $port $server_package $server:$M2S_SERVER_KIT_TMP_PATH \
 		|| error "error sending package to server"
@@ -574,9 +599,21 @@ then
 		rm -f $inifile_script $temp
 
 		# Copy Multi2Sim binary
+		# If the binary has been created automatically from the SVN
+		# repository, get it from "tmp/m2s-bin/m2s". Otherwise, the user
+		# specified option "--exe" in the command line, and the
+		# executable should be found in "tmp/m2s-exe".
 		cluster_path="$HOME/'$M2S_SERVER_KIT_RUN_PATH'/$cluster_name"
 		mkdir -p $cluster_path || exit 1
-		cp $HOME/'$M2S_SERVER_KIT_M2S_BIN_PATH'/m2s $cluster_path || exit 1
+		exe="'$exe'"
+		if [ -z "$exe" ]
+		then
+			cp $HOME/'$M2S_SERVER_KIT_M2S_BIN_PATH'/m2s \
+				$cluster_path || exit 1
+		else
+			cp $HOME/'$M2S_SERVER_KIT_TMP_PATH'/m2s-exe \
+				$cluster_path/m2s || exit 1
+		fi
 
 		# Create condor submit file
 		condor_submit_path=`mktemp`
