@@ -31,6 +31,16 @@ where <command> can take any of the possible values.
 	  simulator verification, it is recommend to always used at least:
 	      --configure-args "--enable-debug"
 
+      --exe <file>
+          Multi2Sim executable file to be used for simulations. This option
+	  overrides the default behavior of fetching a Multi2Sim version from the
+	  SVN repository. Instead, it allows the user to specify a custom
+	  version of the simulator. Options '-r', '--tag', and
+	  '--configure-args' are ignored if option '--exe' is used.
+	  The user should make sure that the executable can run correctly on the
+	  server environment. Preferably, the executable should be created
+	  through a compilation on the server.
+
   kill
       Kill all clusters associated with the verification script. This command
       recursively calls the 'kill' command of secondary verification scripts, or

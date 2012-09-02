@@ -20,7 +20,7 @@ function syntax()
 {
 	cat << EOF
 
-Run emulation for AMDAPP-2.5 benchmarks, activating the self-check option. The
+Run emulation for 'amdapp-2.5-evg' benchmarks, activating the self-check option. The
 result of the simulations are then checked for 'Passed' or 'Failed' messages to
 validate the Multi2Sim Evergreen emulator.
 
@@ -65,18 +65,20 @@ if [ "$command" == submit ]
 then
 
 	# Options
-	temp=`getopt -o r: -l configure-args:,tag: -n $prog_name -- "$@"`
+	temp=`getopt -o r: -l configure-args:,tag:,exe: -n $prog_name -- "$@"`
 	[ $? == 0 ] || exit 1
 	eval set -- "$temp"
 	revision=
 	tag=
 	configure_args=
+	exe=
 	while true
 	do
 		case "$1" in
 		-r) revision=$2 ; shift 2 ;;
 		--tag) tag=$2 ; shift 2 ;;
 		--configure-args) configure_args=$2 ; shift 2 ;;
+		--exe) exe=$2 ; shift 2 ;;
 		--) shift ; break ;;
 		*) error "$1: invalid option" ;;
 		esac
@@ -84,6 +86,7 @@ then
 	[ -z "$revision" ] || revision_arg="-r $revision"
 	[ -z "$tag" ] || tag_arg="--tag $tag"
 	[ -z "$configure_args" ] || configure_args_arg="--configure-args \"$configure_arg\""
+	[ -z "$exe" ] || exe_arg="--exe $exe"
 
 	# Get argument
 	[ $# == 1 ] || error "syntax: submit <server>[:<port>] [<options>]"
@@ -99,7 +102,7 @@ then
 	for size in $size_list
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			AMDAPP-2.5/$bench_name \
+			amdapp-2.5-evg/$bench_name \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
 		size_index=`expr $size_index + 1`
@@ -112,7 +115,7 @@ then
 	for size in $size_list
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			AMDAPP-2.5/$bench_name \
+			amdapp-2.5-evg/$bench_name \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
 		size_index=`expr $size_index + 1`
@@ -125,7 +128,7 @@ then
 	for size in $size_list
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			AMDAPP-2.5/$bench_name \
+			amdapp-2.5-evg/$bench_name \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
 		size_index=`expr $size_index + 1`
@@ -140,7 +143,7 @@ then
 	for size in $size_list
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			AMDAPP-2.5/$bench_name \
+			amdapp-2.5-evg/$bench_name \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
 		size_index=`expr $size_index + 1`
@@ -153,7 +156,7 @@ then
 	for size in $size_list
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			AMDAPP-2.5/$bench_name \
+			amdapp-2.5-evg/$bench_name \
 			--bench-arg " -q -e" \
 			|| exit 1
 		size_index=`expr $size_index + 1`
@@ -166,7 +169,7 @@ then
 	for size in $size_list
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			AMDAPP-2.5/$bench_name \
+			amdapp-2.5-evg/$bench_name \
 			--bench-arg "-x $size -y $size -q -e" \
 			|| exit 1
 		size_index=`expr $size_index + 1`
@@ -179,7 +182,7 @@ then
 	for size in $size_list
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			AMDAPP-2.5/$bench_name \
+			amdapp-2.5-evg/$bench_name \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
 		size_index=`expr $size_index + 1`
@@ -192,7 +195,7 @@ then
 	for size in $size_list
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			AMDAPP-2.5/$bench_name \
+			amdapp-2.5-evg/$bench_name \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
 		size_index=`expr $size_index + 1`
@@ -205,7 +208,7 @@ then
 	for size in $size_list
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			AMDAPP-2.5/$bench_name \
+			amdapp-2.5-evg/$bench_name \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
 		size_index=`expr $size_index + 1`
@@ -218,7 +221,7 @@ then
 	for size in $size_list
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			AMDAPP-2.5/$bench_name \
+			amdapp-2.5-evg/$bench_name \
 			--bench-arg "-x $size -y $size -q -e" \
 			|| exit 1
 		size_index=`expr $size_index + 1`
@@ -231,7 +234,7 @@ then
 	for size in $size_list
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			AMDAPP-2.5/$bench_name \
+			amdapp-2.5-evg/$bench_name \
 			--bench-arg "-x $size -y $size -z $size -q -e" \
 			|| exit 1
 		size_index=`expr $size_index + 1`
@@ -244,7 +247,7 @@ then
 	for size in $size_list
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			AMDAPP-2.5/$bench_name \
+			amdapp-2.5-evg/$bench_name \
 			--bench-arg "-x $size -y $size -q -e" \
 			|| exit 1
 		size_index=`expr $size_index + 1`
@@ -257,7 +260,7 @@ then
 	for size in $size_list
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			AMDAPP-2.5/$bench_name \
+			amdapp-2.5-evg/$bench_name \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
 		size_index=`expr $size_index + 1`
@@ -272,7 +275,7 @@ then
 	for size in $size_list
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			AMDAPP-2.5/$bench_name \
+			amdapp-2.5-evg/$bench_name \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
 		size_index=`expr $size_index + 1`
@@ -285,7 +288,7 @@ then
 	for size in $size_list
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			AMDAPP-2.5/$bench_name \
+			amdapp-2.5-evg/$bench_name \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
 		size_index=`expr $size_index + 1`
@@ -298,7 +301,7 @@ then
 	for size in $size_list
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			AMDAPP-2.5/$bench_name \
+			amdapp-2.5-evg/$bench_name \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
 		size_index=`expr $size_index + 1`
@@ -311,7 +314,7 @@ then
 	for size in $size_list
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			AMDAPP-2.5/$bench_name \
+			amdapp-2.5-evg/$bench_name \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
 		size_index=`expr $size_index + 1`
@@ -325,7 +328,7 @@ then
 	for size in $size_list
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			AMDAPP-2.5/$bench_name \
+			amdapp-2.5-evg/$bench_name \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
 		size_index=`expr $size_index + 1`
@@ -338,7 +341,7 @@ then
 	for size in $size_list
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			AMDAPP-2.5/$bench_name \
+			amdapp-2.5-evg/$bench_name \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
 		size_index=`expr $size_index + 1`
@@ -348,7 +351,7 @@ then
 	
 	# Submit cluster
 	$m2s_cluster_sh submit $cluster_name $server_port \
-		$revision_arg $tag_arg $configure_args_arg \
+		$revision_arg $tag_arg $configure_args_arg $exe_arg \
 		|| exit 1
 	
 elif [ "$command" == kill ]
