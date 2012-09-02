@@ -62,18 +62,20 @@ if [ "$command" == submit ]
 then
 
 	# Options
-	temp=`getopt -o r: -l configure-args:,tag: -n $prog_name -- "$@"`
+	temp=`getopt -o r: -l configure-args:,tag:,exe: -n $prog_name -- "$@"`
 	[ $? == 0 ] || exit 1
 	eval set -- "$temp"
 	revision=
 	tag=
 	configure_args=
+	exe=
 	while true
 	do
 		case "$1" in
 		-r) revision=$2 ; shift 2 ;;
 		--tag) tag=$2 ; shift 2 ;;
 		--configure-args) configure_args=$2 ; shift 2 ;;
+		--exe) exe=$2 ; shift 2 ;;
 		--) shift ; break ;;
 		*) error "$1: invalid option" ;;
 		esac
@@ -81,6 +83,7 @@ then
 	[ -z "$revision" ] || revision_arg="-r $revision"
 	[ -z "$tag" ] || tag_arg="--tag $tag"
 	[ -z "$configure_args" ] || configure_args_arg="--configure-args \"$configure_arg\""
+	[ -z "$exe" ] || exe_arg="--exe $exe"
 
 	# Get argument
 	[ $# == 1 ] || error "syntax: submit <server>[:<port>] [<options>]"
@@ -112,7 +115,7 @@ then
 	
 	# Submit cluster
 	$m2s_cluster_sh submit $cluster_name $server_port \
-		$revision_arg $tag_arg $configure_args_arg \
+		$revision_arg $tag_arg $configure_args_arg $exe_arg \
 		|| exit 1
 	
 elif [ "$command" == kill ]

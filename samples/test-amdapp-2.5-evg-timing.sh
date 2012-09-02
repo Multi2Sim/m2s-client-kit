@@ -10,7 +10,7 @@ prog_name=`echo $0 | awk -F/ '{ print $NF }'`
 m2s_cluster_sh="$HOME/$M2S_CLIENT_KIT_BIN_PATH/m2s-cluster.sh"
 inifile_py="$HOME/$M2S_CLIENT_KIT_BIN_PATH/inifile.py"
 
-cluster_name="amdapp-2.5-timing"
+cluster_name="amdapp-2.5-evg-timing"
 
 
 #
@@ -21,7 +21,7 @@ function syntax()
 {
 	cat << EOF
 
-Run an Evergreen GPU timing simulation for the AMDAPP-2.5 SDK.
+Run an Evergreen GPU timing simulation for the amdapp-2.5-evg SDK.
 
 * Secondary verification scripts
 	None
@@ -95,18 +95,20 @@ if [ "$command" == submit ]
 then
 
 	# Options
-	temp=`getopt -o r: -l configure-args:,tag: -n $prog_name -- "$@"`
+	temp=`getopt -o r: -l configure-args:,tag:,exe: -n $prog_name -- "$@"`
 	[ $? == 0 ] || exit 1
 	eval set -- "$temp"
 	revision=
 	tag=
 	configure_args=
+	exe=
 	while true
 	do
 		case "$1" in
 		-r) revision=$2 ; shift 2 ;;
 		--tag) tag=$2 ; shift 2 ;;
 		--configure-args) configure_args=$2 ; shift 2 ;;
+		--exe) exe=$2 ; shift 2 ;;
 		--) shift ; break ;;
 		*) error "$1: invalid option" ;;
 		esac
@@ -114,6 +116,7 @@ then
 	[ -z "$revision" ] || revision_arg="-r $revision"
 	[ -z "$tag" ] || tag_arg="--tag $tag"
 	[ -z "$configure_args" ] || configure_args_arg="--configure-args \"$configure_arg\""
+	[ -z "$exe" ] || exe_arg="--exe $exe"
 
 	# Get argument
 	[ $# == 1 ] || error "syntax: submit <server>[:<port>] [<options>]"
@@ -137,7 +140,7 @@ then
 		bench_name="BinarySearch"
 		size="2097152"
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
-			AMDAPP-2.5/$bench_name \
+			amdapp-2.5-evg/$bench_name \
 			--sim-arg "--gpu-sim detailed" \
 			--sim-arg "--gpu-config gpu-config" \
 			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
@@ -150,7 +153,7 @@ then
 		bench_name="BinomialOption"
 		size="128"
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
-			AMDAPP-2.5/$bench_name \
+			amdapp-2.5-evg/$bench_name \
 			--sim-arg "--gpu-sim detailed" \
 			--sim-arg "--gpu-config gpu-config" \
 			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
@@ -163,7 +166,7 @@ then
 		bench_name="BitonicSort"
 		size="1024"
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
-			AMDAPP-2.5/$bench_name \
+			amdapp-2.5-evg/$bench_name \
 			--sim-arg "--gpu-sim detailed" \
 			--sim-arg "--gpu-config gpu-config" \
 			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
@@ -176,7 +179,7 @@ then
 		bench_name="BlackScholes"
 		size="1048576"
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
-			AMDAPP-2.5/$bench_name \
+			amdapp-2.5-evg/$bench_name \
 			--sim-arg "--gpu-sim detailed" \
 			--sim-arg "--gpu-config gpu-config" \
 			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
@@ -189,7 +192,7 @@ then
 		#bench_name="BoxFilter"
 		#size="1"
 		#$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
-		#	AMDAPP-2.5/$bench_name \
+		#	amdapp-2.5-evg/$bench_name \
 		#	--sim-arg "--gpu-sim detailed" \
 		#	--sim-arg "--gpu-config gpu-config" \
 		#	--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
@@ -202,7 +205,7 @@ then
 		bench_name="DCT"
 		size="512"
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
-			AMDAPP-2.5/$bench_name \
+			amdapp-2.5-evg/$bench_name \
 			--sim-arg "--gpu-sim detailed" \
 			--sim-arg "--gpu-config gpu-config" \
 			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
@@ -215,7 +218,7 @@ then
 		bench_name="DwtHaar1D"
 		size="131072"
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
-			AMDAPP-2.5/$bench_name \
+			amdapp-2.5-evg/$bench_name \
 			--sim-arg "--gpu-sim detailed" \
 			--sim-arg "--gpu-config gpu-config" \
 			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
@@ -228,7 +231,7 @@ then
 		bench_name="FastWalshTransform"
 		size="262144"
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
-			AMDAPP-2.5/$bench_name \
+			amdapp-2.5-evg/$bench_name \
 			--sim-arg "--gpu-sim detailed" \
 			--sim-arg "--gpu-config gpu-config" \
 			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
@@ -241,7 +244,7 @@ then
 		bench_name="FloydWarshall"
 		size="128"
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
-			AMDAPP-2.5/$bench_name \
+			amdapp-2.5-evg/$bench_name \
 			--sim-arg "--gpu-sim detailed" \
 			--sim-arg "--gpu-config gpu-config" \
 			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
@@ -254,7 +257,7 @@ then
 		bench_name="Histogram"
 		size="1792"
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
-			AMDAPP-2.5/$bench_name \
+			amdapp-2.5-evg/$bench_name \
 			--sim-arg "--gpu-sim detailed" \
 			--sim-arg "--gpu-config gpu-config" \
 			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
@@ -267,7 +270,7 @@ then
 		bench_name="MatrixMultiplication"
 		size="256"
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
-			AMDAPP-2.5/$bench_name \
+			amdapp-2.5-evg/$bench_name \
 			--sim-arg "--gpu-sim detailed" \
 			--sim-arg "--gpu-config gpu-config" \
 			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
@@ -280,7 +283,7 @@ then
 		bench_name="MatrixTranspose"
 		size="1024"
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
-			AMDAPP-2.5/$bench_name \
+			amdapp-2.5-evg/$bench_name \
 			--sim-arg "--gpu-sim detailed" \
 			--sim-arg "--gpu-config gpu-config" \
 			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
@@ -293,7 +296,7 @@ then
 		bench_name="PrefixSum"
 		size="16384"
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
-			AMDAPP-2.5/$bench_name \
+			amdapp-2.5-evg/$bench_name \
 			--sim-arg "--gpu-sim detailed" \
 			--sim-arg "--gpu-config gpu-config" \
 			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
@@ -306,7 +309,7 @@ then
 		bench_name="RadixSort"
 		size="65536"
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
-			AMDAPP-2.5/$bench_name \
+			amdapp-2.5-evg/$bench_name \
 			--sim-arg "--gpu-sim detailed" \
 			--sim-arg "--gpu-config gpu-config" \
 			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
@@ -319,7 +322,7 @@ then
 		bench_name="RecursiveGaussian"
 		size="3"
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
-			AMDAPP-2.5/$bench_name \
+			amdapp-2.5-evg/$bench_name \
 			--sim-arg "--gpu-sim detailed" \
 			--sim-arg "--gpu-config gpu-config" \
 			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
@@ -332,7 +335,7 @@ then
 		bench_name="Reduction"
 		size="1638400"
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
-			AMDAPP-2.5/$bench_name \
+			amdapp-2.5-evg/$bench_name \
 			--sim-arg "--gpu-sim detailed" \
 			--sim-arg "--gpu-config gpu-config" \
 			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
@@ -345,7 +348,7 @@ then
 		bench_name="ScanLargeArrays"
 		size="262144"
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
-			AMDAPP-2.5/$bench_name \
+			amdapp-2.5-evg/$bench_name \
 			--sim-arg "--gpu-sim detailed" \
 			--sim-arg "--gpu-config gpu-config" \
 			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
@@ -359,7 +362,7 @@ then
 		bench_name="SobelFilter"
 		size="5"
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
-			AMDAPP-2.5/$bench_name \
+			amdapp-2.5-evg/$bench_name \
 			--sim-arg "--gpu-sim detailed" \
 			--sim-arg "--gpu-config gpu-config" \
 			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
@@ -372,7 +375,7 @@ then
 		bench_name="URNG"
 		size="2"
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
-			AMDAPP-2.5/$bench_name \
+			amdapp-2.5-evg/$bench_name \
 			--sim-arg "--gpu-sim detailed" \
 			--sim-arg "--gpu-config gpu-config" \
 			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
@@ -385,7 +388,7 @@ then
 	
 	# Submit cluster
 	$m2s_cluster_sh submit $cluster_name $server_port \
-		$revision_arg $tag_arg $configure_args_arg \
+		$revision_arg $tag_arg $configure_args_arg $exe_arg \
 		|| exit 1
 	
 elif [ "$command" == kill ]

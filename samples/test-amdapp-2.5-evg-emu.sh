@@ -9,7 +9,7 @@ prog_name=`echo $0 | awk -F/ '{ print $NF }'`
 m2s_cluster_sh="$HOME/$M2S_CLIENT_KIT_BIN_PATH/m2s-cluster.sh"
 inifile_py="$HOME/$M2S_CLIENT_KIT_BIN_PATH/inifile.py"
 
-cluster_name="amdapp-2.5-emu"
+cluster_name="amdapp-2.5-evg-emu"
 
 
 #
