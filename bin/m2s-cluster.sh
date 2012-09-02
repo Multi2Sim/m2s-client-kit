@@ -826,7 +826,10 @@ then
 	rm -f $inifile_script $temp
 
 	# Check cluster state
+	# If it shows up as 'Submitted', refresh it in case simulations finished
 	[ "$cluster_exists" == 1 ] || error "cluster does not exist"
+	[ "$cluster_state" != "Submitted" ] || \
+		cluster_state=`$m2s_cluster_sh state $cluster_name`
 	[ "$cluster_state" != "Submitted" ] \
 		|| error "cluster must be in state 'Created', 'Completed', or 'Killed'"
 
