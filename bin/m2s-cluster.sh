@@ -129,6 +129,16 @@ commands are:
 	  server environment. Preferably, the executable should be created
 	  through a compilation on the server.
 
+      --exe-dir <dir>
+          Directory in the local machine containing the Multi2Sim source code to
+	  be used for simulations, instead of a version of the official SVN
+	  repository. Before launching the cluster, this code is sent to the
+	  server and compiled.
+	  A copy of the binary created in the server is also imported and cached
+	  in the client machine. To avoid the remote compilation overhead, a
+	  future cluster can reuse this binary by means of option '--exe'
+	  instead.
+
   state <cluster> [-v]
       Return the current state of a cluster. Additional information about the
       cluster will be printed if optional flag '-v' is specified. The following
@@ -283,6 +293,97 @@ function get_condor_jobs()
 }
 
 
+# Build Multi2Sim remotely
+function remote_make()
+{
+	local server_port=$1
+	local exe_dir=$2
+	local exe_file=$3
+
+	# Split server and port
+	local server=`echo $server_port | awk -F: '{ print $1 }'`
+	local port=`echo $server_port | awk -F: '{ print $2 }'`
+	if [ -z "$port" ]
+	then
+		port=22
+	fi
+
+	# Check input arguments
+	[ -d "$exe_dir" ] || error "$exe_dir: invalid directory"
+	[ -f "$exe_dir/configure" ] || error "$exe_dir: script 'configure' not found"
+	[ -f "$exe_dir/Makefile" ] || error "$exe_dir: file 'Makefile' not found - please compile local copy first"
+	[ -f "$exe_dir/src/m2s.c" ] || error "$exe_dir: file 'src/m2s.c' not found"
+	touch "$exe_file" 2>/dev/null || error "$exe_file: invalid destination file"
+
+	# Save working directory
+	local current_dir=`pwd`
+
+	# Create package
+	cd $exe_dir 2>/dev/null || error "$exe_dir: cannot access directory"
+	local log_file=`mktemp`
+	make dist >> $log_file 2>&1
+	if [ $? != 0 ]
+	then
+		echo " - local 'make dist' failed"
+		cat $log_file
+		rm $log_file
+		exit 1
+	fi
+	rm $log_file
+	local tarball=`ls "$exe_dir"/*.tar.gz`
+	local tarball_count=`echo $tarball | wc -w`
+	[ $tarball_count == 1 ] || error "$exe_dir: more than one tarball found - confused"
+	local tarball_file_name=`echo $tarball | awk -F/ '{ print $NF }'`
+	local tarball_dir_name="${tarball_file_name::-7}"
+
+	# Send to server
+	scp -q -P $port $tarball $server:$M2S_SERVER_KIT_TMP_PATH \
+		|| error "cannot connect to server"
+
+	# Compile in server
+	ssh -p $port $server '
+
+		# Variables
+		tarball_file_name='$tarball_file_name'
+		tarball_dir_name='$tarball_dir_name'
+
+		# Unpack tarball
+		cd '$M2S_SERVER_KIT_TMP_PATH' || exit 1
+		rm -rf remote-make || exit 1
+		mkdir -p remote-make || exit 1
+		mv $tarball_file_name remote-make/ || exit 1
+		cd remote-make || exit 1
+		tar -xmzf $tarball_file_name || exit 1
+		cd $tarball_dir_name || exit 1
+
+		# Temporary file for report
+		report=`mktemp`
+
+		# Configure and make
+		./configure >> $report 2>&1 && \
+			make >> $report 2>&1
+		if [ $? != 0 ]
+		then
+			echo " - FAILED"
+			cat $report
+			rm -f report
+			exit 1
+		fi
+
+		# Delete report
+		rm -f $report
+	' || exit 1
+
+	# Copy executable
+	scp -q -P $port $server:$M2S_SERVER_KIT_TMP_PATH/remote-make/$tarball_dir_name/src/m2s \
+		$exe_file || exit 1
+	echo -n " [ cached in '$exe_file' ]"
+
+	# Go back to working directory
+	cd $current_dir
+}
+
+
 
 #
 # Main Program
@@ -433,13 +534,14 @@ elif [ "$command" == "submit" ]
 then
 
 	# Options
-	temp=`getopt -o r: -l configure-args:,tag:,exe: -n $prog_name -- "$@"`
+	temp=`getopt -o r: -l configure-args:,tag:,exe,exe-dir: -n $prog_name -- "$@"`
 	[ $? == 0 ] || exit 1
 	eval set -- "$temp"
 	rev=
 	tag=
 	configure_args=
 	exe=
+	exe_dir=
 	while true
 	do
 		case "$1" in
@@ -447,6 +549,7 @@ then
 		--tag) tag=$2 ; shift 2 ;;
 		--configure-args) configure_args=$2 ; shift 2 ;;
 		--exe) exe=$2 ; shift 2 ;;
+		--exe-dir) exe_dir=$2 ; shift 2 ;;
 		--) shift ; break ;;
 		*) error "$1: invalid option" ;;
 		esac
@@ -461,6 +564,22 @@ then
 	cluster_name=$1
 	server_port=$2
 	cluster_section="Cluster.$cluster_name"
+
+	# Check compatibility of option "--exe"
+	if [ -n "$exe" ]
+	then
+		[ -z "$rev" ] || error "option --exe incompatible with --rev"
+		[ -z "$tag" ] || error "option --exe incompatible with --tag"
+		[ -z "$exe_dir" ] || error "option --exe incompatible with --exe-dir"
+	fi
+
+	# Check compatibility of option "--exe-dir"
+	if [ -n "$exe_dir" ]
+	then
+		[ -z "$rev" ] || error "option --exe-dir incompatible with --rev"
+		[ -z "$tag" ] || error "option --exe-dir incompatible with --tag"
+		[ -z "$exe" ] || error "option --exe-dir incompatible with --exe"
+	fi
 
 	# Split server and port
 	server=`echo $server_port | awk -F: '{ print $1 }'`
@@ -490,9 +609,9 @@ then
 	[ "$cluster_state" != "Submitted" ] \
 		|| error "cluster must be in state 'Created', 'Completed', or 'Killed'"
 
-	# Prepare Multi2Sim revision in server
-	# (only if a Multi2Sim executable was not specified)
-	if [ -z "$exe" ]
+	# Prepare Multi2Sim revision in server. Only if options --exe or
+	# --exe-dir were not specified.
+	if [ -z "$exe" -a -z "$exe_dir" ]
 	then
 		rev_arg=
 		tag_arg=
@@ -523,6 +642,18 @@ then
 	then
 		[ -f "$exe" ] || error "$exe: invalid executable"
 		cp $exe $HOME/$M2S_CLIENT_KIT_TMP_PATH/m2s-exe || \
+			error "cannot copy executable to temp path"
+	fi
+
+	# If option --exe-dir was specified, build Multi2Sim remotely.
+	if [ -n "$exe_dir" ]
+	then
+		[ -d "$exe_dir" ] || error "$exe_dir: invalid directory"
+		echo -n " - building"
+		remote_make $server_port $exe_dir \
+			$HOME/$M2S_CLIENT_KIT_TMP_PATH/m2s-remote-exe
+		cp $HOME/$M2S_CLIENT_KIT_TMP_PATH/m2s-remote-exe \
+			$HOME/$M2S_CLIENT_KIT_TMP_PATH/m2s-exe || \
 			error "cannot copy executable to temp path"
 	fi
 
@@ -600,12 +731,13 @@ then
 		# Copy Multi2Sim binary
 		# If the binary has been created automatically from the SVN
 		# repository, get it from "tmp/m2s-bin/m2s". Otherwise, the user
-		# specified option "--exe" in the command line, and the
+		# specified option --exe or --exe-dir in the command line, and the
 		# executable should be found in "tmp/m2s-exe".
 		cluster_path="$HOME/'$M2S_SERVER_KIT_RUN_PATH'/$cluster_name"
 		mkdir -p $cluster_path || exit 1
 		exe="'$exe'"
-		if [ -z "$exe" ]
+		exe_dir="'$exe_dir'"
+		if [ -z "$exe" -a -z "$exe_dir" ]
 		then
 			cp $HOME/'$M2S_SERVER_KIT_M2S_BIN_PATH'/m2s \
 				$cluster_path || exit 1
