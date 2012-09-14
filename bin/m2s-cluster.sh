@@ -534,7 +534,7 @@ elif [ "$command" == "submit" ]
 then
 
 	# Options
-	temp=`getopt -o r: -l configure-args:,tag:,exe,exe-dir: -n $prog_name -- "$@"`
+	temp=`getopt -o r: -l configure-args:,tag:,exe:,exe-dir: -n $prog_name -- "$@"`
 	[ $? == 0 ] || exit 1
 	eval set -- "$temp"
 	rev=
