@@ -154,18 +154,18 @@ then
 	done
 
 	# BoxFilter
-	bench_name="BoxFilter"
-	size_list="1"
-	size_index=0
-	for size in $size_list
-	do
-		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			amdapp-2.5-si/$bench_name \
-			--sim-arg "--si-sim functional" \
-			--bench-arg " -q -e" \
-			|| exit 1
-		size_index=`expr $size_index + 1`
-	done
+	#bench_name="BoxFilter"
+	#size_list="1"
+	#size_index=0
+	#for size in $size_list
+	#do
+	#	$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
+	#		amdapp-2.5-si/$bench_name \
+	#		--sim-arg "--si-sim functional" \
+	#		--bench-arg " -q -e" \
+	#		|| exit 1
+	#	size_index=`expr $size_index + 1`
+	#done
 	
 	# DCT
 	bench_name="DCT"
@@ -282,18 +282,18 @@ then
 
 	# RadixSort
 	# Note: sizes larger than 65536 fail natively, bad self-check implementation.
-	bench_name="RadixSort"
-	size_list="8192 16384 32768 65536"
-	size_index=0
-	for size in $size_list
-	do
-		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			amdapp-2.5-si/$bench_name \
-			--sim-arg "--si-sim functional" \
-			--bench-arg "-x $size -q -e" \
-			|| exit 1
-		size_index=`expr $size_index + 1`
-	done
+	#bench_name="RadixSort"
+	#size_list="8192 16384 32768 65536"
+	#size_index=0
+	#for size in $size_list
+	#do
+	#	$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
+	#		amdapp-2.5-si/$bench_name \
+	#		--sim-arg "--si-sim functional" \
+	#		--bench-arg "-x $size -q -e" \
+	#		|| exit 1
+	#	size_index=`expr $size_index + 1`
+	#done
 
 	# RecursiveGaussian
 	bench_name="RecursiveGaussian"
@@ -339,18 +339,18 @@ then
 
 	
 	# SobelFilter
-	bench_name="SobelFilter"
-	size_list="1 2 3 4 5 6"
-	size_index=0
-	for size in $size_list
-	do
-		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			amdapp-2.5-si/$bench_name \
-			--sim-arg "--si-sim functional" \
-			--bench-arg "-x $size -q -e" \
-			|| exit 1
-		size_index=`expr $size_index + 1`
-	done
+	#bench_name="SobelFilter"
+	#size_list="1 2 3 4 5 6"
+	#size_index=0
+	#for size in $size_list
+	#do
+	#	$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
+	#		amdapp-2.5-si/$bench_name \
+	#		--sim-arg "--si-sim functional" \
+	#		--bench-arg "-x $size -q -e" \
+	#		|| exit 1
+	#	size_index=`expr $size_index + 1`
+	#done
 
 	# URNG
 	bench_name="URNG"
@@ -524,10 +524,10 @@ then
 			# Read results
 			sim_err="$input_size_dir/sim.err"
 			cp /dev/null $inifile_script
-			echo "read CPU Time 0" >> $inifile_script
-			echo "read CPU Instructions 0" >> $inifile_script
-			echo "read GPU Time 0" >> $inifile_script
-			echo "read GPU Instructions 0" >> $inifile_script
+			echo "read x86 Time 0" >> $inifile_script
+			echo "read x86 Instructions 0" >> $inifile_script
+			echo "read SouthernIslands Time 0" >> $inifile_script
+			echo "read SouthernIslands Instructions 0" >> $inifile_script
 			$inifile_py $sim_err run $inifile_script > $inifile_script_output
 			for i in 1
 			do

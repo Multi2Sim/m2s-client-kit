@@ -141,10 +141,10 @@ then
 		size="2097152"
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			amdapp-2.5-evg/$bench_name \
-			--sim-arg "--gpu-sim detailed" \
-			--sim-arg "--gpu-config gpu-config" \
-			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
-			--sim-arg "--report-mem report-mem" \
+			--sim-arg "--evg-sim detailed" \
+			--sim-arg "--evg-config gpu-config" \
+			--sim-arg "--evg-report report-gpu-pipeline" \
+			--sim-arg "--mem-report report-mem" \
 			--bench-arg "-x $size -q" \
 			--send "$gpu_config" \
 			|| exit 1
@@ -154,10 +154,10 @@ then
 		size="128"
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			amdapp-2.5-evg/$bench_name \
-			--sim-arg "--gpu-sim detailed" \
-			--sim-arg "--gpu-config gpu-config" \
-			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
-			--sim-arg "--report-mem report-mem" \
+			--sim-arg "--evg-sim detailed" \
+			--sim-arg "--evg-config gpu-config" \
+			--sim-arg "--evg-report report-gpu-pipeline" \
+			--sim-arg "--mem-report report-mem" \
 			--bench-arg "-x $size -q" \
 			--send "$gpu_config" \
 			|| exit 1
@@ -167,10 +167,10 @@ then
 		size="1024"
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			amdapp-2.5-evg/$bench_name \
-			--sim-arg "--gpu-sim detailed" \
-			--sim-arg "--gpu-config gpu-config" \
-			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
-			--sim-arg "--report-mem report-mem" \
+			--sim-arg "--evg-sim detailed" \
+			--sim-arg "--evg-config gpu-config" \
+			--sim-arg "--evg-report report-gpu-pipeline" \
+			--sim-arg "--mem-report report-mem" \
 			--bench-arg "-x $size -q" \
 			--send "$gpu_config" \
 			|| exit 1
@@ -180,10 +180,10 @@ then
 		size="1048576"
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			amdapp-2.5-evg/$bench_name \
-			--sim-arg "--gpu-sim detailed" \
-			--sim-arg "--gpu-config gpu-config" \
-			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
-			--sim-arg "--report-mem report-mem" \
+			--sim-arg "--evg-sim detailed" \
+			--sim-arg "--evg-config gpu-config" \
+			--sim-arg "--evg-report report-gpu-pipeline" \
+			--sim-arg "--mem-report report-mem" \
 			--bench-arg "-x $size -q" \
 			--send "$gpu_config" \
 			|| exit 1
@@ -193,10 +193,10 @@ then
 		#size="1"
 		#$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 		#	amdapp-2.5-evg/$bench_name \
-		#	--sim-arg "--gpu-sim detailed" \
-		#	--sim-arg "--gpu-config gpu-config" \
-		#	--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
-		#	--sim-arg "--report-mem report-mem" \
+		#	--sim-arg "--evg-sim detailed" \
+		#	--sim-arg "--evg-config gpu-config" \
+		#	--sim-arg "--evg-report report-gpu-pipeline" \
+		#	--sim-arg "--mem-report report-mem" \
 		#	--bench-arg " -q" \
 		#	--send "$gpu_config" \
 		#	|| exit 1
@@ -206,10 +206,10 @@ then
 		size="512"
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			amdapp-2.5-evg/$bench_name \
-			--sim-arg "--gpu-sim detailed" \
-			--sim-arg "--gpu-config gpu-config" \
-			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
-			--sim-arg "--report-mem report-mem" \
+			--sim-arg "--evg-sim detailed" \
+			--sim-arg "--evg-config gpu-config" \
+			--sim-arg "--evg-report report-gpu-pipeline" \
+			--sim-arg "--mem-report report-mem" \
 			--bench-arg "-x $size -y $size -q" \
 			--send "$gpu_config" \
 			|| exit 1
@@ -219,10 +219,10 @@ then
 		size="131072"
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			amdapp-2.5-evg/$bench_name \
-			--sim-arg "--gpu-sim detailed" \
-			--sim-arg "--gpu-config gpu-config" \
-			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
-			--sim-arg "--report-mem report-mem" \
+			--sim-arg "--evg-sim detailed" \
+			--sim-arg "--evg-config gpu-config" \
+			--sim-arg "--evg-report report-gpu-pipeline" \
+			--sim-arg "--mem-report report-mem" \
 			--bench-arg "-x $size -q" \
 			--send "$gpu_config" \
 			|| exit 1
@@ -232,10 +232,10 @@ then
 		size="262144"
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			amdapp-2.5-evg/$bench_name \
-			--sim-arg "--gpu-sim detailed" \
-			--sim-arg "--gpu-config gpu-config" \
-			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
-			--sim-arg "--report-mem report-mem" \
+			--sim-arg "--evg-sim detailed" \
+			--sim-arg "--evg-config gpu-config" \
+			--sim-arg "--evg-report report-gpu-pipeline" \
+			--sim-arg "--mem-report report-mem" \
 			--bench-arg "-x $size -q" \
 			--send "$gpu_config" \
 			|| exit 1
@@ -245,10 +245,10 @@ then
 		size="128"
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			amdapp-2.5-evg/$bench_name \
-			--sim-arg "--gpu-sim detailed" \
-			--sim-arg "--gpu-config gpu-config" \
-			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
-			--sim-arg "--report-mem report-mem" \
+			--sim-arg "--evg-sim detailed" \
+			--sim-arg "--evg-config gpu-config" \
+			--sim-arg "--evg-report report-gpu-pipeline" \
+			--sim-arg "--mem-report report-mem" \
 			--bench-arg "-x $size -q" \
 			--send "$gpu_config" \
 			|| exit 1
@@ -258,10 +258,10 @@ then
 		size="1792"
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			amdapp-2.5-evg/$bench_name \
-			--sim-arg "--gpu-sim detailed" \
-			--sim-arg "--gpu-config gpu-config" \
-			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
-			--sim-arg "--report-mem report-mem" \
+			--sim-arg "--evg-sim detailed" \
+			--sim-arg "--evg-config gpu-config" \
+			--sim-arg "--evg-report report-gpu-pipeline" \
+			--sim-arg "--mem-report report-mem" \
 			--bench-arg "-x $size -y $size -q" \
 			--send "$gpu_config" \
 			|| exit 1
@@ -271,10 +271,10 @@ then
 		size="256"
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			amdapp-2.5-evg/$bench_name \
-			--sim-arg "--gpu-sim detailed" \
-			--sim-arg "--gpu-config gpu-config" \
-			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
-			--sim-arg "--report-mem report-mem" \
+			--sim-arg "--evg-sim detailed" \
+			--sim-arg "--evg-config gpu-config" \
+			--sim-arg "--evg-report report-gpu-pipeline" \
+			--sim-arg "--mem-report report-mem" \
 			--bench-arg "-x $size -y $size -z $size -q" \
 			--send "$gpu_config" \
 			|| exit 1
@@ -284,10 +284,10 @@ then
 		size="1024"
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			amdapp-2.5-evg/$bench_name \
-			--sim-arg "--gpu-sim detailed" \
-			--sim-arg "--gpu-config gpu-config" \
-			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
-			--sim-arg "--report-mem report-mem" \
+			--sim-arg "--evg-sim detailed" \
+			--sim-arg "--evg-config gpu-config" \
+			--sim-arg "--evg-report report-gpu-pipeline" \
+			--sim-arg "--mem-report report-mem" \
 			--bench-arg "-x $size -y $size -q" \
 			--send "$gpu_config" \
 			|| exit 1
@@ -297,10 +297,10 @@ then
 		size="16384"
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			amdapp-2.5-evg/$bench_name \
-			--sim-arg "--gpu-sim detailed" \
-			--sim-arg "--gpu-config gpu-config" \
-			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
-			--sim-arg "--report-mem report-mem" \
+			--sim-arg "--evg-sim detailed" \
+			--sim-arg "--evg-config gpu-config" \
+			--sim-arg "--evg-report report-gpu-pipeline" \
+			--sim-arg "--mem-report report-mem" \
 			--bench-arg "-x $size -q" \
 			--send "$gpu_config" \
 			|| exit 1
@@ -310,10 +310,10 @@ then
 		size="65536"
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			amdapp-2.5-evg/$bench_name \
-			--sim-arg "--gpu-sim detailed" \
-			--sim-arg "--gpu-config gpu-config" \
-			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
-			--sim-arg "--report-mem report-mem" \
+			--sim-arg "--evg-sim detailed" \
+			--sim-arg "--evg-config gpu-config" \
+			--sim-arg "--evg-report report-gpu-pipeline" \
+			--sim-arg "--mem-report report-mem" \
 			--bench-arg "-x $size -q" \
 			--send "$gpu_config" \
 			|| exit 1
@@ -323,10 +323,10 @@ then
 		size="3"
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			amdapp-2.5-evg/$bench_name \
-			--sim-arg "--gpu-sim detailed" \
-			--sim-arg "--gpu-config gpu-config" \
-			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
-			--sim-arg "--report-mem report-mem" \
+			--sim-arg "--evg-sim detailed" \
+			--sim-arg "--evg-config gpu-config" \
+			--sim-arg "--evg-report report-gpu-pipeline" \
+			--sim-arg "--mem-report report-mem" \
 			--bench-arg "-x $size -q" \
 			--send "$gpu_config" \
 			|| exit 1
@@ -336,10 +336,10 @@ then
 		size="1638400"
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			amdapp-2.5-evg/$bench_name \
-			--sim-arg "--gpu-sim detailed" \
-			--sim-arg "--gpu-config gpu-config" \
-			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
-			--sim-arg "--report-mem report-mem" \
+			--sim-arg "--evg-sim detailed" \
+			--sim-arg "--evg-config gpu-config" \
+			--sim-arg "--evg-report report-gpu-pipeline" \
+			--sim-arg "--mem-report report-mem" \
 			--bench-arg "-x $size -q" \
 			--send "$gpu_config" \
 			|| exit 1
@@ -349,10 +349,10 @@ then
 		size="262144"
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			amdapp-2.5-evg/$bench_name \
-			--sim-arg "--gpu-sim detailed" \
-			--sim-arg "--gpu-config gpu-config" \
-			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
-			--sim-arg "--report-mem report-mem" \
+			--sim-arg "--evg-sim detailed" \
+			--sim-arg "--evg-config gpu-config" \
+			--sim-arg "--evg-report report-gpu-pipeline" \
+			--sim-arg "--mem-report report-mem" \
 			--bench-arg "-x $size -q" \
 			--send "$gpu_config" \
 			|| exit 1
@@ -363,10 +363,10 @@ then
 		size="5"
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			amdapp-2.5-evg/$bench_name \
-			--sim-arg "--gpu-sim detailed" \
-			--sim-arg "--gpu-config gpu-config" \
-			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
-			--sim-arg "--report-mem report-mem" \
+			--sim-arg "--evg-sim detailed" \
+			--sim-arg "--evg-config gpu-config" \
+			--sim-arg "--evg-report report-gpu-pipeline" \
+			--sim-arg "--mem-report report-mem" \
 			--bench-arg "-x $size -q" \
 			--send "$gpu_config" \
 			|| exit 1
@@ -376,10 +376,10 @@ then
 		size="2"
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			amdapp-2.5-evg/$bench_name \
-			--sim-arg "--gpu-sim detailed" \
-			--sim-arg "--gpu-config gpu-config" \
-			--sim-arg "--report-gpu-pipeline report-gpu-pipeline" \
-			--sim-arg "--report-mem report-mem" \
+			--sim-arg "--evg-sim detailed" \
+			--sim-arg "--evg-config gpu-config" \
+			--sim-arg "--evg-report report-gpu-pipeline" \
+			--sim-arg "--mem-report report-mem" \
 			--bench-arg "-x $size -q" \
 			--send "$gpu_config" \
 			|| exit 1
@@ -481,7 +481,7 @@ then
 		fi
 
 		# Check if GPU results section is available
-		section_exists=`$inifile_py $sim_err exists GPU`
+		section_exists=`$inifile_py $sim_err exists Evergreen`
 		if [ "$section_exists" == 0 ]
 		then
 			missing_count=`expr $missing_count + 1`
@@ -536,7 +536,7 @@ then
 
 			# Read results
 			cp /dev/null $inifile_script
-			echo "read GPU Cycles 0" >> $inifile_script
+			echo "read Evergreen Cycles 0" >> $inifile_script
 			$inifile_py $sim_err run $inifile_script > $inifile_script_output
 			for i in 1
 			do
