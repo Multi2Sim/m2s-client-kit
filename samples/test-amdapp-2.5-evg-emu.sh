@@ -103,6 +103,7 @@ then
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
 			amdapp-2.5-evg/$bench_name \
+			--sim-arg "--evg-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
 		size_index=`expr $size_index + 1`
@@ -116,6 +117,7 @@ then
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
 			amdapp-2.5-evg/$bench_name \
+			--sim-arg "--evg-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
 		size_index=`expr $size_index + 1`
@@ -129,6 +131,7 @@ then
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
 			amdapp-2.5-evg/$bench_name \
+			--sim-arg "--evg-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
 		size_index=`expr $size_index + 1`
@@ -144,6 +147,7 @@ then
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
 			amdapp-2.5-evg/$bench_name \
+			--sim-arg "--evg-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
 		size_index=`expr $size_index + 1`
@@ -157,6 +161,7 @@ then
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
 			amdapp-2.5-evg/$bench_name \
+			--sim-arg "--evg-sim functional" \
 			--bench-arg " -q -e" \
 			|| exit 1
 		size_index=`expr $size_index + 1`
@@ -170,6 +175,7 @@ then
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
 			amdapp-2.5-evg/$bench_name \
+			--sim-arg "--evg-sim functional" \
 			--bench-arg "-x $size -y $size -q -e" \
 			|| exit 1
 		size_index=`expr $size_index + 1`
@@ -183,6 +189,7 @@ then
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
 			amdapp-2.5-evg/$bench_name \
+			--sim-arg "--evg-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
 		size_index=`expr $size_index + 1`
@@ -196,6 +203,7 @@ then
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
 			amdapp-2.5-evg/$bench_name \
+			--sim-arg "--evg-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
 		size_index=`expr $size_index + 1`
@@ -209,6 +217,7 @@ then
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
 			amdapp-2.5-evg/$bench_name \
+			--sim-arg "--evg-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
 		size_index=`expr $size_index + 1`
@@ -222,6 +231,7 @@ then
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
 			amdapp-2.5-evg/$bench_name \
+			--sim-arg "--evg-sim functional" \
 			--bench-arg "-x $size -y $size -q -e" \
 			|| exit 1
 		size_index=`expr $size_index + 1`
@@ -235,6 +245,7 @@ then
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
 			amdapp-2.5-evg/$bench_name \
+			--sim-arg "--evg-sim functional" \
 			--bench-arg "-x $size -y $size -z $size -q -e" \
 			|| exit 1
 		size_index=`expr $size_index + 1`
@@ -248,6 +259,7 @@ then
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
 			amdapp-2.5-evg/$bench_name \
+			--sim-arg "--evg-sim functional" \
 			--bench-arg "-x $size -y $size -q -e" \
 			|| exit 1
 		size_index=`expr $size_index + 1`
@@ -261,6 +273,7 @@ then
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
 			amdapp-2.5-evg/$bench_name \
+			--sim-arg "--evg-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
 		size_index=`expr $size_index + 1`
@@ -276,6 +289,7 @@ then
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
 			amdapp-2.5-evg/$bench_name \
+			--sim-arg "--evg-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
 		size_index=`expr $size_index + 1`
@@ -289,6 +303,7 @@ then
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
 			amdapp-2.5-evg/$bench_name \
+			--sim-arg "--evg-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
 		size_index=`expr $size_index + 1`
@@ -302,6 +317,7 @@ then
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
 			amdapp-2.5-evg/$bench_name \
+			--sim-arg "--evg-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
 		size_index=`expr $size_index + 1`
@@ -315,6 +331,7 @@ then
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
 			amdapp-2.5-evg/$bench_name \
+			--sim-arg "--evg-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
 		size_index=`expr $size_index + 1`
@@ -329,6 +346,7 @@ then
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
 			amdapp-2.5-evg/$bench_name \
+			--sim-arg "--evg-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
 		size_index=`expr $size_index + 1`
@@ -342,6 +360,7 @@ then
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
 			amdapp-2.5-evg/$bench_name \
+			--sim-arg "--evg-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
 		size_index=`expr $size_index + 1`
@@ -505,10 +524,10 @@ then
 			# Read results
 			sim_err="$input_size_dir/sim.err"
 			cp /dev/null $inifile_script
-			echo "read CPU Time 0" >> $inifile_script
-			echo "read CPU Instructions 0" >> $inifile_script
-			echo "read GPU Time 0" >> $inifile_script
-			echo "read GPU Instructions 0" >> $inifile_script
+			echo "read x86 Time 0" >> $inifile_script
+			echo "read x86 Instructions 0" >> $inifile_script
+			echo "read Evergreen Time 0" >> $inifile_script
+			echo "read Evergreen Instructions 0" >> $inifile_script
 			$inifile_py $sim_err run $inifile_script > $inifile_script_output
 			for i in 1
 			do
