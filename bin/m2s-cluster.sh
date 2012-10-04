@@ -668,6 +668,7 @@ then
 	rm -f $server_package
 
 	# Actions in server
+	echo -n " - launching"
 	ssh -p $port $server '
 
 		function error()

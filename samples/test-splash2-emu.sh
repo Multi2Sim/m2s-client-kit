@@ -180,7 +180,7 @@ then
 		total=`expr $total + 1`
 
 		# Look for section [CPU] in error output
-		section_exists=`$inifile_py $sim_err exists CPU`
+		section_exists=`$inifile_py $sim_err exists x86`
 		if [ "$section_exists" == 1 ]
 		then
 			available_count=`expr $available_count + 1`
@@ -234,8 +234,8 @@ then
 			job_dir="$cluster_path/$bench/$nthreads"
 			sim_err="$job_dir/sim.err"
 			cp /dev/null $inifile_script
-			echo "read CPU Time 0" >> $inifile_script
-			echo "read CPU Instructions 0" >> $inifile_script
+			echo "read x86 Time 0" >> $inifile_script
+			echo "read x86 Instructions 0" >> $inifile_script
 			$inifile_py $sim_err run $inifile_script > $inifile_script_output
 			for i in 1
 			do

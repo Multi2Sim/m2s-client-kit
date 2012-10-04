@@ -214,7 +214,7 @@ function test_build()
 {
 
 	# List of machines
-	server_port_list="frijoles.ece.neu.edu fusion1.ece.neu.edu"
+	server_port_list="nyan.ece.neu.edu orange.ece.neu.edu"
 	#server_port_list="frijoles.ece.neu.edu fusion1.ece.neu.edu tierra1.gap.upv.es:3322"
 	#server_port_list="hg0.gap.upv.es:3322 tierra1.gap.upv.es:3322"
 	#server_port_list="boston.disca.upv.es hg0.gap.upv.es:3322"
@@ -323,20 +323,20 @@ function test_build()
 			tar -xzf $dist_package_path
 	
 			# Tests on development package
-			#test_dev_build dev-default
+			test_dev_build dev-default
 			test_dev_build dev-debug --enable-debug
-			#test_dev_build dev-debug-no-gtk --enable-debug --disable-gtk
-			#test_dev_build dev-debug-no-glut --enable-debug --disable-glut
-			#test_dev_build dev-no-gtk --disable-gtk
-			#test_dev_build dev-no-glut --disable-glut
-	
+			test_dev_build dev-debug-no-gtk --enable-debug --disable-gtk
+			test_dev_build dev-debug-no-glut --enable-debug --disable-glut
+			test_dev_build dev-no-gtk --disable-gtk
+			test_dev_build dev-no-glut --disable-glut
+
 			# Tests on distribution package
-			#test_dist_build dist-default
-			#test_dist_build dist-debug --enable-debug
-			#test_dist_build dist-debug-no-gtk --enable-debug --disable-gtk
-			#test_dist_build dist-debug-no-glut --enable-debug --disable-glut
-			#test_dist_build dist-no-gtk --disable-gtk
-			#test_dist_build dist-no-glut --disable-glut
+			test_dist_build dist-default
+			test_dist_build dist-debug --enable-debug
+			test_dist_build dist-debug-no-gtk --enable-debug --disable-gtk
+			test_dist_build dist-debug-no-glut --enable-debug --disable-glut
+			test_dist_build dist-no-gtk --disable-gtk
+			test_dist_build dist-no-glut --disable-glut
 	
 			# Remove temporary directory
 			rm -rf $temp_dir
@@ -502,9 +502,9 @@ rm -f $log_file
 
 # Run
 get_m2s_package
-check_extra_dist
-#test_build
-#test_build_check
+#check_extra_dist
+test_build
+test_build_check
 
 # End
 rm -rf $temp_dir
