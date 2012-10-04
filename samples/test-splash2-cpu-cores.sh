@@ -108,7 +108,7 @@ then
 
 			# Add job
 			$m2s_cluster_sh add $cluster_name $bench/$nthreads \
-				--sim-arg "--cpu-sim detailed --cpu-config cpu-config" \
+				--sim-arg "--x86-sim detailed --x86-config cpu-config" \
 				--send $cpu_config_file -p $nthreads splash2/$bench || exit 1
 		done
 	done
@@ -201,7 +201,7 @@ then
 		fi
 
 		# Analyze reason for simulation end
-		sim_end=`$inifile_py $sim_err read CPU SimEnd`
+		sim_end=`$inifile_py $sim_err read x86 SimEnd`
 		if [ -z "$sim_end" ]
 		then
 			unknown_count=`expr $unknown_count + 1`
@@ -257,8 +257,8 @@ then
 			job_dir="$cluster_path/$bench/$nthreads"
 			sim_err="$job_dir/sim.err"
 			cp /dev/null $inifile_script
-			echo "read CPU Time 0" >> $inifile_script
-			echo "read CPU Cycles 0" >> $inifile_script
+			echo "read x86 Time 0" >> $inifile_script
+			echo "read x86 Cycles 0" >> $inifile_script
 			$inifile_py $sim_err run $inifile_script > $inifile_script_output
 			for i in 1
 			do
