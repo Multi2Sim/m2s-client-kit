@@ -201,7 +201,7 @@ then
 		fi
 
 		# Analyze reason for simulation end
-		sim_end=`$inifile_py $sim_err read x86 SimEnd`
+		sim_end=`$inifile_py $sim_err read General SimEnd`
 		if [ -z "$sim_end" ]
 		then
 			unknown_count=`expr $unknown_count + 1`

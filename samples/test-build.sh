@@ -125,7 +125,7 @@ function get_m2s_package()
 	dist_package_path="$temp_dir/multi2sim/$dist_package_name"
 	
 	# Get distribution package version (name of unpacked directory)
-	dist_version=`awk -F"[\(\), ]+" '/^AM_INIT_AUTOMAKE/ { print $3 }' configure.ac`
+	dist_version=`awk -F"[\[\]\(\), ]+" '/^AC_INIT/ { print $3 }' configure.ac`
 	[ -n "$dist_version" ] || error "invalid distribution version"
 	
 	# Info
@@ -143,6 +143,7 @@ function get_m2s_package()
 #	$dist_package_path
 #	$dev_package_name
 #	$dev_package_path
+#	$dist_version
 
 function check_extra_dist()
 {
@@ -200,6 +201,80 @@ function check_extra_dist()
 
 
 
+# Check that all source files using functions malloc, calloc, strdup, strndup,
+# or free include 'lib/mhandle/mhandle.h'.
+
+# Input variables
+#	$dist_package_name
+#	$dist_package_path
+#	$dist_version
+
+function check_mhandle()
+{
+	local local_temp_dir
+	local file_list
+	local missing_files
+
+	# Info
+	echo "Checking that all files using memory (de)allocation functions"
+	echo -n "include 'lib/mhandle/mhandle.h'"
+
+	# Create temporary directory
+	local_temp_dir=`mktemp -d`
+
+	# Copy packages
+	cp $dist_package_path $local_temp_dir \
+		&& cp $dev_package_path $local_temp_dir \
+		|| exit 1
+
+	# Extract packages
+	cd $local_temp_dir
+	tar -xzf $dist_package_path \
+		&& tar -xzf $dev_package_path \
+		|| exit 1
+
+	# List files in development package
+	cd $local_temp_dir/multi2sim/src || exit 1
+	file_list=`find . -type f | grep -v "\.svn" | grep "\.c$"`
+
+	# Find files in distribution package
+	missing_mhandle=0
+	for file in $file_list
+	do
+		# Don't check if the current file is 'mhandle.c'
+		echo $file | grep -q "\<mhandle.c$" \
+			&& continue
+
+		# Check if there are memory allocation calls
+		grep "\(\<free *(\)\|\(\<malloc *(\)\|\(\<calloc *(\)\|\(\<strdup *\)\|\(\<strndup *\)" \
+			$file -q \
+			|| continue
+		
+		# Check if file includes 'mhandle.h'
+		grep "#include .*\<mhandle\.h\>" $file -q \
+			&& continue
+
+		# Missing
+		[ $missing_mhandle == 1 ] || echo
+		missing_mhandle=1
+		echo -e "\tmissing 'mhandle.h' - $file"
+	done
+
+	# Report error
+	if [ $missing_mhandle == 1 ]
+	then
+		echo "Error: missing inclusions of 'mhandle.h' found"
+		rm -rf $local_temp_dir
+		exit 1
+	fi
+
+	# End
+	rm -rf $local_temp_dir
+	echo " - ok"
+}
+
+
+
 
 # Test build of development and distribution package in remote machines.
 
@@ -214,9 +289,9 @@ function test_build()
 {
 
 	# List of machines
-	server_port_list="nyan.ece.neu.edu orange.ece.neu.edu"
-	#server_port_list="frijoles.ece.neu.edu fusion1.ece.neu.edu tierra1.gap.upv.es:3322"
-	#server_port_list="hg0.gap.upv.es:3322 tierra1.gap.upv.es:3322"
+	#server_port_list="medusa.ece.neu.edu nyan.ece.neu.edu"
+	server_port_list="frijoles.ece.neu.edu fusion1.ece.neu.edu tierra1.gap.upv.es:3322"
+	#server_port_list="nyan.ece.neu.edu orange.ece.neu.edu hg0.gap.upv.es:3322 tierra1.gap.upv.es:3322"
 	#server_port_list="boston.disca.upv.es hg0.gap.upv.es:3322"
 		
 
@@ -502,9 +577,10 @@ rm -f $log_file
 
 # Run
 get_m2s_package
+check_mhandle
 #check_extra_dist
-test_build
-test_build_check
+#test_build
+#test_build_check
 
 # End
 rm -rf $temp_dir

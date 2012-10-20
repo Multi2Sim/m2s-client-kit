@@ -9,6 +9,8 @@ prog_name=`echo $0 | awk -F/ '{ print $NF }'`
 m2s_cluster_sh="$HOME/$M2S_CLIENT_KIT_BIN_PATH/m2s-cluster.sh"
 inifile_py="$HOME/$M2S_CLIENT_KIT_BIN_PATH/inifile.py"
 
+data_set_list="test ref"
+
 cluster_name="spec2006-emu"
 cluster_desc="
 Run emulation of the SPEC2006 benchmark suite. For each benchmark, input sizes
@@ -83,7 +85,6 @@ then
 
 	# Get benchmark list
 	bench_list=`$m2s_cluster_sh list-bench $server_port spec2006` || exit 1
-	data_set_list="test train ref"
 
 	# Create cluster
 	$m2s_cluster_sh create $cluster_name || exit 1
@@ -175,8 +176,8 @@ then
 		sim_err="$cluster_path/$job/sim.err"
 		total=`expr $total + 1`
 
-		# Look for section [CPU] in error output
-		section_exists=`$inifile_py $sim_err exists CPU`
+		# Look for section [General] in error output
+		section_exists=`$inifile_py $sim_err exists General`
 		if [ "$section_exists" == 1 ]
 		then
 			available_count=`expr $available_count + 1`
@@ -223,15 +224,15 @@ then
 		cpu_time_list=0
 		cpu_inst_list=0
 
-		# Iterate through number of threads
-		for nthreads in $nthreads_list
+		# Iterate through data sets
+		for data_set in $data_set_list
 		do
 			# Read results
-			job_dir="$cluster_path/$bench/$nthreads"
+			job_dir="$cluster_path/$bench/$data_set"
 			sim_err="$job_dir/sim.err"
 			cp /dev/null $inifile_script
-			echo "read CPU Time 0" >> $inifile_script
-			echo "read CPU Instructions 0" >> $inifile_script
+			echo "read x86 Time 0" >> $inifile_script
+			echo "read x86 Instructions 0" >> $inifile_script
 			$inifile_py $sim_err run $inifile_script > $inifile_script_output
 			for i in 1
 			do
@@ -242,52 +243,10 @@ then
 			# Add to lists
 			cpu_time_list="$cpu_time_list, $cpu_time"
 			cpu_inst_list="$cpu_inst_list, $cpu_inst"
+
+			echo "$bench: Time=$cpu_time, Instructions=$cpu_inst"
 		done
 
-		python -c "
-import matplotlib.pyplot as plt
-
-
-#
-# CPU Emulation Time
-#
-
-cpu_time_list = [ $cpu_time_list ]
-cpu_time_list.pop(0)
-
-fig = plt.gcf()
-fig.set_size_inches(4.0, 2.5)
-
-plt.plot(cpu_time_list, 'bo-')
-plt.title('Emulation Time')
-plt.xlabel('Number of threads')
-plt.ylabel('Time (s)')
-plt.margins(0.05, 0)
-plt.grid(True)
-plt.ylim(ymin = 0)
-plt.xticks(range(len(cpu_time_list)), '$nthreads_list'.split())
-plt.savefig('$cluster_path/$bench/cpu-time.png', dpi=100, bbox_inches='tight')
-
-
-#
-# CPU Instructions
-#
-
-cpu_inst_list = [ $cpu_inst_list ]
-cpu_inst_list.pop(0)
-cpu_inst_list[:] = [ x / 1.0e6 for x in cpu_inst_list ]
-
-plt.clf()
-plt.plot(cpu_inst_list, 'bo-')
-plt.title('x86 Instructions')
-plt.xlabel('Number of threads')
-plt.ylabel('Instructions (x 1M)')
-plt.margins(0.05, 0)
-plt.grid(True)
-plt.ylim(ymin = 0)
-plt.xticks(range(len(cpu_time_list)), '$nthreads_list'.split())
-plt.savefig('$cluster_path/$bench/cpu-inst.png', dpi=100, bbox_inches='tight')
-" || exit 1
 	done
 	
 	# Remove temporary file
