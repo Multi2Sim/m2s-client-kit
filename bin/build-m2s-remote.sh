@@ -16,7 +16,7 @@ M2S_SERVER_KIT_M2S_BIN_EXE_PATH="$M2S_SERVER_KIT_M2S_BIN_PATH/m2s"
 M2S_SERVER_KIT_M2S_BIN_BUILD_INI_PATH="$M2S_SERVER_KIT_M2S_BIN_PATH/build.ini"
 
 inifile_py="$HOME/$M2S_CLIENT_KIT_BIN_PATH/inifile.py"
-log_file="$HOME/$M2S_CLIENT_KIT_PATH/tmp/gen-m2s-bin.log"
+log_file="$HOME/$M2S_CLIENT_KIT_PATH/tmp/build-m2s-remote.log"
 prog_name=$(echo $0 | awk -F/ '{ print $NF }')
 
 
