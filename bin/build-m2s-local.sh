@@ -36,12 +36,18 @@ function syntax()
 Syntax:
     $prog_name [<options>]
 
-Generate Multi2Sim's source code and binaries at
+Generate Multi2Sim's source code at
+
 	~/m2s-client-kit/tmp/m2s-src/
+
+as well as Multi2Sim binary and distribution package at
+
 	~/m2s-client-kit/tmp/m2s-bin/
-respectively. The last call to this script is recorded, so that the Multi2Sim
-source is selectively downloaded or build only if the requested version differs
-from the available one.
+
+The last call to this script is recorded, so that the Multi2Sim source is
+selectively downloaded or build only if the requested version differs from the
+available one.
+
 
 Options:
 
@@ -89,9 +95,7 @@ function check_m2s_build()
 	local ref_configure_args
 
 	# Find 'build.ini' file
-	mkdir -p $HOME/$M2S_CLIENT_KIT_M2S_BIN_PATH
 	[ -e "$build_ini" ] || return 2
-	[ -d "$HOME/$M2S_CLIENT_KIT_M2S_PATH" ] || return 2
 
 	# Read information about last build
 	inifile_script=`mktemp`
@@ -202,14 +206,20 @@ aclocal >> $log_file 2>&1 && \
 	automake --add-missing >> $log_file 2>&1 && \
 	./configure $configure_args >> $log_file 2>&1 && \
 	make clean >> $log_file 2>&1 && \
-	make >> $log_file 2>&1 || \
+	make >> $log_file 2>&1 && \
+	make dist >> $log_file 2>&1 || \
 		error "build failed"
 
 # Copy executable
 echo -n " - saving binary"
+cd && rm -rf $M2S_CLIENT_KIT_M2S_BIN_PATH
+mkdir -p $HOME/$M2S_CLIENT_KIT_M2S_BIN_PATH
 cp $HOME/$M2S_CLIENT_KIT_M2S_PATH/src/m2s \
 	$HOME/$M2S_CLIENT_KIT_M2S_BIN_EXE_PATH ||
 	error "failed copying binary"
+cp $HOME/$M2S_CLIENT_KIT_M2S_PATH/multi2sim-*.tar.gz \
+	$HOME/$M2S_CLIENT_KIT_M2S_BIN_PATH ||
+	error "failed copying distribution package"
 
 # Record revision
 inifile_script=`mktemp`
