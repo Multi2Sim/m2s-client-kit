@@ -35,6 +35,9 @@ Syntax:
 
 Options:
 
+  -h | --help
+  	Display help message.
+
   -r <rev>
   	Multi2Sim revision to fetch and build. If none is specified, the latest
 	available SVN revision on the server is fetched.
@@ -55,7 +58,7 @@ EOF
 #
 
 # Options
-temp=`getopt -o r: -l tag: -n $prog_name -- "$@"`
+temp=`getopt -o r:h -l tag:,help -n $prog_name -- "$@"`
 if [ $? != 0 ] ; then exit 1 ; fi
 eval set -- "$temp"
 rev=
@@ -64,6 +67,9 @@ tag=
 tag_arg=
 while true ; do
 	case "$1" in
+	-h|--help)
+		syntax
+		;;
 	-r) rev=$2 ; rev_arg="-r $2" ; shift 2 ;;
 	--tag) tag=$2 ; tag_arg="--tag $2" ; shift 2 ;;
 	--) shift ; break ;;
