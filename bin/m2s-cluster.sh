@@ -617,7 +617,7 @@ then
 		tag_arg=
 		[ -z "$rev" ] || rev_arg="-r $rev"
 		[ -z "$tag" ] || tag_arg="--tag $tag"
-		$HOME/$M2S_CLIENT_KIT_BIN_PATH/gen-m2s-bin.sh \
+		$HOME/$M2S_CLIENT_KIT_BIN_PATH/build-m2s-remote.sh \
 			$rev_arg $tag_arg --configure-args "$configure_args" $server_port \
 			|| exit 1
 	fi
