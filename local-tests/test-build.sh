@@ -5,10 +5,12 @@ M2S_SVN_TAGS_URL="http://multi2sim.org/svn/multi2sim/tags"
 M2S_SVN_TRUNK_URL="http://multi2sim.org/svn/multi2sim/trunk"
 
 M2S_CLIENT_KIT_PATH="m2s-client-kit"
+M2S_CLIENT_KIT_BIN_PATH="$M2S_CLIENT_KIT_PATH/bin"
 M2S_CLIENT_KIT_TMP_PATH="$M2S_CLIENT_KIT_PATH/tmp"
 M2S_CLIENT_KIT_RESULT_PATH="$M2S_CLIENT_KIT_PATH/result"
 
 inifile_py="$HOME/$M2S_CLIENT_KIT_BIN_PATH/inifile.py"
+build_m2s_local_sh="$HOME/$M2S_CLIENT_KIT_BIN_PATH/build-m2s-local.sh"
 prog_name=$(echo $0 | awk -F/ '{ print $NF }')
 
 
@@ -28,7 +30,7 @@ function syntax()
 	cat << EOF
 
 Syntax:
-    $prog_name [<options>] <server>[:<port>]
+    $prog_name [<options>] <machine>[:<port>] ...
 
 Build Multi2Sim on several target machines with the following options:
 
@@ -39,10 +41,15 @@ Build Multi2Sim on several target machines with the following options:
 Both for the development version and the distribution package, the following
 configuration scenarios are tested:
 
-  * Default scenario, no flags for ./configure script.
-  * Flag '--enable-debug' in ./configure script.
+  * Default configuration, no flags for ./configure script.
+  * ./configure script with flags '--enable-debug'.
+  * ./configure script with flags '--enable-debug --disable-gtk'.
+  * ./configure script with flags '--enable-debug --disable-glut'.
+  * ./configure with flags '--disable-gtk'.
+  * ./configure with flags '--disable-glut'.
 
-Possible options are:
+
+Options:
 
   -r <rev>
   	Multi2Sim revision to fetch and build. If none is specified, the latest
@@ -58,223 +65,6 @@ EOF
 }
 
 
-# Obtain Multi2Sim repository for a given tag and revision.
-
-# Input variables:
-#	$tag - Tag to obtain (empty = 'trunk')
-#	$rev - SVN revision (empty = latest)
-#	$log_file - dump log here
-
-# Output variables:
-#	$dist_package_path - Path to distribution package
-#	$dist_package_name - Name of distribution package (only file)
-#	$dist_version - Version of distribution package
-#	$dev_package_path - Path to development package
-#	$dev_package_name - Name of distribution package (only file)
-#	$temp_dir - Directory where packages were created, to be removed later
-
-function get_m2s_package()
-{
-
-	# If revision was not given, obtain latest
-	if [ -z "$rev" ]
-	then
-		temp=`mktemp`
-		svn info $M2S_SVN_URL > $temp 2>> $log_file || error "cannot obtain SVN info"
-		rev=$(sed -n "s,^Revision: ,,gp" $temp)
-		rm -f $temp
-	fi
-
-	# Info
-	if [ -z "$tag" ]
-	then
-		tag_name="trunk"
-		tag_url="$M2S_SVN_TRUNK_URL"
-	else
-		tag_name="tag '$tag'"
-		tag_url="$M2S_SVN_TAGS_URL/$tag"
-	fi
-	echo -n "Fetching Multi2Sim $tag_name, SVN Rev. $rev"
-
-	# Fetch revision
-	temp_dir=`mktemp -d` || exit 1
-	cd $temp_dir || exit 1
-	svn co $tag_url multi2sim -r $rev >/dev/null \
-		|| error "cannot get local copy"
-	
-	# Create development package first
-	dev_package_name="multi2sim-dev.tar.gz"
-	dev_package_path="$temp_dir/multi2sim-dev.tar.gz"
-	tar -czf $dev_package_path multi2sim \
-		|| error "cannot create development package"
-	
-	# Run autotools locally
-	echo -n " - building locally"
-	cd $temp_dir/multi2sim || exit 1
-	aclocal >> $log_file 2>&1 && \
-	autoconf >> $log_file 2>&1 && \
-	automake --add-missing >> $log_file 2>&1 && \
-	./configure >> $log_file 2>&1 || \
-		error "failed running autotools locally"
-	
-	# Create distribution package
-	make dist >> $log_file 2>&1 || exit 1
-	dist_package_name=`ls *.tar.gz`
-	[ `echo $dist_package_name | wc -w` == 1 ] || \
-		error "wrong distribution package: $dist_package_name"
-	dist_package_path="$temp_dir/multi2sim/$dist_package_name"
-	
-	# Get distribution package version (name of unpacked directory)
-	dist_version=`awk -F"[\[\]\(\), ]+" '/^AC_INIT/ { print $3 }' configure.ac`
-	[ -n "$dist_version" ] || error "invalid distribution version"
-	
-	# Info
-	echo
-}
-
-
-
-# Check that distribution package contains all files present in development
-# package. If any file is missing, it probably means that the file was not
-# listed under EXTRA_DIST in Makefile.am.
-
-# Input variables
-#	$dist_package_name
-#	$dist_package_path
-#	$dev_package_name
-#	$dev_package_path
-#	$dist_version
-
-function check_extra_dist()
-{
-	local local_temp_dir
-	local file_list
-	local missing_files
-
-	# Info
-	echo -n "Checking integrity of development package"
-
-	# Create temporary directory
-	local_temp_dir=`mktemp -d`
-
-	# Copy packages
-	cp $dist_package_path $local_temp_dir \
-		&& cp $dev_package_path $local_temp_dir \
-		|| exit 1
-
-	# Extract packages
-	cd $local_temp_dir
-	tar -xzf $dist_package_path \
-		&& tar -xzf $dev_package_path \
-		|| exit 1
-
-	# List files in development package
-	cd $local_temp_dir/multi2sim || exit 1
-	file_list=`find . -type f | grep -v "\.svn"`
-
-	# Find files in distribution package
-	missing_files=0
-	cd $local_temp_dir/multi2sim-$dist_version || exit 1
-	for file in $file_list
-	do
-		if [ ! -e "$file" ]
-		then
-			[ $missing_files == 1 ] || echo
-			missing_files=1
-			echo -e "\tmissing file - $file"
-		fi
-	done
-
-	# Report error
-	if [ $missing_files == 1 ]
-	then
-		echo "Error: files missing in distribution package"
-		echo -e "\tForgot to include them in EXTRA_DIST?"
-		rm -rf $local_temp_dir
-		exit 1
-	fi
-
-	# End
-	rm -rf $local_temp_dir
-	echo " - ok"
-}
-
-
-
-# Check that all source files using functions malloc, calloc, strdup, strndup,
-# or free include 'lib/mhandle/mhandle.h'.
-
-# Input variables
-#	$dist_package_name
-#	$dist_package_path
-#	$dist_version
-
-function check_mhandle()
-{
-	local local_temp_dir
-	local file_list
-	local missing_files
-
-	# Info
-	echo "Checking that all files using memory (de)allocation functions"
-	echo -n "include 'lib/mhandle/mhandle.h'"
-
-	# Create temporary directory
-	local_temp_dir=`mktemp -d`
-
-	# Copy packages
-	cp $dist_package_path $local_temp_dir \
-		&& cp $dev_package_path $local_temp_dir \
-		|| exit 1
-
-	# Extract packages
-	cd $local_temp_dir
-	tar -xzf $dist_package_path \
-		&& tar -xzf $dev_package_path \
-		|| exit 1
-
-	# List files in development package
-	cd $local_temp_dir/multi2sim/src || exit 1
-	file_list=`find . -type f | grep -v "\.svn" | grep "\.c$"`
-
-	# Find files in distribution package
-	missing_mhandle=0
-	for file in $file_list
-	do
-		# Don't check if the current file is 'mhandle.c'
-		echo $file | grep -q "\<mhandle.c$" \
-			&& continue
-
-		# Check if there are memory allocation calls
-		grep "\(\<free *(\)\|\(\<malloc *(\)\|\(\<calloc *(\)\|\(\<strdup *\)\|\(\<strndup *\)" \
-			$file -q \
-			|| continue
-		
-		# Check if file includes 'mhandle.h'
-		grep "#include .*\<mhandle\.h\>" $file -q \
-			&& continue
-
-		# Missing
-		[ $missing_mhandle == 1 ] || echo
-		missing_mhandle=1
-		echo -e "\tmissing 'mhandle.h' - $file"
-	done
-
-	# Report error
-	if [ $missing_mhandle == 1 ]
-	then
-		echo "Error: missing inclusions of 'mhandle.h' found"
-		rm -rf $local_temp_dir
-		exit 1
-	fi
-
-	# End
-	rm -rf $local_temp_dir
-	echo " - ok"
-}
-
-
-
 
 # Test build of development and distribution package in remote machines.
 
@@ -285,37 +75,40 @@ function check_mhandle()
 #	$dev_package_path
 #	$log_file
 
+# Arguments
+#	$1 - $server_port
+
 function test_build()
 {
+	local server_port=$1
+	local server
+	local port
 
-	# List of machines
-	#server_port_list="medusa.ece.neu.edu nyan.ece.neu.edu"
-	server_port_list="frijoles.ece.neu.edu fusion1.ece.neu.edu tierra1.gap.upv.es:3322"
-	#server_port_list="nyan.ece.neu.edu orange.ece.neu.edu hg0.gap.upv.es:3322 tierra1.gap.upv.es:3322"
-	#server_port_list="boston.disca.upv.es hg0.gap.upv.es:3322"
-		
+	# Split server and port
+	server=$(echo $server_port | awk -F: '{ print $1 }')
+	port=$(echo $server_port | awk -F: '{ print $2 }')
+	[ -n "$port" ] || port=22
 
-	# Iterate through machine list
-	for server_port in $server_port_list
-	do
-		# Server and port
-		server=$(echo $server_port | awk -F: '{ print $1 }')
-		port=$(echo $server_port | awk -F: '{ print $2 }')
-		[ -n "$port" ] || port=22
+	# Get distribution package version
+	version=`$inifile_py $HOME/$M2S_CLIENT_KIT_TMP_PATH/m2s-bin/build.ini \
+		read Build Version`
+	[ -n "$version" ] || error "cannot obtain distribution package version"
+
+	# Copy distribution and development packages
+	echo "Machine $server (port $port)"
+	scp -P $port -q \
+		$HOME/$M2S_CLIENT_KIT_TMP_PATH/m2s-bin/multi2sim.tar.gz \
+		$HOME/$M2S_CLIENT_KIT_TMP_PATH/m2s-bin/multi2sim-$version.tar.gz \
+		$server: \
+		>> $log_file 2>&1 \
+		|| error "failed sending packages to $server"
+	#------------
+	exit
+	#-------------
 	
-		# Copy distribution and development packages
-		echo "Machine $server (port $port)"
-		scp -P $port -q $dist_package_path $dev_package_path $server: \
-			>> $log_file 2>&1
-		if [ $? != 0 ]
-		then
-			echo -e "\tCannot connect to remote machine"
-			continue
-		fi
-	
-		# Log file
-		echo -e "\n*\n* Machine '$server'\n*\n" >> $log_file
-		echo ">>> test-build machine $server" >> $log_file
+	# Log file
+	echo -e "\n*\n* Machine '$server'\n*\n" >> $log_file
+	echo ">>> test-build machine $server" >> $log_file
 	
 		# Connect to server
 		ssh -p $port $server '
@@ -416,7 +209,6 @@ function test_build()
 			# Remove temporary directory
 			rm -rf $temp_dir
 		' >> $log_file 2>&1
-	done
 }
 
 
@@ -557,30 +349,57 @@ temp=`getopt -o r: -l tag: -n $prog_name -- "$@"`
 if [ $? != 0 ] ; then exit 1 ; fi
 eval set -- "$temp"
 rev=
-configure_args=
+rev_arg=
 tag=
+tag_arg=
 while true ; do
 	case "$1" in
-	-r) rev=$2 ; shift 2 ;;
-	--tag) tag=$2 ; shift 2 ;;
+	-r) rev=$2 ; rev_arg="-r $2" ; shift 2 ;;
+	--tag) tag=$2 ; tag_arg="--tag $2" ; shift 2 ;;
 	--) shift ; break ;;
 	*) echo "$1: invalid option" ; exit 1 ;;
 	esac
 done
 
 # Arguments
-[ $# == 0 ] || syntax
+[ $# -gt 0 ] || syntax
+server_port_list="$*"
 
 # Reset log file
 log_file="$HOME/$M2S_CLIENT_KIT_TMP_PATH/test-build.log"
 rm -f $log_file
 
-# Run
-get_m2s_package
-check_mhandle
-#check_extra_dist
-#test_build
-#test_build_check
+# Try to connect to all machines
+echo "Checking connectivity to servers..."
+for server_port in $server_port_list
+do
+	# Server and port
+	server=$(echo $server_port | awk -F: '{ print $1 }')
+	port=$(echo $server_port | awk -F: '{ print $2 }')
+	[ -n "$port" ] || port=22
+
+	# Check connection with timeout of 10 seconds, and no password
+	echo -n "$server (port $port)"
+	ssh $server -p $port -o "ConnectTimeout=10" -o "PasswordAuthentication=no" \
+		'echo " - ok"' 2>$log_file \
+		|| error "failed to connect to $server"
+done
+echo
+
+# Get Multi2Sim local copy
+$build_m2s_local_sh $rev_arg $tag_arg
+echo
+
+# Test build on every machine
+echo "Running build tests..."
+for server_port in $server_port_list
+do
+	test_build $server_port
+done
+echo
+
+# Plot result
+test_build_check
 
 # End
 rm -rf $temp_dir

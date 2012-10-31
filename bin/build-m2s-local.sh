@@ -50,8 +50,13 @@ Generate Multi2Sim's source code at
 	the Multi2Sim binary and its distribution package
 
   ~/m2s-client-kit/tmp/m2s-bin
-  	Folder containing a copy of the Multi2Sim binary (m2s) and a copy of the
-	distribution package (multi2sim-XXX.tar.gz).
+  	Folder containing the Multi2Sim binary and tarball packages. The
+	following files are generated in this folder:
+
+        * m2s - Multi2Sim exeutable.
+	* build.ini - Information about this build (INI file)
+	* multi2sim.tar.gz - Tarball containing SVN development source.
+	* multi2sim-XXX.tar.gz - Tarball containing distribution package.
 
 The last call to this script is recorded, so that the Multi2Sim source is
 selectively downloaded or build only if the requested version differs from the
@@ -195,6 +200,7 @@ fi
 # Download Multi2Sim source if revision/tag don't match
 if [ "$check_m2s_build_result" == 2 ]
 then
+	# Download source
 	echo -n " - downloading source"
 	cd && rm -rf $M2S_CLIENT_KIT_M2S_SRC_PATH
 	if [ -z "$tag" ]
@@ -225,6 +231,14 @@ aclocal >> $log_file 2>&1 && \
 	make dist >> $log_file 2>&1 || \
 		error "build failed"
 
+# Obtain distribution version
+cd $HOME/$M2S_CLIENT_KIT_M2S_BUILD_PATH
+dist_package=`ls multi2sim-*.tar.gz`
+dist_package_count=`echo $dist_package | wc -w`
+[ "$dist_package_count" == 1 ] || error "invalid number of packages ($dist_package_count)"
+dist_version=`echo $dist_package | sed "s/^multi2sim-\(.*\)\.tar\.gz/\1/g"`
+[ -n "$dist_version" ] || error "cannot obtain distribution package version"
+
 # Copy executable
 echo -n " - saving binary"
 cd && rm -rf $M2S_CLIENT_KIT_M2S_BIN_PATH
@@ -236,11 +250,18 @@ mv $HOME/$M2S_CLIENT_KIT_M2S_BUILD_PATH/multi2sim-*.tar.gz \
 	$HOME/$M2S_CLIENT_KIT_M2S_BIN_PATH ||
 	error "failed moving distribution package"
 
+# Create package with SVN development source
+cd $HOME/$M2S_CLIENT_KIT_M2S_SRC_PATH
+tar -czf $HOME/$M2S_CLIENT_KIT_M2S_BIN_PATH/multi2sim.tar.gz * \
+	--transform 's,^,multi2sim/,' --exclude-vcs \
+	|| error "cannot create development package"
+
 # Record revision
 inifile_script=`mktemp`
 echo "write Build Revision $rev" >> $inifile_script
 echo "write Build Tag $tag" >> $inifile_script
 echo "write Build ConfigureArgs \"$configure_args\"" >> $inifile_script
+echo "write Build Version $dist_version" >> $inifile_script
 $inifile_py $build_ini run $inifile_script || exit 1
 rm -f $inifile_script
 
