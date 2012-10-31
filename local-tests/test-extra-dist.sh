@@ -16,7 +16,7 @@ prog_name=$(echo $0 | awk -F/ '{ print $NF }')
 
 function error()
 {
-	echo -e "\nerror: $1 (see log in $log_file)\n" >&2
+	echo -e "\nerror: $1\n" >&2
 	exit 1
 }
 
@@ -30,9 +30,6 @@ Syntax:
 
 
 Options:
-
-  -h | --help
-  	Display help message.
 
   -r <rev>
   	Multi2Sim revision to fetch and build. If none is specified, the latest
