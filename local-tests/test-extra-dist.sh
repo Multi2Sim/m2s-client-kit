@@ -92,37 +92,28 @@ cp $HOME/m2s-client-kit/tmp/m2s-bin/$m2s_pkg $temp_dir || exit 1
 cd $temp_dir
 tar -xzf $m2s_pkg || exit 1
 
-# List files in distribution package
-cd $temp_dir/$m2s_dir/src || exit 1
-file_list=`find . -type f | grep -v "\.svn" | grep "\.c$"`
+# List files in development package
+cd $HOME/m2s-client-kit/tmp/m2s-src || exit 1
+file_list=`find . -type f | grep -v "\.svn\>"`
 
-# Check files
-missing_mhandle=0
+# Find files in distribution package
+missing_files=0
+cd $temp_dir/$m2s_dir || exit 1
 for file in $file_list
 do
-	# Don't check if the current file is 'mhandle.c'
-	echo $file | grep -q "\<mhandle.c$" \
-		&& continue
-
-	# Check if there are memory allocation calls
-	grep "\(\<free *(\)\|\(\<malloc *(\)\|\(\<calloc *(\)\|\(\<strdup *\)\|\(\<strndup *\)" \
-		$file -q \
-		|| continue
-	
-	# Check if file includes 'mhandle.h'
-	grep "#include .*\<mhandle\.h\>" $file -q \
-		&& continue
-
-	# Missing
-	[ $missing_mhandle == 1 ] || echo
-	missing_mhandle=1
-	echo -e "\tmissing 'mhandle.h' - $file"
+	if [ ! -e "$file" ]
+	then
+		missing_files=1
+		echo "missing file - $file"
+	fi
 done
 
 # Report error
-if [ $missing_mhandle == 1 ]
+if [ $missing_files == 1 ]
 then
-	echo "Error: missing inclusions of 'mhandle.h' found"
+	echo "error: missing files in distribution package"
+	echo -e "\tPlease check that the listed files are included in the EXTRA_DIST"
+	echo -e "\tvariable in the top-level 'Makefile.am' file."
 	rm -rf $temp_dir
 	exit 1
 fi
