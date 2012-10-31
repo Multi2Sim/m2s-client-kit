@@ -102,113 +102,111 @@ function test_build()
 		$server: \
 		>> $log_file 2>&1 \
 		|| error "failed sending packages to $server"
-	#------------
-	exit
-	#-------------
 	
 	# Log file
 	echo -e "\n*\n* Machine '$server'\n*\n" >> $log_file
 	echo ">>> test-build machine $server" >> $log_file
 	
-		# Connect to server
-		ssh -p $port $server '
+	# Connect to server
+	ssh -p $port $server '
 	
-			# Test development version build
-			#   $1 - Test name
-			#   $2 [$3 ...] - Configure flags
-			function test_dev_build()
-			{	
-				local test_name=$1
-				shift
-				local configure_args="$*"
-	
-				# Info
-				echo ">>> test-build begin $test_name"
-	
-				# Build test
-				cd $temp_dir 2>&1 && \
-					rm -rf $dev_dir 2>&1 && \
-					tar -xzf $dev_package_path 2>&1 && \
-					cd $dev_dir 2>&1 && \
-					aclocal 2>&1 && \
-					autoconf 2>&1 && \
-					automake --add-missing 2>&1 && \
-					./configure $configure_args 2>&1 && \
-					make 2>&1
-	
-				# Diagnose
-				if [ $? == 0 ]
-				then
-					echo ">>> test-build passed $test_name"
-				else
-					echo ">>> test-build failed $test_name"
-				fi
-				echo ">>> test-build end $test_name"
-			}
-	
-			# Test distribution version build
-			#   $1 - Test name
-			#   $2 [$3 ...] - Configure flags
-			function test_dist_build()
-			{
-				local test_name=$1
-				shift
-				local configure_args="$*"
-	
-				# Info
-				echo ">>> test-build begin $test_name"
-	
-				# Build test
-				cd $temp_dir 2>&1 && \
-					rm -rf $dist_dir 2>&1 && \
-					tar -xzf $dist_package_path 2>&1 && \
-					cd $dist_dir 2>&1 && \
-					./configure $configure_args 2>&1 && \
-					make 2>&1
-	
-				# Diagnose
-				if [ $? == 0 ]
-				then
-					echo ">>> test-build passed $test_name"
-				else
-					echo ">>> test-build failed $test_name"
-				fi
-				echo ">>> test-build end $test_name"
-			}
-	
-			# Copy packages to temporary directory
-			temp_dir=`mktemp -d`
-			mv multi2sim-dev.tar.gz $temp_dir || exit 1
-			mv '$dist_package_name' $temp_dir || exit 1
-			dev_package_path="$temp_dir/multi2sim-dev.tar.gz"
-			dist_package_path="$temp_dir/'$dist_package_name'"
-			dev_dir="$temp_dir/multi2sim"
-			dist_dir="$temp_dir/multi2sim-'$dist_version'"
-			cd $temp_dir || exit 1
-	
-			# Extract packages
-			tar -xzf $dev_package_path
-			tar -xzf $dist_package_path
-	
-			# Tests on development package
-			test_dev_build dev-default
-			test_dev_build dev-debug --enable-debug
-			test_dev_build dev-debug-no-gtk --enable-debug --disable-gtk
-			test_dev_build dev-debug-no-glut --enable-debug --disable-glut
-			test_dev_build dev-no-gtk --disable-gtk
-			test_dev_build dev-no-glut --disable-glut
+		# Test development version build
+		#   $1 - Test name
+		#   $2 [$3 ...] - Configure flags
+		function test_dev_build()
+		{	
+			local test_name=$1
+			shift
+			local configure_args="$*"
 
-			# Tests on distribution package
-			test_dist_build dist-default
-			test_dist_build dist-debug --enable-debug
-			test_dist_build dist-debug-no-gtk --enable-debug --disable-gtk
-			test_dist_build dist-debug-no-glut --enable-debug --disable-glut
-			test_dist_build dist-no-gtk --disable-gtk
-			test_dist_build dist-no-glut --disable-glut
+			# Info
+			echo ">>> test-build begin $test_name"
+
+			# Build test
+			cd $temp_dir 2>&1 && \
+				rm -rf $dev_dir 2>&1 && \
+				tar -xzf $dev_package_path 2>&1 && \
+				cd $dev_dir 2>&1 && \
+				aclocal 2>&1 && \
+				autoconf 2>&1 && \
+				automake --add-missing 2>&1 && \
+				./configure $configure_args 2>&1 && \
+				make 2>&1
+
+			# Diagnose
+			if [ $? == 0 ]
+			then
+				echo ">>> test-build passed $test_name"
+			else
+				echo ">>> test-build failed $test_name"
+			fi
+			echo ">>> test-build end $test_name"
+		}
+
+		# Test distribution version build
+		#   $1 - Test name
+		#   $2 [$3 ...] - Configure flags
+		function test_dist_build()
+		{
+			local test_name=$1
+			shift
+			local configure_args="$*"
+
+			# Info
+			echo ">>> test-build begin $test_name"
+
+			# Build test
+			cd $temp_dir 2>&1 && \
+				rm -rf $dist_dir 2>&1 && \
+				tar -xzf $dist_package_path 2>&1 && \
+				cd $dist_dir 2>&1 && \
+				./configure $configure_args 2>&1 && \
+				make 2>&1
+
+			# Diagnose
+			if [ $? == 0 ]
+			then
+				echo ">>> test-build passed $test_name"
+			else
+				echo ">>> test-build failed $test_name"
+			fi
+			echo ">>> test-build end $test_name"
+		}
 	
-			# Remove temporary directory
-			rm -rf $temp_dir
-		' >> $log_file 2>&1
+		# Copy packages to temporary directory
+		temp_dir=`mktemp -d`
+		version="'$version'"
+		mv multi2sim.tar.gz $temp_dir || exit 1
+		mv multi2sim-$version.tar.gz $temp_dir || exit 1
+		dev_package_path="$temp_dir/multi2sim.tar.gz"
+		dist_package_path="$temp_dir/multi2sim-$version.tar.gz"
+		dev_dir="$temp_dir/multi2sim"
+		dist_dir="$temp_dir/multi2sim-$version"
+		cd $temp_dir || exit 1
+
+		# Extract packages
+		tar -xzf $dev_package_path
+		tar -xzf $dist_package_path
+
+		# Tests on development package
+		test_dev_build dev-default
+		test_dev_build dev-debug --enable-debug
+		test_dev_build dev-debug-no-gtk --enable-debug --disable-gtk
+		test_dev_build dev-debug-no-glut --enable-debug --disable-glut
+		test_dev_build dev-no-gtk --disable-gtk
+		test_dev_build dev-no-glut --disable-glut
+
+		# Tests on distribution package
+		test_dist_build dist-default
+		test_dist_build dist-debug --enable-debug
+		test_dist_build dist-debug-no-gtk --enable-debug --disable-gtk
+		test_dist_build dist-debug-no-glut --enable-debug --disable-glut
+		test_dist_build dist-no-gtk --disable-gtk
+		test_dist_build dist-no-glut --disable-glut
+
+		# Remove temporary directory
+		rm -rf $temp_dir
+	' >> $log_file 2>&1
 }
 
 
