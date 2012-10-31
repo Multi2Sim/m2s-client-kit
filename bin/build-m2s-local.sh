@@ -7,7 +7,8 @@ M2S_SVN_TRUNK_URL="http://multi2sim.org/svn/multi2sim/trunk"
 M2S_CLIENT_KIT_PATH="m2s-client-kit"
 M2S_CLIENT_KIT_TMP_PATH="$M2S_CLIENT_KIT_PATH/tmp"
 M2S_CLIENT_KIT_BIN_PATH="$M2S_CLIENT_KIT_PATH/bin"
-M2S_CLIENT_KIT_M2S_PATH="$M2S_CLIENT_KIT_TMP_PATH/m2s-src"
+M2S_CLIENT_KIT_M2S_SRC_PATH="$M2S_CLIENT_KIT_TMP_PATH/m2s-src"
+M2S_CLIENT_KIT_M2S_BUILD_PATH="$M2S_CLIENT_KIT_TMP_PATH/m2s-build"
 M2S_CLIENT_KIT_M2S_BIN_PATH="$M2S_CLIENT_KIT_TMP_PATH/m2s-bin"
 M2S_CLIENT_KIT_M2S_BIN_EXE_PATH="$M2S_CLIENT_KIT_M2S_BIN_PATH/m2s"
 M2S_CLIENT_KIT_M2S_BIN_BUILD_INI_PATH="$M2S_CLIENT_KIT_M2S_BIN_PATH/build.ini"
@@ -36,13 +37,21 @@ function syntax()
 Syntax:
     $prog_name [<options>]
 
+Obtain Multi2Sim from its server, build it, and generate the distribution
+package, providing the following output directories:
 Generate Multi2Sim's source code at
 
-	~/m2s-client-kit/tmp/m2s-src/
+  ~/m2s-client-kit/tmp/m2s-src
+	Folder containing an unmodified version of the SVN repository downloaded
+	from the Multi2Sim server.
 
-as well as Multi2Sim binary and distribution package at
+  ~/m2s-client-kit/tmp/m2s-build
+  	Copy of the SVN repository where Autotools commands have run to create
+	the Multi2Sim binary and its distribution package
 
-	~/m2s-client-kit/tmp/m2s-bin/
+  ~/m2s-client-kit/tmp/m2s-bin
+  	Folder containing a copy of the Multi2Sim binary (m2s) and a copy of the
+	distribution package (multi2sim-XXX.tar.gz).
 
 The last call to this script is recorded, so that the Multi2Sim source is
 selectively downloaded or build only if the requested version differs from the
@@ -187,20 +196,26 @@ fi
 if [ "$check_m2s_build_result" == 2 ]
 then
 	echo -n " - downloading source"
-	cd && rm -rf $M2S_CLIENT_KIT_M2S_PATH
+	cd && rm -rf $M2S_CLIENT_KIT_M2S_SRC_PATH
 	if [ -z "$tag" ]
 	then
-		svn co $M2S_SVN_TRUNK_URL $HOME/$M2S_CLIENT_KIT_M2S_PATH \
+		svn co $M2S_SVN_TRUNK_URL $HOME/$M2S_CLIENT_KIT_M2S_SRC_PATH \
 			-r $rev >/dev/null || error "cannot get local copy"
 	else
-		svn co $M2S_SVN_TAGS_URL/$tag $HOME/$M2S_CLIENT_KIT_M2S_PATH \
+		svn co $M2S_SVN_TAGS_URL/$tag $HOME/$M2S_CLIENT_KIT_M2S_SRC_PATH \
 			-r $rev >/dev/null || error "cannot get local copy"
 	fi
 fi
 
+# Make a copy of 'm2s-src' into 'm2s-build'
+cd && rm -rf $M2S_CLIENT_KIT_M2S_BUILD_PATH
+[ ! -d $M2S_CLIENT_KIT_M2S_BUILD_PATH ] || error "cannot remove 'm2s-build'"
+cp -r $M2S_CLIENT_KIT_M2S_SRC_PATH $M2S_CLIENT_KIT_M2S_BUILD_PATH \
+	|| error "cannot copy 'm2s-src' to 'm2s-build'"
+
 # Build
 echo -n " - building"
-cd $HOME/$M2S_CLIENT_KIT_M2S_PATH
+cd $HOME/$M2S_CLIENT_KIT_M2S_BUILD_PATH
 aclocal >> $log_file 2>&1 && \
 	autoconf >> $log_file 2>&1 && \
 	automake --add-missing >> $log_file 2>&1 && \
@@ -214,12 +229,12 @@ aclocal >> $log_file 2>&1 && \
 echo -n " - saving binary"
 cd && rm -rf $M2S_CLIENT_KIT_M2S_BIN_PATH
 mkdir -p $HOME/$M2S_CLIENT_KIT_M2S_BIN_PATH
-cp $HOME/$M2S_CLIENT_KIT_M2S_PATH/src/m2s \
+cp $HOME/$M2S_CLIENT_KIT_M2S_BUILD_PATH/src/m2s \
 	$HOME/$M2S_CLIENT_KIT_M2S_BIN_EXE_PATH ||
 	error "failed copying binary"
-cp $HOME/$M2S_CLIENT_KIT_M2S_PATH/multi2sim-*.tar.gz \
+mv $HOME/$M2S_CLIENT_KIT_M2S_BUILD_PATH/multi2sim-*.tar.gz \
 	$HOME/$M2S_CLIENT_KIT_M2S_BIN_PATH ||
-	error "failed copying distribution package"
+	error "failed moving distribution package"
 
 # Record revision
 inifile_script=`mktemp`
