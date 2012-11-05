@@ -83,9 +83,9 @@ commands are:
 	  quotes for more than one argument (e.g.,
 	  --sim-args "--mem-config my-mem-config-file").
 	  When using this option to add output report files, it is recommended
-	  to use files prefixed with 'report-' (e.g.,
-	  --sim-args "--report-cpu-pipeline report-my-cpu-pipeline"). Files with
-	  this prefix in the simulation working directory will be automatically
+	  to use files with the '-report' suffix (e.g.,
+	  --sim-args "--x86-report my-x86-report"). Files with
+	  this suffix in the simulation working directory will be automatically
 	  imported with command 'import'.
 
       --bench-args <args>
@@ -186,7 +186,7 @@ commands are:
           sim.out    Benchmark output
 	  sim.ref    Benchmark reference output
 	  sim.err    Simulator output
-	  report-*   Any report file with the 'report-' prefix.
+	  *-report   Any report file with the '-report' suffix.
 	  *-config   Any configuration file with the '-config' suffix.
       If optional flag '-a' is specified, all files in the running directory
       will be imported, including benchmark executable and data files.
@@ -1250,7 +1250,7 @@ then
 		if [ "$import_all" == 0 ]
 		then
 			tar -czf $package `find -regex \
-				"\(.*/sim.err$\)\|\(.*/report-[^/]*$\)\|\(.*/sim.out$\)\|\(.*/sim.ref\)\|\(.*/-config$\)"` \
+				"\(.*/sim.err$\)\|\(.*/report-[^/]*$\)\|\(.*/sim.out$\)\|\(.*/sim.ref\)\|\(.*/-config$\)\|\(.*/-report$\)"` \
 				> /dev/null 2>&1 || exit 1
 		else
 			tar -czf $package `find -not -regex "\(.*\/\..*\)"` \

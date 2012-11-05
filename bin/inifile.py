@@ -425,24 +425,35 @@ def ParseString(s):
 def ProcessCommandRun(Args):
 	
 	# Syntax
-	if len(Args) != 1:
+	if len(Args) > 1:
 		error("command 'run': wrong syntax")
 	
-	# Open script
-	try:
-		f = open(Args[0], "r")
-	except:
-		error("cannot open script '%s'" % (Args[0]))
+	# If no argument passed, stdin used.
+	# Otherwise, open script specified in argument
+	if len(Args) == 0:
+		f = sys.stdin
+
+	else:
+		try:
+			f = open(Args[0], "r")
+		except:
+			error("cannot open script '%s'" % (Args[0]))
 	
 	# Read it
-	for Line in f:
+	while 1:
+		Line = f.readline()
+		if not Line:
+			break
 		if Line != "" and Line[-1] == "\n":
 			Line = Line[:-1]
 		Line = Line.strip()
 		Args = ParseString(Line)
 		if len(Args) > 1:
 			ProcessCommand(Args[0], Args[1:])
-	f.close()
+	
+	# Close if not stdin
+	if f != sys.stdin:
+		f.close()
 
 
 def ProcessCommand(Command, Args):
@@ -513,8 +524,9 @@ The following is a list of possible commands with their associated options.
        If no argument is given, list all sections within the file.
        If <section> is given, list all keys within the section.
 
-  * Command 'run'. Arguments: <script>
-       Run a sequence of commands from a script.
+  * Command 'run'. Arguments: [<script>]
+       Run a sequence of commands from a script. If no script is specified in
+       the argument, the commands are read from the standard input.
 
 """
 
