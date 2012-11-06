@@ -12,7 +12,9 @@ inifile_py="$HOME/$M2S_CLIENT_KIT_BIN_PATH/inifile.py"
 
 # List of the first 5 integer + the first 5 floating-point benchmarks
 bench_list="400.perlbench 401.bzip2 403.gcc 410.bwaves 416.gamess 429.mcf 433.milc 434.zeusmp 435.gromacs 445.gobmk"
+bench_list_count=`echo "$bench_list" | wc -w`
 bpred_kind_list="Perfect Taken NotTaken Bimodal TwoLevel Combined"
+bpred_kind_list_count=`echo "$bench_kind_list" | wc -w`
 
 cluster_name="x86-bpred"
 cluster_desc="
@@ -185,9 +187,18 @@ then
 	cp /dev/null $report_file || exit 1
 	
 	# Each section is named [ Benchmark.PredictorKind ]
-	for bench in $bench_list
+	for bpred_kind in $bpred_kind_list
 	do
-		for bpred_kind in $bpred_kind_list
+		# Reset accumulated values
+		x86_cycles_acc=0
+		x86_committed_instructions_acc=0
+		x86_committed_instructions_per_cycle_acc=0
+		x86_committed_micro_instructions_acc=0
+		x86_committed_micro_instructions_per_cycle_acc=0
+		x86_branch_prediction_accuracy_acc=0
+
+		# All benchmarks
+		for bench in $bench_list
 		do
 			# Results file
 			sim_err="$cluster_path/$bench/$bpred_kind/sim.err"
@@ -202,16 +213,16 @@ then
 				x86_committed_micro_instructions_per_cycle \
 				x86_branch_prediction_accuracy \
 				<<< `echo -e \
-				"read x86 Cycles\n" \
-				"read x86 CommittedInstructions\n" \
-				"read x86 CommittedInstructionsPerCycle\n" \
-				"read x86 CommittedMicroInstructions\n" \
-				"read x86 CommittedMicroInstructionsPerCycle\n" \
-				"read x86 BranchPredictionAccuracy\n" \
+				"read x86 Cycles 0\n" \
+				"read x86 CommittedInstructions 0\n" \
+				"read x86 CommittedInstructionsPerCycle 0\n" \
+				"read x86 CommittedMicroInstructions 0\n" \
+				"read x86 CommittedMicroInstructionsPerCycle 0\n" \
+				"read x86 BranchPredictionAccuracy 0\n" \
 				| $inifile_py $sim_err run`
 
 			# Section in report file
-			echo "[ ${bench}.${bpred_kind} ]" >> $report_file
+			echo "[ ${bpred_kind}.${bench} ]" >> $report_file
 			echo "Cycles = $x86_cycles" >> $report_file
 			echo "CommittedInstructions = $x86_committed_instructions" >> $report_file
 			echo "CommittedInstructionsPerCycle = $x86_committed_instructions_per_cycle" >> $report_file
@@ -219,59 +230,279 @@ then
 			echo "CommittedMicroInstructionsPerCycle = $x86_committed_micro_instructions_per_cycle" >> $report_file
 			echo "BranchPredictionAccuracy = $x86_branch_prediction_accuracy" >> $report_file
 
+			# Accumulate values
+			x86_cycles_acc=`bc -l <<< "$x86_cycles_acc + $x86_cycles"`
+			x86_committed_instructions_acc=`bc -l <<< "$x86_committed_instructions_acc + $x86_committed_instructions"`
+			x86_committed_instructions_per_cycle_acc=`bc -l <<< "$x86_committed_instructions_per_cycle_acc + \
+				$x86_committed_instructions_per_cycle"`
+			x86_committed_micro_instructions_acc=`bc -l <<< "$x86_committed_micro_instructions_acc + $x86_committed_micro_instructions"`
+			x86_committed_micro_instructions_per_cycle_acc=`bc -l <<< "$x86_committed_micro_instructions_per_cycle_acc + \
+				$x86_committed_micro_instructions_per_cycle"`
+			x86_branch_prediction_accuracy_acc=`bc -l <<< "$x86_branch_prediction_accuracy_acc + $x86_branch_prediction_accuracy"`
+
 			# Blank line
 			echo >> $report_file
 		done
+
+		# Calculate averages
+		x86_cycles=`bc -l <<< "$x86_cycles_acc / $bench_list_count"`
+		x86_committed_instructions=`bc -l <<< "$x86_committed_instructions_acc / $bench_list_count"`
+		x86_committed_instructions_per_cycle=`bc -l <<< "$x86_committed_instructions_per_cycle_acc / $bench_list_count"`
+		x86_committed_micro_instructions=`bc -l <<< "$x86_committed_micro_instructions_acc / $bench_list_count"`
+		x86_committed_micro_instructions_per_cycle=`bc -l <<< "$x86_committed_micro_instructions_per_cycle_acc / $bench_list_count"`
+		x86_branch_prediction_accuracy=`bc -l <<< "$x86_branch_prediction_accuracy_acc / $bench_list_count"`
+		
+		# Print averages
+		echo "[ ${bpred_kind}.Average ]" >> $report_file
+		echo "Cycles = $x86_cycles" >> $report_file
+		echo "CommittedInstructions = $x86_committed_instructions" >> $report_file
+		echo "CommittedInstructionsPerCycle = $x86_committed_instructions_per_cycle" >> $report_file
+		echo "CommittedMicroInstructions = $x86_committed_micro_instructions" >> $report_file
+		echo "CommittedMicroInstructionsPerCycle = $x86_committed_micro_instructions_per_cycle" >> $report_file
+		echo "BranchPredictionAccuracy = $x86_branch_prediction_accuracy" >> $report_file
 	done
 
-	exit #######
-
-
 
 	#
-	# Generate plots
+	# PLOT 1 - Cycles
 	#
 
-	# Create temporary files
-	inifile_script=`mktemp`
-	inifile_script_output=`mktemp`
-
-	# Iterate through benchmarks
-	for bench in $bench_list
+	# List of cycles
+	x86_perfect_cycles_list=
+	x86_taken_cycles_list=
+	x86_nottaken_cycles_list=
+	x86_bimodal_cycles_list=
+	x86_twolevel_cycles_list=
+	x86_combined_cycles_list=
+	x86_tick_list=
+	comma=
+	for bench in $bench_list Average
 	do
-		# Reset statistic files
-		cpu_time_list=0
-		cpu_inst_list=0
+		# Read values for benchmark
+		read \
+			x86_perfect_cycles \
+			x86_taken_cycles \
+			x86_nottaken_cycles \
+			x86_bimodal_cycles \
+			x86_twolevel_cycles \
+			x86_combined_cycles \
+			<<< `echo -e \
+			"read Perfect.${bench} Cycles 0\n" \
+			"read Taken.${bench} Cycles 0\n" \
+			"read NotTaken.${bench} Cycles 0\n" \
+			"read Bimodal.${bench} Cycles 0\n" \
+			"read TwoLevel.${bench} Cycles 0\n" \
+			"read Combined.${bench} Cycles 0\n" \
+			| $inifile_py $report_file run`
 
-		# Iterate through data sets
-		for data_set in $data_set_list
-		do
-			# Read results
-			job_dir="$cluster_path/$bench/$data_set"
-			sim_err="$job_dir/sim.err"
-			cp /dev/null $inifile_script
-			echo "read x86 Time 0" >> $inifile_script
-			echo "read x86 Instructions 0" >> $inifile_script
-			$inifile_py $sim_err run $inifile_script > $inifile_script_output
-			for i in 1
-			do
-				read cpu_time
-				read cpu_inst
-			done < $inifile_script_output
+		# Update lists
+		x86_perfect_cycles_list="${x86_perfect_cycles_list}${comma}${x86_perfect_cycles}"
+		x86_taken_cycles_list="${x86_taken_cycles_list}${comma}${x86_taken_cycles}"
+		x86_nottaken_cycles_list="${x86_nottaken_cycles_list}${comma}${x86_nottaken_cycles}"
+		x86_bimodal_cycles_list="${x86_bimodal_cycles_list}${comma}${x86_bimodal_cycles}"
+		x86_twolevel_cycles_list="${x86_twolevel_cycles_list}${comma}${x86_twolevel_cycles}"
+		x86_combined_cycles_list="${x86_combined_cycles_list}${comma}${x86_combined_cycles}"
+		x86_tick_list="${x86_tick_list}${comma}'${bench}'"
 
-			# Add to lists
-			cpu_time_list="$cpu_time_list, $cpu_time"
-			cpu_inst_list="$cpu_inst_list, $cpu_inst"
-
-			echo "$bench: Time=$cpu_time, Instructions=$cpu_inst"
-		done
-
+		# New comma
+		comma=", "
 	done
-	
-	# Remove temporary file
-	rm -f $inifile_script_output
-	rm -f $inifile_script
 
+	# Python script to plot results
+	echo "
+#!/usr/bin/env python
+import numpy as np
+import matplotlib.font_manager as fm
+import matplotlib.pyplot as plt
+
+color_array = [ '#004586', '#ff420e', '#ffd320', '#579d1c', \
+	'#7e0021', '#83caff', '#314004', '#aecf00', \
+	'#4e1f6f', '#ff950e', '#c5000b', '#0084d1' ]
+
+N = $bench_list_count + 1
+x86_perfect_cycles_list = ( $x86_perfect_cycles_list )
+x86_taken_cycles_list = ( $x86_taken_cycles_list )
+x86_nottaken_cycles_list = ( $x86_nottaken_cycles_list )
+x86_bimodal_cycles_list = ( $x86_bimodal_cycles_list )
+x86_twolevel_cycles_list = ( $x86_twolevel_cycles_list )
+x86_combined_cycles_list = ( $x86_combined_cycles_list )
+
+ind = np.arange(N)  # the x locations for the groups
+width = 1.0 / 7       # the width of the bars
+
+fig = plt.figure()
+fig.set_size_inches(10, 2.5)
+ax = fig.add_subplot(111)
+
+# add some
+prop_small_font = fm.FontProperties(size = 10)
+prop_title_font = fm.FontProperties(size = 10, weight = 'bold')
+ax.set_ylabel('Cycles')
+ax.set_title('Execution Time for Branch Predictors', fontproperties = prop_title_font)
+ax.set_xticks(ind + width)
+ax.set_xticklabels(($x86_tick_list), rotation = 30)
+ax.tick_params(labelsize = 10, top = False, bottom = False)
+ax.set_xlim(-width, N)
+ax.grid(True, axis = 'y', color = 'gray')
+
+# Bars
+rects_perfect_cycles = ax.bar(ind + width * 0, x86_perfect_cycles_list, width, color = color_array[0])
+rects_taken_cycles = ax.bar(ind + width * 1, x86_taken_cycles_list, width, color = color_array[1])
+rects_nottaken_cycles = ax.bar(ind + width * 2, x86_nottaken_cycles_list, width, color = color_array[2])
+rects_bimodal_cycles = ax.bar(ind + width * 3, x86_bimodal_cycles_list, width, color = color_array[3])
+rects_twolevel_cycles = ax.bar(ind + width * 4, x86_twolevel_cycles_list, width, color = color_array[4])
+rects_combined_cycles = ax.bar(ind + width * 5, x86_combined_cycles_list, width, color = color_array[5])
+
+# Legend
+box = ax.get_position()
+ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+ax.legend( \
+	( \
+		rects_perfect_cycles[0], \
+		rects_taken_cycles[0], \
+		rects_nottaken_cycles[0], \
+		rects_bimodal_cycles[0], \
+		rects_twolevel_cycles[0], \
+		rects_combined_cycles[0]
+	), ( \
+		'Perfect', \
+		'Taken', \
+		'Not-Taken', \
+		'Bimodal', \
+		'Two-Level', \
+		'Combined'
+	), \
+	prop = prop_small_font, \
+	loc = 'upper left', \
+	bbox_to_anchor=(1, 1)
+	)
+
+plt.savefig('cycles.png', dpi=100, bbox_inches='tight')
+" > python_script
+
+
+
+
+	#
+	# PLOT 2 - Micro-Instructions Per Cycle
+	#
+
+	# List of values
+	x86_perfect_ipc_list=
+	x86_taken_ipc_list=
+	x86_nottaken_ipc_list=
+	x86_bimodal_ipc_list=
+	x86_twolevel_ipc_list=
+	x86_combined_ipc_list=
+	x86_tick_list=
+	comma=
+	for bench in $bench_list Average
+	do
+		# Read values for benchmark
+		read \
+			x86_perfect_ipc \
+			x86_taken_ipc \
+			x86_nottaken_ipc \
+			x86_bimodal_ipc \
+			x86_twolevel_ipc \
+			x86_combined_ipc \
+			<<< `echo -e \
+			"read Perfect.${bench} CommittedMicroInstructionsPerCycle 0\n" \
+			"read Taken.${bench} CommittedMicroInstructionsPerCycle 0\n" \
+			"read NotTaken.${bench} CommittedMicroInstructionsPerCycle 0\n" \
+			"read Bimodal.${bench} CommittedMicroInstructionsPerCycle 0\n" \
+			"read TwoLevel.${bench} CommittedMicroInstructionsPerCycle 0\n" \
+			"read Combined.${bench} CommittedMicroInstructionsPerCycle 0\n" \
+			| $inifile_py $report_file run`
+
+		# Update lists
+		x86_perfect_ipc_list="${x86_perfect_ipc_list}${comma}${x86_perfect_ipc}"
+		x86_taken_ipc_list="${x86_taken_ipc_list}${comma}${x86_taken_ipc}"
+		x86_nottaken_ipc_list="${x86_nottaken_ipc_list}${comma}${x86_nottaken_ipc}"
+		x86_bimodal_ipc_list="${x86_bimodal_ipc_list}${comma}${x86_bimodal_ipc}"
+		x86_twolevel_ipc_list="${x86_twolevel_ipc_list}${comma}${x86_twolevel_ipc}"
+		x86_combined_ipc_list="${x86_combined_ipc_list}${comma}${x86_combined_ipc}"
+		x86_tick_list="${x86_tick_list}${comma}'${bench}'"
+
+		# New comma
+		comma=", "
+	done
+		
+	# Python script to plot results
+	echo "
+#!/usr/bin/env python
+import numpy as np
+import matplotlib.font_manager as fm
+import matplotlib.pyplot as plt
+
+color_array = [ '#004586', '#ff420e', '#ffd320', '#579d1c', \
+	'#7e0021', '#83caff', '#314004', '#aecf00', \
+	'#4e1f6f', '#ff950e', '#c5000b', '#0084d1' ]
+
+N = $bench_list_count + 1
+x86_perfect_ipc_list = ( $x86_perfect_ipc_list )
+x86_taken_ipc_list = ( $x86_taken_ipc_list )
+x86_nottaken_ipc_list = ( $x86_nottaken_ipc_list )
+x86_bimodal_ipc_list = ( $x86_bimodal_ipc_list )
+x86_twolevel_ipc_list = ( $x86_twolevel_ipc_list )
+x86_combined_ipc_list = ( $x86_combined_ipc_list )
+	
+ind = np.arange(N)  # the x locations for the groups
+width = 1.0 / 7       # the width of the bars
+
+fig = plt.figure()
+fig.set_size_inches(10, 2.5)
+ax = fig.add_subplot(111)
+
+# add some
+prop_small_font = fm.FontProperties(size = 10)
+prop_title_font = fm.FontProperties(size = 10, weight = 'bold')
+ax.set_ylabel('\$\mu\$IPC')
+ax.set_title('Micro-Instructions Committed per Cycle for Different Branch Predictors', fontproperties = prop_title_font)
+ax.set_xticks(ind + width)
+ax.set_xticklabels(($x86_tick_list), rotation = 30)
+ax.tick_params(labelsize = 10, top = False, bottom = False)
+ax.set_xlim(-width, N)
+ax.grid(True, axis = 'y', color = 'gray')
+
+# Bars
+rects_perfect_ipc = ax.bar(ind + width * 0, x86_perfect_ipc_list, width, color = color_array[0])
+rects_taken_ipc = ax.bar(ind + width * 1, x86_taken_ipc_list, width, color = color_array[1])
+rects_nottaken_ipc = ax.bar(ind + width * 2, x86_nottaken_ipc_list, width, color = color_array[2])
+rects_bimodal_ipc = ax.bar(ind + width * 3, x86_bimodal_ipc_list, width, color = color_array[3])
+rects_twolevel_ipc = ax.bar(ind + width * 4, x86_twolevel_ipc_list, width, color = color_array[4])
+rects_combined_ipc = ax.bar(ind + width * 5, x86_combined_ipc_list, width, color = color_array[5])
+
+# Legend
+box = ax.get_position()
+ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+ax.legend( \
+	( \
+		rects_perfect_ipc[0], \
+		rects_taken_ipc[0], \
+		rects_nottaken_ipc[0], \
+		rects_bimodal_ipc[0], \
+		rects_twolevel_ipc[0], \
+		rects_combined_ipc[0]
+	), ( \
+		'Perfect', \
+		'Taken', \
+		'Not-Taken', \
+		'Bimodal', \
+		'Two-Level', \
+		'Combined'
+	), \
+	prop = prop_small_font, \
+	loc = 'upper left', \
+	bbox_to_anchor=(1, 1)
+	)
+
+plt.savefig('ipc.png', dpi=100, bbox_inches='tight')
+" > python_script
+exit
+
+
+	
 
 
 	#
