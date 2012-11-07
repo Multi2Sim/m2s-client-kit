@@ -1,0 +1,42 @@
+; L1-0 has addr 0x0 in E
+; L1-0 attempts NC Store
+
+; Directory configuration
+; L1:  16 sets, 2 ways, Block size 64
+; L2:   4 sets, 4 ways, Block size 128
+; MM: 128 sets, 8 ways, Block size 128
+
+[Commands]
+Command[0] = SetBlock mod-l1-3 0 1 0x0 E
+Command[1] = SetBlock mod-l2-1 0 3 0x0 E
+Command[2] = SetSharers mod-l2-1 0 3 0 mod-l1-3
+Command[3] = SetOwner mod-l2-1 0 3 0 mod-l1-3
+Command[4] = SetBlock mod-mm 0 7 0x0 E
+Command[5] = SetSharers mod-mm 0 7 0 mod-l2-1
+Command[6] = SetOwner mod-mm 0 7 0 mod-l2-1
+Command[7] = Access mod-l1-0 NCStore 0x0
+Command[8] = CheckBlock mod-l1-0 0 1 0x0 N
+Command[9] = CheckBlock mod-l1-3 0 1 0x0 S
+Command[10] = CheckBlock mod-l2-0 0 3 0x0 S
+Command[11] = CheckBlock mod-l2-1 0 3 0x0 S
+Command[12] = CheckBlock mod-mm 0 7 0x0 E
+Command[13] = CheckSharers mod-mm 0 7 0 mod-l2-0 mod-l2-1
+Command[14] = CheckOwner mod-mm 0 7 0 None
+Command[15] = CheckSharers mod-l2-0 0 3 0 mod-l1-0
+Command[16] = CheckOwner mod-l2-0 0 3 0 None
+Command[17] = CheckSharers mod-l2-1 0 3 0 mod-l1-3
+Command[18] = CheckOwner mod-l2-1 0 3 0 None
+Command[19] = CheckLink mod-l1-0 Low Out 8
+Command[20] = CheckLink mod-l1-0 Low In 72
+Command[21] = CheckLink mod-l1-3 Low Out 8
+Command[22] = CheckLink mod-l1-3 Low In 8
+Command[23] = CheckLink mod-l2-0 High Out 72
+Command[24] = CheckLink mod-l2-0 High In 8
+Command[25] = CheckLink mod-l2-0 Low Out 16
+Command[26] = CheckLink mod-l2-0 Low In 144
+Command[27] = CheckLink mod-l2-1 High Out 8
+Command[28] = CheckLink mod-l2-1 High In 8
+Command[29] = CheckLink mod-l2-1 Low Out 144
+Command[30] = CheckLink mod-l2-1 Low In 16
+Command[31] = CheckLink mod-mm High Out 16
+Command[32] = CheckLink mod-mm High In 16

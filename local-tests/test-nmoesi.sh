@@ -101,8 +101,10 @@ do
 	# Configuration files
 	x86_config="$config_full_path/x86-config"
 	mem_config="$config_full_path/mem-config"
+	net_config="$config_full_path/net-config"
 	[ -e "$x86_config" ] || error "missing x86-config in $config_dir"
 	[ -e "$mem_config" ] || error "missing mem-config in $config_dir"
+	[ -e "$net_config" ] || error "missing net-config in $config_dir"
 
 	# Run tests
 	for test_dir in $test_dir_list
@@ -123,7 +125,8 @@ do
 		# Launch
 		echo -ne "\t${test_dir:2}"
 		$m2s_bin --x86-sim detailed --x86-config $x86_config \
-			--mem-config $mem_config_commands >/dev/null 2>&1
+			--mem-config $mem_config_commands \
+			--net-config $net_config >/dev/null 2>&1
 		err=$?
 
 		# Report error

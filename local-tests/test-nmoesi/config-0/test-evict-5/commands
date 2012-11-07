@@ -1,0 +1,37 @@
+; L1-0 and L1-1 have addr 0 in S
+; L1-0 reads addr 1024 and 2048 (addr 0 gets evicted)
+
+; L1 16 sets, 2 ways, 64 byte blocks
+; L2 4 sets, 4 ways, 128 byte blocks
+
+[Commands]
+Command[0] = SetBlock mod-l1-0 0 0 0x0 S
+Command[1] = SetBlock mod-l1-1 0 0 0x0 S
+Command[2] = SetBlock mod-l2-0 0 0 0x0 S
+Command[3] = SetBlock mod-mm 0 0 0x0 E
+Command[4] = SetOwner mod-l2-0 0 0 0 None
+Command[5] = SetSharers mod-l2-0 0 0 0 mod-l1-0 mod-l1-1
+Command[6] = SetOwner mod-mm 0 0 0 None
+Command[7] = SetSharers mod-mm 0 0 0 mod-l2-0
+Command[8] = Access mod-l1-0 LOAD 0x400
+Command[9] = Access mod-l1-0 LOAD 0x800
+Command[10] = CheckBlock mod-l1-0 0 1 0x400 E
+Command[11] = CheckBlock mod-l1-0 0 0 0x800 E
+Command[12] = CheckBlock mod-l1-1 0 0 0x0 S
+Command[13] = CheckBlock mod-l2-0 0 0 0x0 S
+Command[14] = CheckBlock mod-l2-0 0 3 0x400 E
+Command[15] = CheckBlock mod-l2-0 0 2 0x800 E
+Command[16] = CheckSharers mod-l2-0 0 0 0 mod-l1-1
+Command[17] = CheckSharers mod-l2-0 0 3 0 mod-l1-0
+Command[18] = CheckSharers mod-l2-0 0 2 0 mod-l1-0
+Command[19] = CheckOwner mod-l2-0 0 0 1 None
+Command[20] = CheckOwner mod-l2-0 0 3 0 mod-l1-0
+Command[21] = CheckOwner mod-l2-0 0 2 0 mod-l1-0
+Command[22] = CheckLink mod-l1-0 Low Out 24
+Command[23] = CheckLink mod-l1-0 Low In 152
+Command[24] = CheckLink mod-l1-1 Low Out 0
+Command[25] = CheckLink mod-l1-1 Low In 0
+Command[26] = CheckLink mod-l2-0 High Out 152
+Command[27] = CheckLink mod-l2-0 High In 24
+Command[28] = CheckLink mod-l2-0 Low Out 16
+Command[29] = CheckLink mod-l2-0 Low In 272
