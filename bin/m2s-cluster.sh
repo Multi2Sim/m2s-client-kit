@@ -1250,7 +1250,7 @@ then
 		if [ "$import_all" == 0 ]
 		then
 			tar -czf $package `find -regex \
-				"\(.*/sim.err$\)\|\(.*/report-[^/]*$\)\|\(.*/sim.out$\)\|\(.*/sim.ref\)\|\(.*/-config$\)\|\(.*/-report$\)"` \
+				"\(.*/sim.err$\)\|\(.*/report-[^/]*$\)\|\(.*/sim.out$\)\|\(.*/sim.ref\)\|\(.*-config$\)\|\(.*-report$\)"` \
 				> /dev/null 2>&1 || exit 1
 		else
 			tar -czf $package `find -not -regex "\(.*\/\..*\)"` \
