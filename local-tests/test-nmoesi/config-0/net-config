@@ -1,0 +1,95 @@
+[ Network.net0 ]
+  DefaultInputBufferSize = 1024
+  DefaultOutputBufferSize = 1024
+  DefaultBandwidth = 256
+
+[ Network.net1 ]
+  DefaultInputBufferSize = 1024
+  DefaultOutputBufferSize = 1024
+  DefaultBandwidth = 256
+
+[ Network.net2 ]
+  DefaultInputBufferSize = 1024
+  DefaultOutputBufferSize = 1024
+  DefaultBandwidth = 256
+
+[ Network.net0.Node.n0 ]
+Type = EndNode
+
+[ Network.net0.Node.n1 ]
+Type = EndNode
+
+[ Network.net0.Node.n2 ]
+Type = EndNode
+
+[ Network.net1.Node.n3 ]
+Type = EndNode
+
+[ Network.net1.Node.n4 ]
+Type = EndNode
+
+[ Network.net1.Node.n5 ]
+Type = EndNode
+
+[ Network.net2.Node.n6 ]
+Type = EndNode
+
+[ Network.net2.Node.n7 ]
+Type = EndNode
+
+[ Network.net2.Node.n8 ]
+Type = EndNode
+
+[ Network.net0.Node.s0 ]
+Type = Switch 
+
+[ Network.net1.Node.s1 ]
+Type = Switch 
+
+[ Network.net2.Node.s2 ]
+Type = Switch 
+
+[ Network.net0.Link.l0 ]
+Type = Bidirectional
+Source = n0
+Dest = s0
+
+[ Network.net0.Link.l1 ]
+Type = Bidirectional
+Source = n1
+Dest = s0
+
+[ Network.net0.Link.l2 ]
+Type = Bidirectional
+Source = n2 
+Dest = s0
+
+[ Network.net1.Link.l3 ]
+Type = Bidirectional
+Source = n3 
+Dest = s1
+
+[ Network.net1.Link.l4 ]
+Type = Bidirectional
+Source = n4 
+Dest = s1
+
+[ Network.net1.Link.l5 ]
+Type = Bidirectional
+Source = n5 
+Dest = s1
+
+[ Network.net2.Link.l6 ]
+Type = Bidirectional
+Source = n6 
+Dest = s2
+
+[ Network.net2.Link.l7 ]
+Type = Bidirectional
+Source = n7 
+Dest = s2
+
+[ Network.net2.Link.l8 ]
+Type = Bidirectional
+Source = n8 
+Dest = s2
