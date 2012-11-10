@@ -859,10 +859,10 @@ plt.savefig('$cluster_path/report-files/accuracy.png', dpi=100, bbox_inches='tig
 	echo "<pre>$cluster_desc</pre>" >> $html_file
 
 	# Benchmarks
-	echo "<img src=\"report-files/cycles.png\">" >> $html_file
-	echo "<img src=\"report-files/ipc.png\">" >> $html_file
-	echo "<img src=\"report-files/branches.png\">" >> $html_file
-	echo "<img src=\"report-files/accuracy.png\">" >> $html_file
+	echo "<img src=\"report-files/cycles.png\"><br>" >> $html_file
+	echo "<img src=\"report-files/ipc.png\"><br>" >> $html_file
+	echo "<img src=\"report-files/branches.png\"><br>" >> $html_file
+	echo "<img src=\"report-files/accuracy.png\"><br>" >> $html_file
 
 	# End
 	echo "</body></html>" >> $html_file
