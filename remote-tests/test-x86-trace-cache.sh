@@ -13,9 +13,9 @@ inifile_py="$HOME/$M2S_CLIENT_KIT_BIN_PATH/inifile.py"
 # List of the first 5 integer + the first 5 floating-point benchmarks
 bench_list="400.perlbench 401.bzip2 403.gcc 410.bwaves 416.gamess 429.mcf 433.milc 434.zeusmp 435.gromacs 445.gobmk"
 bench_list_count=`echo "$bench_list" | wc -w`
-num_sets_list="16 32 64"
+num_sets_list="32 64 128"
 num_sets_list_count=`echo "$num_sets_list" | wc -w`
-num_ways_list="4 8"
+num_ways_list="4 8 16"
 num_ways_list_count=`echo "$num_ways_list" | wc -w`
 
 cluster_name="x86-trace-cache"
@@ -25,14 +25,17 @@ sizes include:
 
 - No trace cache.
 
-- 16 sets, 4 ways
-- 16 sets, 8 ways
-
 - 32 sets, 4 ways
 - 32 sets, 8 ways
+- 32 sets, 16 ways
 
 - 64 sets, 4 ways
 - 64 sets, 8 ways
+- 64 sets, 16 ways
+
+- 128 sets, 4 ways
+- 128 sets, 8 ways
+- 128 sets, 16 ways
 
 Cluster: $cluster_name
 Secondary scripts: -
@@ -111,7 +114,7 @@ then
 	for bench in $bench_list
 	do
 		# Common parameters
-		x86_max_inst="1M"
+		x86_max_inst="10M"
 
 		# Simulation without trace cache
 		$m2s_cluster_sh add $cluster_name $bench/no-trace-cache \
@@ -129,9 +132,9 @@ then
 				# Create x86 configuration file
 				cp /dev/null $x86_config || exit 1
 				echo "[ TraceCache ]" >> $x86_config
-				echo "Preset = True" >> $x86_config
+				echo "Present = True" >> $x86_config
 				echo "Sets = $num_sets" >> $x86_config
-				echo "Ways = $num_ways" >> $x86_config
+				echo "Assoc = $num_ways" >> $x86_config
 	
 				# Add job
 				$m2s_cluster_sh add $cluster_name $bench/$num_sets/$num_ways \
@@ -197,19 +200,32 @@ then
 			|| exit 1
 	fi
 
+	# Create directory list
+	dir_list="no-trace-cache"
+	for num_sets in $num_sets_list
+	do
+		for num_ways in $num_ways_list
+		do
+			dir_list="$dir_list $num_sets/$num_ways"
+		done
+	done
+	dir_list_count=`wc -w <<< "$dir_list"`
+
 	# Initialization for python reports
 	python_script="$cluster_path/report.py"
 	mkdir -p $cluster_path/report-files || exit 1
 
 	# Create an INI file with all results
 	report_file="$cluster_path/report.ini"
+
+	# Reset report file
 	cp /dev/null $report_file || exit 1
 
 	# Info
 	echo -n "Collecting statistics"
-	
-	# Each section is named [ Benchmark.PredictorKind ]
-	for bpred_kind in $bpred_kind_list
+
+	# Each section is named [ Benchmark.<sets>/<ways> ] or [ Benchmark.no-trace-cache ]
+	for dir in $dir_list
 	do
 		# Reset accumulated values
 		x86_cycles_acc=0
@@ -217,18 +233,22 @@ then
 		x86_committed_instructions_per_cycle_acc=0
 		x86_committed_micro_instructions_acc=0
 		x86_committed_micro_instructions_per_cycle_acc=0
-		x86_branch_prediction_accuracy_acc=0
-		x86_branches_acc=0
-		x86_mispred_acc=0
+		x86_dispatched_micro_instructions_acc=0
+		x86_trace_cache_accesses_acc=0
+		x86_trace_cache_hits_acc=0
+		x86_trace_cache_dispatched_acc=0
+		x86_trace_cache_committed_acc=0
+		x86_trace_cache_squashed_acc=0
+		x86_trace_cache_trace_length_acc=0
 
 		# All benchmarks
 		for bench in $bench_list
 		do
 			# Results file
-			sim_err="$cluster_path/$bench/$bpred_kind/sim.err"
-			x86_report="$cluster_path/$bench/$bpred_kind/x86-report"
-			[ -e $sim_err ] || exit 1
-			[ -e $x86_report ] || exit 1
+			sim_err="$cluster_path/$bench/$dir/sim.err"
+			x86_report="$cluster_path/$bench/$dir/x86-report"
+			[ -e $sim_err ] || error "$sim_err: report not found"
+			[ -e $x86_report ] || error "$x86_report: report not found"
 
 			# Read variables
 			read \
@@ -237,33 +257,45 @@ then
 				x86_committed_instructions_per_cycle \
 				x86_committed_micro_instructions \
 				x86_committed_micro_instructions_per_cycle \
-				x86_branch_prediction_accuracy \
 				<<< `echo -e \
 				"read x86 Cycles 0\n" \
 				"read x86 CommittedInstructions 0\n" \
 				"read x86 CommittedInstructionsPerCycle 0\n" \
 				"read x86 CommittedMicroInstructions 0\n" \
 				"read x86 CommittedMicroInstructionsPerCycle 0\n" \
-				"read x86 BranchPredictionAccuracy 0\n" \
 				| $inifile_py $sim_err run`
 			read \
-				x86_branches \
-				x86_mispred \
+				x86_dispatched_micro_instructions \
+				x86_trace_cache_accesses \
+				x86_trace_cache_hits \
+				x86_trace_cache_dispatched \
+				x86_trace_cache_committed \
+				x86_trace_cache_squashed \
+				x86_trace_cache_trace_length \
 				<<< `echo -e \
-				"read Global Commit.Branches 0\n" \
-				"read Global Commit.Mispred 0\n" \
+				"read c0t0 Dispatch.Total 0\n" \
+				"read c0t0 TraceCache.Accesses 0\n" \
+				"read c0t0 TraceCache.Hits 0\n" \
+				"read c0t0 TraceCache.Dispatched 0\n" \
+				"read c0t0 TraceCache.Committed 0\n" \
+				"read c0t0 TraceCache.Squashed 0\n" \
+				"read c0t0 TraceCache.TraceLength 0\n" \
 				| $inifile_py $x86_report run`
 
 			# Section in report file
-			echo "[ ${bpred_kind}.${bench} ]" >> $report_file
+			echo "[${dir}.${bench}]" >> $report_file
 			echo "Cycles = $x86_cycles" >> $report_file
 			echo "CommittedInstructions = $x86_committed_instructions" >> $report_file
 			echo "CommittedInstructionsPerCycle = $x86_committed_instructions_per_cycle" >> $report_file
 			echo "CommittedMicroInstructions = $x86_committed_micro_instructions" >> $report_file
 			echo "CommittedMicroInstructionsPerCycle = $x86_committed_micro_instructions_per_cycle" >> $report_file
-			echo "BranchPredictionAccuracy = $x86_branch_prediction_accuracy" >> $report_file
-			echo "Branches = $x86_branches" >> $report_file
-			echo "Mispred = $x86_mispred" >> $report_file
+			echo "DispatchedMicroInstructions = $x86_dispatched_micro_instructions" >> $report_file
+			echo "TraceCache.Accesses = $x86_trace_cache_accesses" >> $report_file
+			echo "TraceCache.Hits = $x86_trace_cache_hits" >> $report_file
+			echo "TraceCache.Dispatched = $x86_trace_cache_dispatched" >> $report_file
+			echo "TraceCache.Committed = $x86_trace_cache_committed" >> $report_file
+			echo "TraceCache.Squashed = $x86_trace_cache_squashed" >> $report_file
+			echo "TraceCache.TraceLength = $x86_trace_cache_trace_length" >> $report_file
 
 			# Accumulate values
 			x86_cycles_acc=`bc -l <<< "$x86_cycles_acc + $x86_cycles"`
@@ -273,9 +305,13 @@ then
 			x86_committed_micro_instructions_acc=`bc -l <<< "$x86_committed_micro_instructions_acc + $x86_committed_micro_instructions"`
 			x86_committed_micro_instructions_per_cycle_acc=`bc -l <<< "$x86_committed_micro_instructions_per_cycle_acc + \
 				$x86_committed_micro_instructions_per_cycle"`
-			x86_branch_prediction_accuracy_acc=`bc -l <<< "$x86_branch_prediction_accuracy_acc + $x86_branch_prediction_accuracy"`
-			x86_branches_acc=`bc -l <<< "$x86_branches_acc + $x86_branches"`
-			x86_mispred_acc=`bc -l <<< "$x86_mispred_acc + $x86_mispred"`
+			x86_dispatched_micro_instructions_acc=`bc -l <<< "$x86_dispatched_micro_instructions_acc + $x86_dispatched_micro_instructions"`
+			x86_trace_cache_accesses_acc=`bc -l <<< "$x86_trace_cache_accesses_acc + $x86_trace_cache_accesses"`
+			x86_trace_cache_hits_acc=`bc -l <<< "$x86_trace_cache_hits_acc + $x86_trace_cache_hits"`
+			x86_trace_cache_dispatched_acc=`bc -l <<< "$x86_trace_cache_dispatched_acc + $x86_trace_cache_dispatched"`
+			x86_trace_cache_committed_acc=`bc -l <<< "$x86_trace_cache_committed_acc + $x86_trace_cache_committed"`
+			x86_trace_cache_squashed_acc=`bc -l <<< "$x86_trace_cache_squashed_acc + $x86_trace_cache_squashed"`
+			x86_trace_cache_trace_length_acc=`bc -l <<< "$x86_trace_cache_trace_length_acc + $x86_trace_cache_trace_length"`
 
 			# Blank line
 			echo >> $report_file
@@ -287,24 +323,33 @@ then
 		x86_committed_instructions_per_cycle=`bc -l <<< "$x86_committed_instructions_per_cycle_acc / $bench_list_count"`
 		x86_committed_micro_instructions=`bc -l <<< "$x86_committed_micro_instructions_acc / $bench_list_count"`
 		x86_committed_micro_instructions_per_cycle=`bc -l <<< "$x86_committed_micro_instructions_per_cycle_acc / $bench_list_count"`
-		x86_branch_prediction_accuracy=`bc -l <<< "$x86_branch_prediction_accuracy_acc / $bench_list_count"`
-		x86_branches=`bc -l <<< "$x86_branches_acc / $bench_list_count"`
-		x86_mispred=`bc -l <<< "$x86_mispred_acc / $bench_list_count"`
+		x86_dispatched_micro_instructions=`bc -l <<< "$x86_dispatched_micro_instructions_acc / $bench_list_count"`
+		x86_trace_cache_accesses=`bc -l <<< "$x86_trace_cache_accesses_acc / $bench_list_count"`
+		x86_trace_cache_hits=`bc -l <<< "$x86_trace_cache_hits_acc / $bench_list_count"`
+		x86_trace_cache_dispatched=`bc -l <<< "$x86_trace_cache_dispatched_acc / $bench_list_count"`
+		x86_trace_cache_committed=`bc -l <<< "$x86_trace_cache_committed_acc / $bench_list_count"`
+		x86_trace_cache_squashed=`bc -l <<< "$x86_trace_cache_squashed_acc / $bench_list_count"`
+		x86_trace_cache_trace_length=`bc -l <<< "$x86_trace_cache_trace_length_acc / $bench_list_count"`
 		
 		# Print averages
-		echo "[ ${bpred_kind}.Average ]" >> $report_file
+		echo "[${dir}.Average]" >> $report_file
 		echo "Cycles = $x86_cycles" >> $report_file
 		echo "CommittedInstructions = $x86_committed_instructions" >> $report_file
 		echo "CommittedInstructionsPerCycle = $x86_committed_instructions_per_cycle" >> $report_file
 		echo "CommittedMicroInstructions = $x86_committed_micro_instructions" >> $report_file
 		echo "CommittedMicroInstructionsPerCycle = $x86_committed_micro_instructions_per_cycle" >> $report_file
-		echo "BranchPredictionAccuracy = $x86_branch_prediction_accuracy" >> $report_file
-		echo "Branches = $x86_branches" >> $report_file
-		echo "Mispred = $x86_mispred" >> $report_file
+		echo "DispatchedMicroInstructions = $x86_dispatched_micro_instructions" >> $report_file
+		echo "TraceCache.Accesses = $x86_trace_cache_accesses" >> $report_file
+		echo "TraceCache.Hits = $x86_trace_cache_hits" >> $report_file
+		echo "TraceCache.Dispatched = $x86_trace_cache_dispatched" >> $report_file
+		echo "TraceCache.Committed = $x86_trace_cache_committed" >> $report_file
+		echo "TraceCache.Squashed = $x86_trace_cache_squashed" >> $report_file
+		echo "TraceCache.TraceLength = $x86_trace_cache_trace_length" >> $report_file
 	done
 
 	# Info
 	echo " - ok"
+
 
 
 
@@ -315,68 +360,43 @@ then
 	# Info
 	echo -n "Plot 'Execution Time' in 'cycles.png'"
 
-	# List of cycles
-	x86_perfect_cycles_list=
-	x86_taken_cycles_list=
-	x86_nottaken_cycles_list=
-	x86_bimodal_cycles_list=
-	x86_twolevel_cycles_list=
-	x86_combined_cycles_list=
-	x86_tick_list=
-	comma=
-	for bench in $bench_list Average
-	do
-		# Read values for benchmark
-		read \
-			x86_perfect_cycles \
-			x86_taken_cycles \
-			x86_nottaken_cycles \
-			x86_bimodal_cycles \
-			x86_twolevel_cycles \
-			x86_combined_cycles \
-			<<< `echo -e \
-			"read Perfect.${bench} Cycles 0\n" \
-			"read Taken.${bench} Cycles 0\n" \
-			"read NotTaken.${bench} Cycles 0\n" \
-			"read Bimodal.${bench} Cycles 0\n" \
-			"read TwoLevel.${bench} Cycles 0\n" \
-			"read Combined.${bench} Cycles 0\n" \
-			| $inifile_py $report_file run`
-
-		# Update lists
-		x86_perfect_cycles_list="${x86_perfect_cycles_list}${comma}${x86_perfect_cycles}"
-		x86_taken_cycles_list="${x86_taken_cycles_list}${comma}${x86_taken_cycles}"
-		x86_nottaken_cycles_list="${x86_nottaken_cycles_list}${comma}${x86_nottaken_cycles}"
-		x86_bimodal_cycles_list="${x86_bimodal_cycles_list}${comma}${x86_bimodal_cycles}"
-		x86_twolevel_cycles_list="${x86_twolevel_cycles_list}${comma}${x86_twolevel_cycles}"
-		x86_combined_cycles_list="${x86_combined_cycles_list}${comma}${x86_combined_cycles}"
-		x86_tick_list="${x86_tick_list}${comma}'${bench}'"
-
-		# New comma
-		comma=", "
-	done
-
 	# Python script to plot results
 	echo "
 #!/usr/bin/env python
 import numpy as np
 import matplotlib.font_manager as fm
 import matplotlib.pyplot as plt
+import ConfigParser
 
 color_array = [ '#004586', '#ff420e', '#ffd320', '#579d1c', \
 	'#7e0021', '#83caff', '#314004', '#aecf00', \
 	'#4e1f6f', '#ff950e', '#c5000b', '#0084d1' ]
 
-N = $bench_list_count + 1
-x86_perfect_cycles_list = ( $x86_perfect_cycles_list )
-x86_taken_cycles_list = ( $x86_taken_cycles_list )
-x86_nottaken_cycles_list = ( $x86_nottaken_cycles_list )
-x86_bimodal_cycles_list = ( $x86_bimodal_cycles_list )
-x86_twolevel_cycles_list = ( $x86_twolevel_cycles_list )
-x86_combined_cycles_list = ( $x86_combined_cycles_list )
+# Read arrays
+bench_list = '"$bench_list"'.split()
+bench_list.append('Average')
+bench_count = len(bench_list)
+dir_list = '"$dir_list"'.split()
+dir_count = len(dir_list)
 
-ind = np.arange(N)  # the x locations for the groups
-width = 1.0 / 7       # the width of the bars
+# Parse file
+config = ConfigParser.ConfigParser()
+config.read('$report_file')
+
+# Prepare data
+data_matrix = []
+for dir in dir_list:
+	data_line = []
+	for bench in bench_list:
+		section_name = dir + '.' + bench
+		option_name = 'Cycles'
+		value = config.getfloat(section_name, option_name)
+		data_line.append(value)
+	data_matrix.append(data_line)
+
+
+ind = np.arange(bench_count)
+width = 1.0 / (dir_count + 1)
 
 fig = plt.figure()
 fig.set_size_inches(10, 2.5)
@@ -386,40 +406,34 @@ ax = fig.add_subplot(111)
 prop_small_font = fm.FontProperties(size = 10)
 prop_title_font = fm.FontProperties(size = 10, weight = 'bold')
 ax.set_ylabel('Cycles')
-ax.set_title('Execution Time for Branch Predictors', fontproperties = prop_title_font)
+ax.set_title('Execution Time for Different Trace Cache Geometries', fontproperties = prop_title_font)
 ax.set_xticks(ind + width)
-ax.set_xticklabels(($x86_tick_list), rotation = 30)
+ax.set_xticklabels(bench_list, rotation = 30)
 ax.tick_params(labelsize = 10, top = False, bottom = False)
-ax.set_xlim(-width, N)
+ax.set_xlim(-width, bench_count)
 ax.grid(True, axis = 'y', color = 'gray')
 
 # Bars
-rects_perfect_cycles = ax.bar(ind + width * 0, x86_perfect_cycles_list, width, color = color_array[0])
-rects_taken_cycles = ax.bar(ind + width * 1, x86_taken_cycles_list, width, color = color_array[1])
-rects_nottaken_cycles = ax.bar(ind + width * 2, x86_nottaken_cycles_list, width, color = color_array[2])
-rects_bimodal_cycles = ax.bar(ind + width * 3, x86_bimodal_cycles_list, width, color = color_array[3])
-rects_twolevel_cycles = ax.bar(ind + width * 4, x86_twolevel_cycles_list, width, color = color_array[4])
-rects_combined_cycles = ax.bar(ind + width * 5, x86_combined_cycles_list, width, color = color_array[5])
+rects_list = []
+for dir_index in range(dir_count):
+	rects = ax.bar(ind + width * dir_index, data_matrix[dir_index], width, color = color_array[dir_index])
+	rects_list.append(rects[0])
+
+# Legend elements
+legend_elem_list = []
+for dir in dir_list:
+	if dir == 'no-trace-cache':
+		legend_elem_list.append('No trace cache')
+	else:
+		sets_ways = dir.split('/')
+		legend_elem_list.append(sets_ways[0] + ' sets, ' + \
+			sets_ways[1] + ' ways')
 
 # Legend
 box = ax.get_position()
 ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
-ax.legend( \
-	( \
-		rects_perfect_cycles[0], \
-		rects_taken_cycles[0], \
-		rects_nottaken_cycles[0], \
-		rects_bimodal_cycles[0], \
-		rects_twolevel_cycles[0], \
-		rects_combined_cycles[0]
-	), ( \
-		'Perfect', \
-		'Taken', \
-		'Not-Taken', \
-		'Bimodal', \
-		'Two-Level', \
-		'Combined'
-	), \
+ax.legend(rects_list, \
+	legend_elem_list, \
 	prop = prop_small_font, \
 	loc = 'upper left', \
 	bbox_to_anchor=(1, 1)
@@ -433,77 +447,56 @@ plt.savefig('$cluster_path/report-files/cycles.png', dpi=100, bbox_inches='tight
 	echo " - ok"
 
 
-
-
+	
+	
 	#
-	# PLOT 2 - Micro-Instructions Per Cycle
+	# PLOT 2 - Speedup
 	#
 
 	# Info
-	echo -n "Plot 'Micro-Instructions Per Cycle' in 'ipc.png'"
+	echo -n "Plot 'Speedup of Trace Cache' in 'speedup.png'"
 
-	# List of values
-	x86_perfect_ipc_list=
-	x86_taken_ipc_list=
-	x86_nottaken_ipc_list=
-	x86_bimodal_ipc_list=
-	x86_twolevel_ipc_list=
-	x86_combined_ipc_list=
-	x86_tick_list=
-	comma=
-	for bench in $bench_list Average
-	do
-		# Read values for benchmark
-		read \
-			x86_perfect_ipc \
-			x86_taken_ipc \
-			x86_nottaken_ipc \
-			x86_bimodal_ipc \
-			x86_twolevel_ipc \
-			x86_combined_ipc \
-			<<< `echo -e \
-			"read Perfect.${bench} CommittedMicroInstructionsPerCycle 0\n" \
-			"read Taken.${bench} CommittedMicroInstructionsPerCycle 0\n" \
-			"read NotTaken.${bench} CommittedMicroInstructionsPerCycle 0\n" \
-			"read Bimodal.${bench} CommittedMicroInstructionsPerCycle 0\n" \
-			"read TwoLevel.${bench} CommittedMicroInstructionsPerCycle 0\n" \
-			"read Combined.${bench} CommittedMicroInstructionsPerCycle 0\n" \
-			| $inifile_py $report_file run`
-
-		# Update lists
-		x86_perfect_ipc_list="${x86_perfect_ipc_list}${comma}${x86_perfect_ipc}"
-		x86_taken_ipc_list="${x86_taken_ipc_list}${comma}${x86_taken_ipc}"
-		x86_nottaken_ipc_list="${x86_nottaken_ipc_list}${comma}${x86_nottaken_ipc}"
-		x86_bimodal_ipc_list="${x86_bimodal_ipc_list}${comma}${x86_bimodal_ipc}"
-		x86_twolevel_ipc_list="${x86_twolevel_ipc_list}${comma}${x86_twolevel_ipc}"
-		x86_combined_ipc_list="${x86_combined_ipc_list}${comma}${x86_combined_ipc}"
-		x86_tick_list="${x86_tick_list}${comma}'${bench}'"
-
-		# New comma
-		comma=", "
-	done
-		
 	# Python script to plot results
 	echo "
 #!/usr/bin/env python
 import numpy as np
 import matplotlib.font_manager as fm
 import matplotlib.pyplot as plt
+import ConfigParser
 
 color_array = [ '#004586', '#ff420e', '#ffd320', '#579d1c', \
 	'#7e0021', '#83caff', '#314004', '#aecf00', \
 	'#4e1f6f', '#ff950e', '#c5000b', '#0084d1' ]
 
-N = $bench_list_count + 1
-x86_perfect_ipc_list = ( $x86_perfect_ipc_list )
-x86_taken_ipc_list = ( $x86_taken_ipc_list )
-x86_nottaken_ipc_list = ( $x86_nottaken_ipc_list )
-x86_bimodal_ipc_list = ( $x86_bimodal_ipc_list )
-x86_twolevel_ipc_list = ( $x86_twolevel_ipc_list )
-x86_combined_ipc_list = ( $x86_combined_ipc_list )
-	
-ind = np.arange(N)  # the x locations for the groups
-width = 1.0 / 7       # the width of the bars
+# Read arrays
+bench_list = '"$bench_list"'.split()
+bench_list.append('Average')
+bench_count = len(bench_list)
+dir_list = '"$dir_list"'.split()
+baseline_dir = dir_list.pop(0)
+dir_count = len(dir_list)
+
+# Parse file
+config = ConfigParser.ConfigParser()
+config.read('$report_file')
+
+# Prepare data
+data_matrix = []
+for dir in dir_list:
+	data_line = []
+	for bench in bench_list:
+		baseline_section_name = baseline_dir + '.' + bench
+		section_name = dir + '.' + bench
+		option_name = 'Cycles'
+		baseline_value = config.getfloat(baseline_section_name, option_name)
+		value = config.getfloat(section_name, option_name)
+		speedup = baseline_value / value;
+		data_line.append(speedup)
+	data_matrix.append(data_line)
+
+
+ind = np.arange(bench_count)
+width = 1.0 / (dir_count + 1)
 
 fig = plt.figure()
 fig.set_size_inches(10, 2.5)
@@ -512,47 +505,144 @@ ax = fig.add_subplot(111)
 # add some
 prop_small_font = fm.FontProperties(size = 10)
 prop_title_font = fm.FontProperties(size = 10, weight = 'bold')
-ax.set_ylabel('\$\mu\$IPC')
-ax.set_title('Micro-Instructions Committed per Cycle for Different Branch Predictors', fontproperties = prop_title_font)
+ax.set_ylabel('Speedup')
+ax.set_title('Speedup of a Trace Cache over a Baseline Design without Trace Cache', fontproperties = prop_title_font)
 ax.set_xticks(ind + width)
-ax.set_xticklabels(($x86_tick_list), rotation = 30)
+ax.set_xticklabels(bench_list, rotation = 30)
 ax.tick_params(labelsize = 10, top = False, bottom = False)
-ax.set_xlim(-width, N)
+ax.set_xlim(-width, bench_count)
 ax.grid(True, axis = 'y', color = 'gray')
 
 # Bars
-rects_perfect_ipc = ax.bar(ind + width * 0, x86_perfect_ipc_list, width, color = color_array[0])
-rects_taken_ipc = ax.bar(ind + width * 1, x86_taken_ipc_list, width, color = color_array[1])
-rects_nottaken_ipc = ax.bar(ind + width * 2, x86_nottaken_ipc_list, width, color = color_array[2])
-rects_bimodal_ipc = ax.bar(ind + width * 3, x86_bimodal_ipc_list, width, color = color_array[3])
-rects_twolevel_ipc = ax.bar(ind + width * 4, x86_twolevel_ipc_list, width, color = color_array[4])
-rects_combined_ipc = ax.bar(ind + width * 5, x86_combined_ipc_list, width, color = color_array[5])
+rects_list = []
+for dir_index in range(dir_count):
+	rects = ax.bar(ind + width * dir_index, data_matrix[dir_index], width, color = color_array[dir_index])
+	rects_list.append(rects[0])
+
+# Legend elements
+legend_elem_list = []
+for dir in dir_list:
+	sets_ways = dir.split('/')
+	legend_elem_list.append(sets_ways[0] + ' sets, ' + \
+		sets_ways[1] + ' ways')
 
 # Legend
 box = ax.get_position()
 ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
-ax.legend( \
-	( \
-		rects_perfect_ipc[0], \
-		rects_taken_ipc[0], \
-		rects_nottaken_ipc[0], \
-		rects_bimodal_ipc[0], \
-		rects_twolevel_ipc[0], \
-		rects_combined_ipc[0]
-	), ( \
-		'Perfect', \
-		'Taken', \
-		'Not-Taken', \
-		'Bimodal', \
-		'Two-Level', \
-		'Combined'
-	), \
+ax.legend(rects_list, \
+	legend_elem_list, \
 	prop = prop_small_font, \
 	loc = 'upper left', \
 	bbox_to_anchor=(1, 1)
 	)
 
-plt.savefig('$cluster_path/report-files/ipc.png', dpi=100, bbox_inches='tight')
+plt.savefig('$cluster_path/report-files/speedup.png', dpi=100, bbox_inches='tight')
+" > $python_script
+
+	# Plot
+	python $python_script || exit 1
+	echo " - ok"
+
+
+
+
+	#
+	# PLOT 3 - Accesses and Hits
+	#
+
+	# Info
+	echo -n "Plot 'Accesses and Hits' in 'hits.png'"
+
+	# Python script to plot results
+	echo "
+#!/usr/bin/env python
+import numpy as np
+import matplotlib.font_manager as fm
+import matplotlib.pyplot as plt
+import ConfigParser
+
+color_array = [ '#004586', '#ff420e', '#ffd320', '#579d1c', \
+	'#7e0021', '#83caff', '#314004', '#aecf00', \
+	'#4e1f6f', '#ff950e', '#c5000b', '#0084d1' ]
+
+# Read arrays
+bench_list = '"$bench_list"'.split()
+bench_list.append('Average')
+bench_count = len(bench_list)
+dir_list = '"$dir_list"'.split()
+baseline_dir = dir_list.pop(0)
+dir_count = len(dir_list)
+
+# Parse file
+config = ConfigParser.ConfigParser()
+config.read('$report_file')
+
+# Prepare data
+data_hits_matrix = []
+data_accesses_matrix = []
+for dir in dir_list:
+	data_hits_line = []
+	data_accesses_line = []
+	for bench in bench_list:
+		section_name = dir + '.' + bench
+		value_hits = config.getfloat(section_name, 'TraceCache.Hits')
+		value_accesses = config.getfloat(section_name, 'TraceCache.Accesses')
+		data_hits_line.append(value_hits)
+		data_accesses_line.append(value_accesses)
+	data_hits_matrix.append(data_hits_line)
+	data_accesses_matrix.append(data_accesses_line)
+
+
+ind = np.arange(bench_count)
+width = 1.0 / (dir_count + 1)
+
+fig = plt.figure()
+fig.set_size_inches(10, 2.5)
+ax = fig.add_subplot(111)
+
+# add some
+prop_small_font = fm.FontProperties(size = 10)
+prop_title_font = fm.FontProperties(size = 10, weight = 'bold')
+ax.set_ylabel('Accesses')
+ax.set_title('Number of Trace Cache Hits for different Trace Cache Geometries', fontproperties = prop_title_font)
+ax.set_xticks(ind + width)
+ax.set_xticklabels(bench_list, rotation = 30)
+ax.tick_params(labelsize = 10, top = False, bottom = False)
+ax.set_xlim(-width, bench_count)
+ax.grid(True, axis = 'y', color = 'gray')
+
+# Bars for Accesses
+for dir_index in range(dir_count):
+	accesses_rects = ax.bar(ind + width * dir_index, data_accesses_matrix[dir_index], width, color = '#cccccc')
+
+# Bars for Hits
+rects_list = []
+for dir_index in range(dir_count):
+	rects = ax.bar(ind + width * dir_index, data_hits_matrix[dir_index], width, color = color_array[dir_index])
+	rects_list.append(rects[0])
+
+# Legend elements
+legend_elem_list = []
+for dir in dir_list:
+	sets_ways = dir.split('/')
+	legend_elem_list.append(sets_ways[0] + ' sets, ' + \
+		sets_ways[1] + ' ways')
+
+# Add element for Accesses
+rects_list.append(accesses_rects[0])
+legend_elem_list.append('Total Accesses')
+
+# Legend
+box = ax.get_position()
+ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+ax.legend(rects_list, \
+	legend_elem_list, \
+	prop = prop_small_font, \
+	loc = 'upper left', \
+	bbox_to_anchor=(1, 1)
+	)
+
+plt.savefig('$cluster_path/report-files/hits.png', dpi=100, bbox_inches='tight')
 " > $python_script
 
 	# Plot
@@ -563,104 +653,54 @@ plt.savefig('$cluster_path/report-files/ipc.png', dpi=100, bbox_inches='tight')
 	
 	
 	#
-	# PLOT 3 - Number of Branches
+	# PLOT 4 - Squashed Micro-Instructions
 	#
 
 	# Info
-	echo -n "Plot 'Number of Branches' in 'branches.png'"
+	echo -n "Plot 'Squashed Micro-Instructions' in 'squashed.png'"
 
-	# List of values
-	x86_perfect_branches_list=
-	x86_perfect_mispred_list=
-	x86_taken_branches_list=
-	x86_taken_mispred_list=
-	x86_nottaken_branches_list=
-	x86_nottaken_mispred_list=
-	x86_bimodal_branches_list=
-	x86_bimodal_mispred_list=
-	x86_twolevel_branches_list=
-	x86_twolevel_mispred_list=
-	x86_combined_branches_list=
-	x86_combined_mispred_list=
-	x86_tick_list=
-	comma=
-	for bench in $bench_list Average
-	do
-		# Read values for benchmark
-		read \
-			x86_perfect_branches \
-			x86_perfect_mispred \
-			x86_taken_branches \
-			x86_taken_mispred \
-			x86_nottaken_branches \
-			x86_nottaken_mispred \
-			x86_bimodal_branches \
-			x86_bimodal_mispred \
-			x86_twolevel_branches \
-			x86_twolevel_mispred \
-			x86_combined_branches \
-			x86_combined_mispred \
-			<<< `echo -e \
-			"read Perfect.${bench} Branches 0\n" \
-			"read Perfect.${bench} Mispred 0\n" \
-			"read Taken.${bench} Branches 0\n" \
-			"read Taken.${bench} Mispred 0\n" \
-			"read NotTaken.${bench} Branches 0\n" \
-			"read NotTaken.${bench} Mispred 0\n" \
-			"read Bimodal.${bench} Branches 0\n" \
-			"read Bimodal.${bench} Mispred 0\n" \
-			"read TwoLevel.${bench} Branches 0\n" \
-			"read TwoLevel.${bench} Mispred 0\n" \
-			"read Combined.${bench} Branches 0\n" \
-			"read Combined.${bench} Mispred 0\n" \
-			| $inifile_py $report_file run`
-
-		# Update lists
-		x86_perfect_branches_list="${x86_perfect_branches_list}${comma}${x86_perfect_branches}"
-		x86_perfect_mispred_list="${x86_perfect_mispred_list}${comma}${x86_perfect_mispred}"
-		x86_taken_branches_list="${x86_taken_branches_list}${comma}${x86_taken_branches}"
-		x86_taken_mispred_list="${x86_taken_mispred_list}${comma}${x86_taken_mispred}"
-		x86_nottaken_branches_list="${x86_nottaken_branches_list}${comma}${x86_nottaken_branches}"
-		x86_nottaken_mispred_list="${x86_nottaken_mispred_list}${comma}${x86_nottaken_mispred}"
-		x86_bimodal_branches_list="${x86_bimodal_branches_list}${comma}${x86_bimodal_branches}"
-		x86_bimodal_mispred_list="${x86_bimodal_mispred_list}${comma}${x86_bimodal_mispred}"
-		x86_twolevel_branches_list="${x86_twolevel_branches_list}${comma}${x86_twolevel_branches}"
-		x86_twolevel_mispred_list="${x86_twolevel_mispred_list}${comma}${x86_twolevel_mispred}"
-		x86_combined_branches_list="${x86_combined_branches_list}${comma}${x86_combined_branches}"
-		x86_combined_mispred_list="${x86_combined_mispred_list}${comma}${x86_combined_mispred}"
-		x86_tick_list="${x86_tick_list}${comma}'${bench}'"
-
-		# New comma
-		comma=", "
-	done
-		
 	# Python script to plot results
 	echo "
 #!/usr/bin/env python
 import numpy as np
 import matplotlib.font_manager as fm
 import matplotlib.pyplot as plt
+import ConfigParser
 
 color_array = [ '#004586', '#ff420e', '#ffd320', '#579d1c', \
 	'#7e0021', '#83caff', '#314004', '#aecf00', \
 	'#4e1f6f', '#ff950e', '#c5000b', '#0084d1' ]
 
-N = $bench_list_count + 1
-x86_perfect_branches_list = ( $x86_perfect_branches_list )
-x86_perfect_mispred_list = ( $x86_perfect_mispred_list )
-x86_taken_branches_list = ( $x86_taken_branches_list )
-x86_taken_mispred_list = ( $x86_taken_mispred_list )
-x86_nottaken_branches_list = ( $x86_nottaken_branches_list )
-x86_nottaken_mispred_list = ( $x86_nottaken_mispred_list )
-x86_bimodal_branches_list = ( $x86_bimodal_branches_list )
-x86_bimodal_mispred_list = ( $x86_bimodal_mispred_list )
-x86_twolevel_branches_list = ( $x86_twolevel_branches_list )
-x86_twolevel_mispred_list = ( $x86_twolevel_mispred_list )
-x86_combined_branches_list = ( $x86_combined_branches_list )
-x86_combined_mispred_list = ( $x86_combined_mispred_list )
-	
-ind = np.arange(N)  # the x locations for the groups
-width = 1.0 / 7       # the width of the bars
+# Read arrays
+bench_list = '"$bench_list"'.split()
+bench_list.append('Average')
+bench_count = len(bench_list)
+dir_list = '"$dir_list"'.split()
+dir_list.pop(0)
+dir_count = len(dir_list)
+
+# Parse file
+config = ConfigParser.ConfigParser()
+config.read('$report_file')
+
+# Prepare data
+data_squashed_matrix = []
+data_dispatched_matrix = []
+for dir in dir_list:
+	data_squashed_line = []
+	data_dispatched_line = []
+	for bench in bench_list:
+		section_name = dir + '.' + bench
+		value_squashed = config.getfloat(section_name, 'TraceCache.Squashed')
+		value_dispatched = config.getfloat(section_name, 'TraceCache.Dispatched')
+		data_squashed_line.append(value_squashed)
+		data_dispatched_line.append(value_dispatched)
+	data_squashed_matrix.append(data_squashed_line)
+	data_dispatched_matrix.append(data_dispatched_line)
+
+
+ind = np.arange(bench_count)
+width = 1.0 / (dir_count + 1)
 
 fig = plt.figure()
 fig.set_size_inches(10, 2.5)
@@ -669,63 +709,46 @@ ax = fig.add_subplot(111)
 # add some
 prop_small_font = fm.FontProperties(size = 10)
 prop_title_font = fm.FontProperties(size = 10, weight = 'bold')
-ax.set_ylabel('Branches')
-ax.set_title('Number of Correctly Predicted (and Total) Committed Branches', fontproperties = prop_title_font)
+ax.set_ylabel('Micro-Instructions')
+ax.set_title('Number of Squashed Micro-Instructions Coming from Mispredicted Traces', fontproperties = prop_title_font)
 ax.set_xticks(ind + width)
-ax.set_xticklabels(($x86_tick_list), rotation = 30)
+ax.set_xticklabels(bench_list, rotation = 30)
 ax.tick_params(labelsize = 10, top = False, bottom = False)
-ax.set_xlim(-width, N)
+ax.set_xlim(-width, bench_count)
 ax.grid(True, axis = 'y', color = 'gray')
 
-# Obtain 'pred' lists
-x86_perfect_pred_list = [ x - y for (x, y) in zip(x86_perfect_branches_list, x86_perfect_mispred_list) ]
-x86_taken_pred_list = [ x - y for (x, y) in zip(x86_taken_branches_list, x86_taken_mispred_list) ]
-x86_nottaken_pred_list = [ x - y for (x, y) in zip(x86_nottaken_branches_list, x86_nottaken_mispred_list) ]
-x86_bimodal_pred_list = [ x - y for (x, y) in zip(x86_bimodal_branches_list, x86_bimodal_mispred_list) ]
-x86_twolevel_pred_list = [ x - y for (x, y) in zip(x86_twolevel_branches_list, x86_twolevel_mispred_list) ]
-x86_combined_pred_list = [ x - y for (x, y) in zip(x86_combined_branches_list, x86_combined_mispred_list) ]
+# Bars for Dispatched
+for dir_index in range(dir_count):
+	rects_dispatched = ax.bar(ind + width * dir_index, data_dispatched_matrix[dir_index], width, color = '#cccccc')
 
-# Bars
-rects_branches = ax.bar(ind + width * 0, x86_perfect_branches_list, width, color = '#cccccc')
-ax.bar(ind + width * 1, x86_taken_branches_list, width, color = '#cccccc')
-ax.bar(ind + width * 2, x86_nottaken_branches_list, width, color = '#cccccc')
-ax.bar(ind + width * 3, x86_bimodal_branches_list, width, color = '#cccccc')
-ax.bar(ind + width * 4, x86_twolevel_branches_list, width, color = '#cccccc')
-ax.bar(ind + width * 5, x86_combined_branches_list, width, color = '#cccccc')
-rects_perfect_pred = ax.bar(ind + width * 0, x86_perfect_pred_list, width, color = color_array[0])
-rects_taken_pred = ax.bar(ind + width * 1, x86_taken_pred_list, width, color = color_array[1])
-rects_nottaken_pred = ax.bar(ind + width * 2, x86_nottaken_pred_list, width, color = color_array[2])
-rects_bimodal_pred = ax.bar(ind + width * 3, x86_bimodal_pred_list, width, color = color_array[3])
-rects_twolevel_pred = ax.bar(ind + width * 4, x86_twolevel_pred_list, width, color = color_array[4])
-rects_combined_pred = ax.bar(ind + width * 5, x86_combined_pred_list, width, color = color_array[5])
+# Bars for Squashed
+rects_list = []
+for dir_index in range(dir_count):
+	rects = ax.bar(ind + width * dir_index, data_squashed_matrix[dir_index], width, color = color_array[dir_index])
+	rects_list.append(rects[0])
+
+# Legend elements
+legend_elem_list = []
+for dir in dir_list:
+	sets_ways = dir.split('/')
+	legend_elem_list.append(sets_ways[0] + ' sets, ' + \
+		sets_ways[1] + ' ways')
+
+# Add legend element for Dispatched
+rects_list.append(rects_dispatched[0])
+legend_elem_list.append('Dispatched from TC')
 
 # Legend
 box = ax.get_position()
 ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
-ax.legend( \
-	( \
-		rects_perfect_pred[0], \
-		rects_taken_pred[0], \
-		rects_nottaken_pred[0], \
-		rects_bimodal_pred[0], \
-		rects_twolevel_pred[0], \
-		rects_combined_pred[0], \
-		rects_branches[0]
-	), ( \
-		'Perfect', \
-		'Taken', \
-		'Not-Taken', \
-		'Bimodal', \
-		'Two-Level', \
-		'Combined', \
-		'Committed Branches' \
-	), \
+ax.legend(rects_list, \
+	legend_elem_list, \
 	prop = prop_small_font, \
 	loc = 'upper left', \
 	bbox_to_anchor=(1, 1)
 	)
 
-plt.savefig('$cluster_path/report-files/branches.png', dpi=100, bbox_inches='tight')
+plt.savefig('$cluster_path/report-files/squashed.png', dpi=100, bbox_inches='tight')
 " > $python_script
 
 	# Plot
@@ -736,74 +759,54 @@ plt.savefig('$cluster_path/report-files/branches.png', dpi=100, bbox_inches='tig
 	
 	
 	#
-	# PLOT 4 - Branch Prediction Accuracy
+	# PLOT 5 - Dispatched Micro-Instructions
 	#
 
 	# Info
-	echo -n "Plot 'Branch Prediction Accuracy' in 'accuracy.png'"
+	echo -n "Plot 'Dispatched Micro-Instructions' in 'dispatched.png'"
 
-	# List of values
-	x86_perfect_accuracy_list=
-	x86_taken_accuracy_list=
-	x86_nottaken_accuracy_list=
-	x86_bimodal_accuracy_list=
-	x86_twolevel_accuracy_list=
-	x86_combined_accuracy_list=
-	x86_tick_list=
-	comma=
-	for bench in $bench_list Average
-	do
-		# Read values for benchmark
-		read \
-			x86_perfect_accuracy \
-			x86_taken_accuracy \
-			x86_nottaken_accuracy \
-			x86_bimodal_accuracy \
-			x86_twolevel_accuracy \
-			x86_combined_accuracy \
-			<<< `echo -e \
-			"read Perfect.${bench} BranchPredictionAccuracy 0\n" \
-			"read Taken.${bench} BranchPredictionAccuracy 0\n" \
-			"read NotTaken.${bench} BranchPredictionAccuracy 0\n" \
-			"read Bimodal.${bench} BranchPredictionAccuracy 0\n" \
-			"read TwoLevel.${bench} BranchPredictionAccuracy 0\n" \
-			"read Combined.${bench} BranchPredictionAccuracy 0\n" \
-			| $inifile_py $report_file run`
-
-		# Update lists
-		x86_perfect_accuracy_list="${x86_perfect_accuracy_list}${comma}${x86_perfect_accuracy}"
-		x86_taken_accuracy_list="${x86_taken_accuracy_list}${comma}${x86_taken_accuracy}"
-		x86_nottaken_accuracy_list="${x86_nottaken_accuracy_list}${comma}${x86_nottaken_accuracy}"
-		x86_bimodal_accuracy_list="${x86_bimodal_accuracy_list}${comma}${x86_bimodal_accuracy}"
-		x86_twolevel_accuracy_list="${x86_twolevel_accuracy_list}${comma}${x86_twolevel_accuracy}"
-		x86_combined_accuracy_list="${x86_combined_accuracy_list}${comma}${x86_combined_accuracy}"
-		x86_tick_list="${x86_tick_list}${comma}'${bench}'"
-
-		# New comma
-		comma=", "
-	done
-		
 	# Python script to plot results
 	echo "
 #!/usr/bin/env python
 import numpy as np
 import matplotlib.font_manager as fm
 import matplotlib.pyplot as plt
+import ConfigParser
 
 color_array = [ '#004586', '#ff420e', '#ffd320', '#579d1c', \
 	'#7e0021', '#83caff', '#314004', '#aecf00', \
 	'#4e1f6f', '#ff950e', '#c5000b', '#0084d1' ]
 
-N = $bench_list_count + 1
-x86_perfect_accuracy_list = ( $x86_perfect_accuracy_list )
-x86_taken_accuracy_list = ( $x86_taken_accuracy_list )
-x86_nottaken_accuracy_list = ( $x86_nottaken_accuracy_list )
-x86_bimodal_accuracy_list = ( $x86_bimodal_accuracy_list )
-x86_twolevel_accuracy_list = ( $x86_twolevel_accuracy_list )
-x86_combined_accuracy_list = ( $x86_combined_accuracy_list )
-	
-ind = np.arange(N)  # the x locations for the groups
-width = 1.0 / 7       # the width of the bars
+# Read arrays
+bench_list = '"$bench_list"'.split()
+bench_list.append('Average')
+bench_count = len(bench_list)
+dir_list = '"$dir_list"'.split()
+dir_list.pop(0)
+dir_count = len(dir_list)
+
+# Parse file
+config = ConfigParser.ConfigParser()
+config.read('$report_file')
+
+# Prepare data
+data_tc_matrix = []
+data_total_matrix = []
+for dir in dir_list:
+	data_tc_line = []
+	data_total_line = []
+	for bench in bench_list:
+		section_name = dir + '.' + bench
+		value_tc = config.getfloat(section_name, 'TraceCache.Squashed')
+		value_total = config.getfloat(section_name, 'DispatchedMicroInstructions')
+		data_tc_line.append(value_tc)
+		data_total_line.append(value_total)
+	data_tc_matrix.append(data_tc_line)
+	data_total_matrix.append(data_total_line)
+
+
+ind = np.arange(bench_count)
+width = 1.0 / (dir_count + 1)
 
 fig = plt.figure()
 fig.set_size_inches(10, 2.5)
@@ -812,47 +815,46 @@ ax = fig.add_subplot(111)
 # add some
 prop_small_font = fm.FontProperties(size = 10)
 prop_title_font = fm.FontProperties(size = 10, weight = 'bold')
-ax.set_ylabel('Accuracy')
-ax.set_title('Branch Predictor Accuracy for Different Prediction Models', fontproperties = prop_title_font)
+ax.set_ylabel('Micro-Instructions')
+ax.set_title('Dispatched Micro-Instructions Coming from the Trace Cache', fontproperties = prop_title_font)
 ax.set_xticks(ind + width)
-ax.set_xticklabels(($x86_tick_list), rotation = 30)
+ax.set_xticklabels(bench_list, rotation = 30)
 ax.tick_params(labelsize = 10, top = False, bottom = False)
-ax.set_xlim(-width, N)
+ax.set_xlim(-width, bench_count)
 ax.grid(True, axis = 'y', color = 'gray')
 
-# Bars
-rects_perfect_accuracy = ax.bar(ind + width * 0, x86_perfect_accuracy_list, width, color = color_array[0])
-rects_taken_accuracy = ax.bar(ind + width * 1, x86_taken_accuracy_list, width, color = color_array[1])
-rects_nottaken_accuracy = ax.bar(ind + width * 2, x86_nottaken_accuracy_list, width, color = color_array[2])
-rects_bimodal_accuracy = ax.bar(ind + width * 3, x86_bimodal_accuracy_list, width, color = color_array[3])
-rects_twolevel_accuracy = ax.bar(ind + width * 4, x86_twolevel_accuracy_list, width, color = color_array[4])
-rects_combined_accuracy = ax.bar(ind + width * 5, x86_combined_accuracy_list, width, color = color_array[5])
+# Bars for Total
+for dir_index in range(dir_count):
+	rects_total = ax.bar(ind + width * dir_index, data_total_matrix[dir_index], width, color = '#cccccc')
+
+# Bars for Trace Cache
+rects_list = []
+for dir_index in range(dir_count):
+	rects = ax.bar(ind + width * dir_index, data_tc_matrix[dir_index], width, color = color_array[dir_index])
+	rects_list.append(rects[0])
+
+# Legend elements
+legend_elem_list = []
+for dir in dir_list:
+	sets_ways = dir.split('/')
+	legend_elem_list.append(sets_ways[0] + ' sets, ' + \
+		sets_ways[1] + ' ways')
+
+# Add legend element for Dispatched
+rects_list.append(rects_total[0])
+legend_elem_list.append('Total Dispatched')
 
 # Legend
 box = ax.get_position()
 ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
-ax.legend( \
-	( \
-		rects_perfect_accuracy[0], \
-		rects_taken_accuracy[0], \
-		rects_nottaken_accuracy[0], \
-		rects_bimodal_accuracy[0], \
-		rects_twolevel_accuracy[0], \
-		rects_combined_accuracy[0]
-	), ( \
-		'Perfect', \
-		'Taken', \
-		'Not-Taken', \
-		'Bimodal', \
-		'Two-Level', \
-		'Combined'
-	), \
+ax.legend(rects_list, \
+	legend_elem_list, \
 	prop = prop_small_font, \
 	loc = 'upper left', \
 	bbox_to_anchor=(1, 1)
 	)
 
-plt.savefig('$cluster_path/report-files/accuracy.png', dpi=100, bbox_inches='tight')
+plt.savefig('$cluster_path/report-files/dispatched.png', dpi=100, bbox_inches='tight')
 " > $python_script
 
 	# Plot
@@ -874,10 +876,11 @@ plt.savefig('$cluster_path/report-files/accuracy.png', dpi=100, bbox_inches='tig
 	echo "<pre>$cluster_desc</pre>" >> $html_file
 
 	# Benchmarks
-	echo "<img src=\"report-files/cycles.png\">" >> $html_file
-	echo "<img src=\"report-files/ipc.png\">" >> $html_file
-	echo "<img src=\"report-files/branches.png\">" >> $html_file
-	echo "<img src=\"report-files/accuracy.png\">" >> $html_file
+	echo "<img src=\"report-files/cycles.png\"><br>" >> $html_file
+	echo "<img src=\"report-files/speedup.png\"><br>" >> $html_file
+	echo "<img src=\"report-files/hits.png\"><br>" >> $html_file
+	echo "<img src=\"report-files/squashed.png\"><br>" >> $html_file
+	echo "<img src=\"report-files/dispatched.png\"><br>" >> $html_file
 
 	# End
 	echo "</body></html>" >> $html_file
