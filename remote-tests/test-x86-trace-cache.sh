@@ -234,6 +234,7 @@ then
 		x86_committed_micro_instructions_acc=0
 		x86_committed_micro_instructions_per_cycle_acc=0
 		x86_dispatched_micro_instructions_acc=0
+		x86_branch_prediction_accuracy_acc=0
 		x86_trace_cache_accesses_acc=0
 		x86_trace_cache_hits_acc=0
 		x86_trace_cache_dispatched_acc=0
@@ -257,12 +258,14 @@ then
 				x86_committed_instructions_per_cycle \
 				x86_committed_micro_instructions \
 				x86_committed_micro_instructions_per_cycle \
+				x86_branch_prediction_accuracy \
 				<<< `echo -e \
 				"read x86 Cycles 0\n" \
 				"read x86 CommittedInstructions 0\n" \
 				"read x86 CommittedInstructionsPerCycle 0\n" \
 				"read x86 CommittedMicroInstructions 0\n" \
 				"read x86 CommittedMicroInstructionsPerCycle 0\n" \
+				"read x86 BranchPredictionAccuracy 0\n" \
 				| $inifile_py $sim_err run`
 			read \
 				x86_dispatched_micro_instructions \
@@ -289,6 +292,7 @@ then
 			echo "CommittedInstructionsPerCycle = $x86_committed_instructions_per_cycle" >> $report_file
 			echo "CommittedMicroInstructions = $x86_committed_micro_instructions" >> $report_file
 			echo "CommittedMicroInstructionsPerCycle = $x86_committed_micro_instructions_per_cycle" >> $report_file
+			echo "BranchPredictionAccuracy = $x86_branch_prediction_accuracy" >> $report_file
 			echo "DispatchedMicroInstructions = $x86_dispatched_micro_instructions" >> $report_file
 			echo "TraceCache.Accesses = $x86_trace_cache_accesses" >> $report_file
 			echo "TraceCache.Hits = $x86_trace_cache_hits" >> $report_file
@@ -305,6 +309,7 @@ then
 			x86_committed_micro_instructions_acc=`bc -l <<< "$x86_committed_micro_instructions_acc + $x86_committed_micro_instructions"`
 			x86_committed_micro_instructions_per_cycle_acc=`bc -l <<< "$x86_committed_micro_instructions_per_cycle_acc + \
 				$x86_committed_micro_instructions_per_cycle"`
+			x86_branch_prediction_accuracy_acc=`bc -l <<< "$x86_branch_prediction_accuracy_acc + $x86_branch_prediction_accuracy"`
 			x86_dispatched_micro_instructions_acc=`bc -l <<< "$x86_dispatched_micro_instructions_acc + $x86_dispatched_micro_instructions"`
 			x86_trace_cache_accesses_acc=`bc -l <<< "$x86_trace_cache_accesses_acc + $x86_trace_cache_accesses"`
 			x86_trace_cache_hits_acc=`bc -l <<< "$x86_trace_cache_hits_acc + $x86_trace_cache_hits"`
@@ -323,6 +328,7 @@ then
 		x86_committed_instructions_per_cycle=`bc -l <<< "$x86_committed_instructions_per_cycle_acc / $bench_list_count"`
 		x86_committed_micro_instructions=`bc -l <<< "$x86_committed_micro_instructions_acc / $bench_list_count"`
 		x86_committed_micro_instructions_per_cycle=`bc -l <<< "$x86_committed_micro_instructions_per_cycle_acc / $bench_list_count"`
+		x86_branch_prediction_accuracy=`bc -l <<< "$x86_branch_prediction_accuracy_acc / $bench_list_count"`
 		x86_dispatched_micro_instructions=`bc -l <<< "$x86_dispatched_micro_instructions_acc / $bench_list_count"`
 		x86_trace_cache_accesses=`bc -l <<< "$x86_trace_cache_accesses_acc / $bench_list_count"`
 		x86_trace_cache_hits=`bc -l <<< "$x86_trace_cache_hits_acc / $bench_list_count"`
@@ -338,6 +344,7 @@ then
 		echo "CommittedInstructionsPerCycle = $x86_committed_instructions_per_cycle" >> $report_file
 		echo "CommittedMicroInstructions = $x86_committed_micro_instructions" >> $report_file
 		echo "CommittedMicroInstructionsPerCycle = $x86_committed_micro_instructions_per_cycle" >> $report_file
+		echo "BranchPredictionAccuracy = $x86_branch_prediction_accuracy" >> $report_file
 		echo "DispatchedMicroInstructions = $x86_dispatched_micro_instructions" >> $report_file
 		echo "TraceCache.Accesses = $x86_trace_cache_accesses" >> $report_file
 		echo "TraceCache.Hits = $x86_trace_cache_hits" >> $report_file
@@ -865,6 +872,101 @@ plt.savefig('$cluster_path/report-files/dispatched.png', dpi=100, bbox_inches='t
 	
 	
 	#
+	# PLOT 6 - Branch Prediction Accuracy
+	#
+
+	# Info
+	echo -n "Plot 'Branch Prediction Accuracy' in 'accuracy.png'"
+
+	# Python script to plot results
+	echo "
+#!/usr/bin/env python
+import numpy as np
+import matplotlib.font_manager as fm
+import matplotlib.pyplot as plt
+import ConfigParser
+
+color_array = [ '#004586', '#ff420e', '#ffd320', '#579d1c', \
+	'#7e0021', '#83caff', '#314004', '#aecf00', \
+	'#4e1f6f', '#ff950e', '#c5000b', '#0084d1' ]
+
+# Read arrays
+bench_list = '"$bench_list"'.split()
+bench_list.append('Average')
+bench_count = len(bench_list)
+dir_list = '"$dir_list"'.split()
+dir_count = len(dir_list)
+
+# Parse file
+config = ConfigParser.ConfigParser()
+config.read('$report_file')
+
+# Prepare data
+data_matrix = []
+for dir in dir_list:
+	data_line = []
+	for bench in bench_list:
+		section_name = dir + '.' + bench
+		value = config.getfloat(section_name, 'BranchPredictionAccuracy')
+		data_line.append(value)
+	data_matrix.append(data_line)
+
+
+ind = np.arange(bench_count)
+width = 1.0 / (dir_count + 1)
+
+fig = plt.figure()
+fig.set_size_inches(10, 2.5)
+ax = fig.add_subplot(111)
+
+# add some
+prop_small_font = fm.FontProperties(size = 10)
+prop_title_font = fm.FontProperties(size = 10, weight = 'bold')
+ax.set_ylabel('Fraction of Branches')
+ax.set_title('Branch Prediction Accuracy (Fraction of Well Predicted Committed Branches)', fontproperties = prop_title_font)
+ax.set_xticks(ind + width)
+ax.set_xticklabels(bench_list, rotation = 30)
+ax.tick_params(labelsize = 10, top = False, bottom = False)
+ax.set_xlim(-width, bench_count)
+ax.grid(True, axis = 'y', color = 'gray')
+
+# Bars
+rects_list = []
+for dir_index in range(dir_count):
+	rects = ax.bar(ind + width * dir_index, data_matrix[dir_index], width, color = color_array[dir_index])
+	rects_list.append(rects[0])
+
+# Legend elements
+legend_elem_list = []
+for dir in dir_list:
+	if dir == 'no-trace-cache':
+		legend_elem_list.append('No trace cache')
+	else:
+		sets_ways = dir.split('/')
+		legend_elem_list.append(sets_ways[0] + ' sets, ' + \
+			sets_ways[1] + ' ways')
+
+# Legend
+box = ax.get_position()
+ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+ax.legend(rects_list, \
+	legend_elem_list, \
+	prop = prop_small_font, \
+	loc = 'upper left', \
+	bbox_to_anchor=(1, 1)
+	)
+
+plt.savefig('$cluster_path/report-files/accuracy.png', dpi=100, bbox_inches='tight')
+" > $python_script
+
+	# Plot
+	python $python_script || exit 1
+	echo " - ok"
+
+
+	
+	
+	#
 	# Create HTML report
 	#
 
@@ -881,6 +983,7 @@ plt.savefig('$cluster_path/report-files/dispatched.png', dpi=100, bbox_inches='t
 	echo "<img src=\"report-files/hits.png\"><br>" >> $html_file
 	echo "<img src=\"report-files/squashed.png\"><br>" >> $html_file
 	echo "<img src=\"report-files/dispatched.png\"><br>" >> $html_file
+	echo "<img src=\"report-files/accuracy.png\"><br>" >> $html_file
 
 	# End
 	echo "</body></html>" >> $html_file
