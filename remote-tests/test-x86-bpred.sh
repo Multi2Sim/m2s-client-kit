@@ -121,7 +121,7 @@ then
 
 			# Add job
 			$m2s_cluster_sh add $cluster_name $bench/$bpred_kind \
-				--sim-args "--x86-max-inst 1000000" \
+				--sim-args "--x86-max-inst 10M" \
 				--sim-args "--x86-sim detailed" \
 				--sim-args "--x86-config x86-config" \
 				--sim-args "--x86-report x86-report" \
