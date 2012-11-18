@@ -26,7 +26,13 @@ function syntax()
 	cat << EOF
 
 Syntax:
-    $prog_name [<options>]
+    $prog_name [<options>] <local_dist>
+
+Arguments:
+
+  <local_dist>
+        Complete path for local distribution of Multi2Sim. Redundant includes
+	will be fixed here.
 
 
 Options:
@@ -71,38 +77,33 @@ while true ; do
 done
 
 # Arguments
-[ $# == 0 ] || syntax
+[ $# == 1 ] || syntax
 
-# Obtain local copy
-$build_m2s_local_sh $rev_arg $tag_arg \
-	|| exit 1
+# Check argument
+m2s_dir="$1"
+[ ${m2s_dir:0:1} == "/" ] || error "local dist must be an absolute path"
+[ -d "$m2s_dir" ] || error "$m2S_dir: cannot find path"
+[ -f "$m2s_dir/Makefile" ] || error "$m2s_dir/Makefile: file not found"
 
-# Temporary directory
-temp_dir=`mktemp -d`
-
-# Copy package
-m2s_dir=`ls $HOME/m2s-client-kit/tmp/m2s-bin/multi2sim-*.tar.gz | sed "s/.*\(multi2sim-.*\)\.tar\.gz/\1/g"`
-m2s_pkg="${m2s_dir}.tar.gz"
-cp $HOME/m2s-client-kit/tmp/m2s-bin/$m2s_pkg $temp_dir || exit 1
-
-# Extract development package
-cd $temp_dir
-tar -xzf $m2s_pkg || exit 1
-cd $temp_dir/$m2s_dir/src || exit 1
+# Warning
+echo
+echo "WARNING: Please make sure you ran './configure' with flag '--enable-debug'"
+echo "         Wrong #includes could be removed otherwise."
+echo
 
 # Initial build
-cd $temp_dir/$m2s_dir
+cd $m2s_dir || exit 1
 echo -n "Initial build"
-./configure --enable-debug >/dev/null 2>&1 || error "build failed"
-make >/dev/null 2>&1 || error "build failed"
+make >/dev/null 2>&1 || error "initial build failed"
 echo " - ok"
 
 # List files in distribution package
-cd $temp_dir/$m2s_dir/src || exit 1
+cd $m2s_dir/src || exit 1
 file_list=`find . -type f | grep -v "\.svn" | grep "\.c$"`
-cd $temp_dir/$m2s_dir
+cd $m2s_dir || exit 1
 
 # Check files
+file_list="arch/x86/timing/uop.c"
 for file in $file_list
 do
 	echo "File $file:"
@@ -116,17 +117,32 @@ import sys
 f = open('$file', 'r')
 lines = f.readlines()
 f.close()
-for line_num in range(len(lines)):
+line_num = 0
+while line_num < len(lines):
 	
 	# Discard line that is not an '#include'
 	line = lines[line_num]
 	m = re.match(r\"\\#include *([^ \\n]*)[ \\n]*\", line)
 	if not m:
+		line_num += 1
 		continue
 	
 	# Print included file
 	included_file = m.group(1)
 	sys.stdout.write('\tchecking include %s ... ' % (included_file))
+
+	# Check whether this '#include' is for the associated header
+	m = re.match(r\".*/([^/]*)\\.c\", '$file')
+	source_file = m.groups(1)
+	m = re.match(r\"\\\"(.*)\\.h\\\"\", included_file)
+	if m:
+		header_file = m.groups(1)
+	else:
+		header_file = ''
+	if header_file == source_file:
+		sys.stdout.write('skipped (associated header)\n')
+		line_num += 1
+		continue
 	
 	# Make copy of file without that line
 	new_lines = lines[:];
@@ -138,23 +154,34 @@ for line_num in range(len(lines)):
 	# Try to compile
 	result = os.system('make >/dev/null 2>&1')
 
-	# Restore original file
-	f = open('$file', 'w')
-	f.writelines(lines)
-	f.close()
-
 	# Result
 	if result == 2:
+		
+		# Restore original file and exit
+		f = open('$file', 'w')
+		f.writelines(lines)
+		f.close()
 		exit(1)
+
 	elif result:
+		
+		# Restore original file and continue
+		f = open('$file', 'w')
+		f.writelines(lines)
+		f.close()
 		sys.stdout.write('ok\n')
+		line_num += 1
+		continue
 	else:
+		
+		# Keep new file and continue
 		sys.stdout.write('REDUNDANT\n')
+		lines = new_lines[:]
+		continue
 " || break
 done
 
 # End
-rm -rf $temp_dir
 echo
 exit 0
 
