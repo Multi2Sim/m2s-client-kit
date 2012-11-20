@@ -103,7 +103,6 @@ file_list=`find . -type f | grep -v "\.svn" | grep "\.c$"`
 cd $m2s_dir || exit 1
 
 # Check files
-file_list="arch/x86/timing/uop.c"
 for file in $file_list
 do
 	echo "File $file:"
@@ -130,6 +129,13 @@ while line_num < len(lines):
 	# Print included file
 	included_file = m.group(1)
 	sys.stdout.write('\tchecking include %s ... ' % (included_file))
+
+	# Check whether this '#include' is a '.dat' file
+	m = re.match(r\"[\\\"\\<].*\\.dat[\\\"\\>]\", included_file)
+	if m:
+		sys.stdout.write('skipped (.dat file)\n')
+		line_num += 1
+		continue
 
 	# Check whether this '#include' is for the associated header
 	m = re.match(r\".*/([^/]*)\\.c\", '$file')
