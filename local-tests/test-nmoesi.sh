@@ -137,7 +137,7 @@ do
 			passed_count=`expr $passed_count + 1`
 		else
 			echo " - failed"
-			failed_count=`expr $fail_count + 1`
+			failed_count=`expr $failed_count + 1`
 		fi
 	done
 done
