@@ -668,7 +668,7 @@ then
 	rm -f $server_package
 
 	# Actions in server
-	echo -n " - launching"
+	echo -n " - preparing benchmarks"
 	ssh -p $port $server '
 
 		function error()
@@ -915,6 +915,7 @@ then
 		done
 
 		# Submit condor cluster
+		echo -n " - launching condor"
 		condor_submit_log=`mktemp`
 		condor_submit -verbose $condor_submit_path > $condor_submit_log \
 			|| error "error submitting jobs with condor"
