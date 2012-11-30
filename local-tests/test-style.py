@@ -137,7 +137,157 @@ def check_copyright(lines):
 	if len(lines) > 19 and lines[19] == '':
 		add_error(19, 'beginning of code expected right here')
 		return
+
+def check_includes_is_standard(include, m2s_root):
+	
+	if not re.match(r"#include <.*>", include):
+		return False
+	file_name = re.sub(r"#include <(.*)>", r"\1", include)
+	return not os.path.exists(m2s_root + '/src/' + file_name)
+
+
+def check_includes_is_library(include, m2s_root):
+
+	if not re.match(r"#include <.*>", include):
+		return False
+	file_name = re.sub(r"#include <(.*)>", r"\1", include)
+	return os.path.exists(m2s_root + '/src/' + file_name)
+
+
+def check_includes_is_local(include):
+
+	if re.match(r"#include \".*\"", include):
+		return True
+	return False
+
+
+def check_includes(lines, m2s_root):
+
+	# Skip copyright and blank lines
+	line_num = 0
+	while line_num < len(lines):
+		if lines[line_num] != '' and \
+				not re.match(r".*/\*.*", lines[line_num]) and \
+				not re.match(r" \*.*", lines[line_num]) and \
+				not re.match(r".*\*/.*", lines[line_num]):
+			break;
+		line_num += 1
+
+	# Get blank lines and includes
+	includes = []
+	while line_num < len(lines):
+		if lines[line_num] != '' and \
+				not re.match(r"#include .*", lines[line_num]):
+			break;
+		includes.append(lines[line_num])
+		line_num += 1
+	
+	# No include is fine
+	if includes == []:
+		return
+	
+	# Exactly two blank lines after includes
+	blank_lines = 0
+	while len(includes) and includes[len(includes) - 1] == '':
+		blank_lines += 1
+		includes.pop()
+	if blank_lines != 2:
+		add_error(line_num, 'exactly two blank lines expected after #includes')
+	
+	# Create groups
+	include_groups = []
+	include_group = []
+	while len(includes):
+		include = includes.pop(0)
+		if include == '':
+			if include_group == []:
+				add_error(line_num, 'only one blank line expected between #include groups')
+			else:
+				include_groups.append(include_group[:])
+				include_group = []
+		else:
+			include_group.append(include)
+	if include_group != []:
+		include_groups.append(include_group[:])
+
+	# At the most 3 include groups
+	if len(include_groups) > 3:
+		add_error(line_num, 'set of %d #include groups found, but a maximum of 3 is expected' % \
+			(len(include_groups)))
+		return
+	
+	# Check that each group is sorted
+	for i in range(len(include_groups)):
+		include_group = include_groups[i]
+		if include_group != sorted(include_group):
+			add_error(line_num, 'set of #includes in group %d are not sorted' % (i + 1))
+	
+	# Print types
+	#for i in range(len(include_groups)):
+	#	print
+	#	print 'Group', i
+	#	include_group = include_groups[i]
+	#	for include in include_group:
+	#		print include
+	#		print '\tis_standard: ', check_includes_is_standard(include, m2s_root)
+	#		print '\tis_library:  ', check_includes_is_library(include, m2s_root)
+	#		print '\tis_local:    ', check_includes_is_local(include)
+	
+	# One include group
+	standard_includes = []
+	standard_includes_index = -1
+	library_includes = []
+	library_includes_index = -1
+	local_includes = []
+	local_includes_index = -1
+	for include_group_index in range(len(include_groups)):
+		include_group = include_groups[include_group_index]
+		include = include_group[0]
+		if check_includes_is_standard(include, m2s_root):
+			if standard_includes_index > -1:
+				add_error(line_num, 'groups of #includes %d and %d use standard #includes (e.g., <stdio.h>)' % \
+					(standard_includes_index + 1, include_group_index + 1))
+			standard_includes = include_group
+			standard_includes_index = include_group_index
+		elif check_includes_is_library(include, m2s_root):
+			if library_includes_index > -1:
+				add_error(line_num, 'groups of #includes %d and %d use library #includes (e.g., <lib/util/debug.h>)' % \
+					(library_includes_index + 1, include_group_index + 1))
+			library_includes = include_group
+			library_includes_index = include_group_index
+		elif check_includes_is_local(include):
+			if local_includes_index > -1:
+				add_error(line_num, 'groups of #includes %d and %d use local #includes (e.g., "cpu.h")' % \
+					(local_includes_index + 1, include_group_index + 1))
+			local_includes = include_group
+			local_includes_index = include_group_index
+		else:
+			add_error(line_num, 'cannot determine type of #include \'%s\'' % (include))
+	
+	# Check order of groups
+	if standard_includes_index > -1 and library_includes_index > -1 \
+			and standard_includes_index > library_includes_index:
+		add_error(line_num, 'standard includes should appear before library includes')
+	if standard_includes_index > -1 and local_includes_index > -1 \
+			and standard_includes_index > local_includes_index:
+		add_error(line_num, 'standard includes should appear before local includes')
+	if library_includes_index > -1 and local_includes_index > -1 \
+			and library_includes_index > local_includes_index:
+		add_error(line_num, 'library includes should appear before local includes')
 		
+	# Check types
+	for include in standard_includes:
+		if not check_includes_is_standard(include, m2s_root):
+			add_error(line_num, 'line \'%s\' should be a standard Linux #include (e.g., <stdio.h>)' % (include))
+	for include in library_includes:
+		if not check_includes_is_library(include, m2s_root):
+			add_error(line_num, 'line \'%s\' should be a Multi2Sim library #include (e.g., <lib/util/debug.h>)' % (include))
+	for include in local_includes:
+		if not check_includes_is_local(include):
+			add_error(line_num, 'line \'%s\' should be a local #include (e.g., "cpu.h")' % (include))
+
+
+
 
 def check_comments(lines):
 
@@ -221,6 +371,7 @@ def check_style(file_name):
 	# Global checks
 	check_comments(lines)
 	check_copyright(lines)
+	check_includes(lines, m2s_root)
 
 	# Close file
 	f.close()
