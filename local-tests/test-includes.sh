@@ -113,7 +113,28 @@ import os
 import re
 import sys
 
-f = open('$file', 'r')
+# Get file
+file_name = '$file'
+
+# Discard file 'visual/common/visual-nogtk.c'
+m = re.match(r\".*\\bvisual/common/visual-nogtk\\.c\", file_name)
+if m:
+	sys.stdout.write('\tFile skipped (special file)\n')
+	sys.exit(0)
+
+# Discard file 'glut-missing.c'
+m = re.match(r\".*/glut-missing\\.c\", file_name)
+if m:
+	sys.stdout.write('\tFile skipped (special file)\n')
+	sys.exit(0)
+
+# Discard file 'opengl-missing.c'
+m = re.match(r\".*/opengl-missing\\.c\", file_name)
+if m:
+	sys.stdout.write('\tFile skipped (special file)\n')
+	sys.exit(0)
+
+f = open(file_name, 'r')
 lines = f.readlines()
 f.close()
 line_num = 0
@@ -129,6 +150,12 @@ while line_num < len(lines):
 	# Print included file
 	included_file = m.group(1)
 	sys.stdout.write('\tchecking include %s ... ' % (included_file))
+
+	# Check whether this '#include' is 'mhandle.h'
+	if included_file == '<lib/mhandle/mhandle.h>':
+		sys.stdout.write('skipped (mandatory mhandle.h)\n')
+		line_num += 1
+		continue
 
 	# Check whether this '#include' is a '.dat' file
 	m = re.match(r\"[\\\"\\<].*\\.dat[\\\"\\>]\", included_file)
