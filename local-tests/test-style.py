@@ -7,11 +7,56 @@ import sys
 error_list = []
 
 
+def get_m2s_root(file_name):
+
+	# Check full path given
+	if file_name.find('..') >= 0 or not file_name.startswith('/'):
+		sys.stderr.write('error: get_m2s_root: \'file_name\' must be a full path\n')
+		sys.exit(1)
+
+	# Find AUTHORS file
+	items = file_name.split('/')
+	del items[0]
+	while len(items) > 1:
+		
+		# Extract one
+		items.pop()
+
+		# Construct file name
+		m2s_root = ''
+		for item in items:
+			m2s_root += '/' + item
+		authors_file = m2s_root + '/AUTHORS'
+
+		# File found
+		if os.path.exists(authors_file):
+			return m2s_root
+	
+	# Not found
+	sys.stderr.write('error: file \'%s\' is not within the Multi2Sim trunk\n' % file_name)
+	sys.exit(1)
+
+
 def add_error(line_num, text):
 
 	global error_list
 	
-	error_list.append([line_num + 1, text])
+	error_list.append([line_num, text])
+
+
+def print_errors(file_name):
+	
+	# File name
+	print 'File \'%s\'' % (file_name)
+
+	# No errors
+	if len(error_list) == 0:
+		print '\tCoding style OK'
+		return
+
+	error_list.sort()
+	for error in error_list:
+		print '\tline %d: %s' % (error[0] + 1, error[1])
 
 
 def check_indent(lines, line_num, num_tabs, num_spaces):
@@ -61,6 +106,38 @@ def get_indent(lines, line_num):
 
 	return num_tabs
 
+
+def check_copyright(lines):
+	
+	# Structure of copyright notice is:
+	# 18 lines with notice + one line blank + rest of file
+
+	# Line 0: begin of notice
+	if len(lines) < 19 or not re.match(r".*/\*.*", lines[0]):
+		add_error(0, 'copyright notice expected')
+		return
+	
+	# Lines 1-16: intermediate lines
+	for i in range(1, 17):
+		if not re.match(r" \*.*", lines[i]):
+			add_error(line_num, 'wrong format for copyright notice')
+			return
+	
+	# Line 17: end of notice
+	if not re.match(r".*\*/.*", lines[17]):
+		add_error(17, 'end of copyright notice expected')
+		return
+
+	# Line 18: blank line
+	if lines[18] != '':
+		add_error(18, 'blank line expected after copyright notice')
+		return
+
+	# Line 19: beginning of code
+	if len(lines) > 19 and lines[19] == '':
+		add_error(19, 'beginning of code expected right here')
+		return
+		
 
 def check_comments(lines):
 
@@ -128,6 +205,7 @@ def check_style(file_name):
 
 	# Get full path for file
 	full_path = os.path.abspath(file_name)
+	m2s_root = get_m2s_root(full_path)
 
 	# Open file
 	try:
@@ -140,15 +218,15 @@ def check_style(file_name):
 	content = f.read()
 	lines = content.split('\n')
 
-	# Check comments
+	# Global checks
 	check_comments(lines)
-
-	# Obtain lines
-	for line in lines:
-		print line
+	check_copyright(lines)
 
 	# Close file
 	f.close()
+
+	# Print errors
+	print_errors(full_path)
 
 
 syntax = '''
@@ -169,6 +247,7 @@ if len(sys.argv) != 2:
 	sys.exit(1)
 
 # Check style for file
+print
 check_style(sys.argv[1])
+print
 
-print error_list
