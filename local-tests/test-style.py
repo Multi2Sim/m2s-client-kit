@@ -218,7 +218,9 @@ def check_includes(lines, m2s_root):
 	
 	# Check that each group is sorted
 	for i in range(len(include_groups)):
-		include_group = include_groups[i]
+		include_group = include_groups[i][:]
+		for j in range(len(include_group)):
+			include_group[j] = re.sub(r"[\.\-/<>\"]", r"_", include_group[j])
 		if include_group != sorted(include_group):
 			add_error(line_num, 'set of #includes in group %d are not sorted' % (i + 1))
 	
@@ -350,6 +352,23 @@ def check_comments(lines):
 		line_num += 1
 		continue
 
+def check_line_length(lines):
+
+	for line_num in range(len(lines)):
+
+		# Calculate length
+		length = 0
+		for i in range(len(lines[line_num])):
+			if lines[line_num][i] == '\t':
+				length += 8 - (length % 8)
+			else:
+				length += 1
+
+		# Check valid length
+		if length > 100:
+			add_error(line_num, 'line with %d characters ' % (length) + \
+				'(up to 80 recommended, 100 max., tab counts as 8)')
+
 
 def check_style(file_name):
 
@@ -372,6 +391,7 @@ def check_style(file_name):
 	check_comments(lines)
 	check_copyright(lines)
 	check_includes(lines, m2s_root)
+	check_line_length(lines)
 
 	# Close file
 	f.close()
