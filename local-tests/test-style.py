@@ -3,6 +3,7 @@
 import os
 import re
 import sys
+import tempfile
 
 error_list = []
 
@@ -544,6 +545,158 @@ def check_style(file_name):
 	print_errors(full_path)
 
 
+def check_tool(tool_name):
+
+	ret = os.system('which ' + tool_name + ' > /dev/null')
+	if ret:
+		sys.stderr.write('\nError: Tool \'' + tool_name + '\' not installed in your system.\n' + \
+			'Please install this tool before running the style checker. In Ubuntu, you\n' + \
+			'can run the following command:\n\n' + \
+			'\tsudo apt-get install ' + tool_name + '\n\n')
+		sys.exit(1)
+
+
+def get_indent_options():
+
+	# Options for 'indent' program
+	options = []
+	
+	# Leave a blank line before a multi-line comment
+	# Format all comments
+	# Also modify comments an indentation level 1
+	options.append('-bad')
+	options.append('-fca')
+	options.append('-fc1')
+	
+	# Blank line after function body
+	options.append('-bap')
+	
+	# Insert '*' at the beginning of each new line of a multi-line comment
+	options.append('-sc')
+	
+	# In code blocks, an open bracket should go to a new line.
+	# Do it with 0 additional indentation levels.
+	options.append('-bl')
+	options.append('-bli0')
+	
+	# Cuddle up do-while loops
+	options.append('-cdw')
+	
+	# In switch-case statement, 0 indentations for blocks and 'case'
+	options.append('-cli0')
+	options.append('-cbi0')
+	
+	# No space before semicolon in empty blocks
+	options.append('-nss')
+	
+	# No space between function name and open parenthesis in function call
+	options.append('-npcs')
+	
+	# Space after type cast
+	options.append('-cs')
+	
+	# No space after 'sizeof'
+	options.append('-nbs')
+	
+	# Space after 'for', 'if', and 'while'
+	options.append('-saf')
+	options.append('-sai')
+	options.append('-saw')
+	
+	# No indentation for variable names after type in declarations.
+	# No new line for multiple-variable declaration sharing type.
+	options.append('-di1')
+	options.append('-nbc')
+	
+	# Don't split function return type and name
+	options.append('-npsl')
+	
+	# New line before open bracket in structure declaration and
+	# function definition
+	options.append('-bls')
+	options.append('-blf')
+	
+	# Indentation of 1 tab, no extra indentation for broken lines,
+	# no broken-line indentation depending on expression above
+	options.append('-i8')
+	options.append('-ci0')
+	options.append('-nlp')
+
+	# Return them
+	return options
+	
+	
+# Return list of 'typedef' types that need to be passed to 'indent' tool
+def get_indent_types():
+
+	types = []
+
+	# Types in <stdio.h>
+	types.append('FILE')
+	types.append('va_list')
+	types.append('off_t')
+	types.append('off64_t')
+	types.append('size_t')
+	types.append('ssize_t')
+	types.append('fpos_t')
+	types.append('fpos64_t')
+
+	# Types in <signal.h>
+	types.append('sig_atomic_t')
+	types.append('sigset_t')
+	types.append('pid_t')
+	types.append('uid_t')
+	types.append('sighandler_t')
+	types.append('sig_t')
+
+	# Return them
+	return types
+
+
+def run_indent(in_file, out_file):
+
+	# Get list of options and types
+	options = get_indent_options()
+	types = get_indent_types()
+
+	# Create command line
+	command_line = 'indent'
+	for option in options:
+		command_line += ' ' + option
+	for t in types:
+		command_line += ' -T ' + t
+	command_line += ' ' + in_file + ' -o ' + out_file
+
+	# Run it
+	err = os.system(command_line)
+	if err:
+		sys.exit(1)
+
+
+def run_meld(old_file, new_file):
+
+	sys.stdout.write( \
+		'\n' + \
+		'Your input file has been formatted with some suggested changes. Now tool \'meld\'\n' + \
+		'will open automatically to make you choose which changes you want to apply. Please\n' + \
+		'click on the arrows pointing from the left to the right panel to apply a change.\n' + \
+		'Then remember to save your changes.\n' + \
+		'\n' + \
+		'Note: for correct visualization of suggested changes, change meld\'s tab width to\n' + \
+		'8 through option Edit - Preferences - Editor - Tab Width.\n' + \
+		'\n' + \
+		'Press ENTER to continue...\n')
+	raw_input()
+
+	err = os.system('meld ' + new_file + ' ' + old_file)
+	if err:
+		sys.exit(1)
+
+
+################################################################################
+# Main program
+################################################################################
+
 syntax = '''
 Syntax:
     test-style.py <file>
@@ -555,79 +708,27 @@ Arguments:
 
 '''
 
-
-# Options for 'indent' program
-options = []
-
-# Leave a blank line before a multi-line comment
-# Format all comments
-# Also modify comments an indentation level 1
-options.append('-bad')
-options.append('-fca')
-options.append('-fc1')
-
-# Blank line after function body
-options.append('-bap')
-
-# Insert '*' at the beginning of each new line of a multi-line comment
-options.append('-sc')
-
-# In code blocks, an open bracket should go to a new line.
-# Do it with 0 additional indentation levels.
-options.append('-bl')
-options.append('-bli0')
-
-# Cuddle up do-while loops
-options.append('-cdw')
-
-# In switch-case statement, 0 indentations for blocks and 'case'
-options.append('-cli0')
-options.append('-cbi0')
-
-# No space before semicolon in empty blocks
-options.append('-nss')
-
-# No space between function name and open parenthesis in function call
-options.append('-npcs')
-
-# Space after type cast
-options.append('-cs')
-
-# No space after 'sizeof'
-options.append('-nbs')
-
-# Space after 'for', 'if', and 'while'
-options.append('-saf')
-options.append('-sai')
-options.append('-saw')
-
-# No indentation for variable names after type in declarations.
-# No new line for multiple-variable declaration sharing type.
-options.append('-di1')
-options.append('-nbc')
-
-# Don't split function return type and name
-options.append('-npsl')
-
-# New line before open bracket in structure declaration and
-# function definition
-options.append('-bls')
-options.append('-blf')
-
-# Indentation of 1 tab, no extra indentation for broken lines,
-# no broken-line indentation depending on expression above
-options.append('-i8')
-options.append('-ci0')
-options.append('-nlp')
-
+# Check that command-line tools 'meld' and 'indent' are present
+check_tool('meld')
+check_tool('indent')
 
 # Syntax
 if len(sys.argv) != 2:
 	sys.stderr.write(syntax)
 	sys.exit(1)
 
-# Check style for file
-print
-check_style(sys.argv[1])
-print
+# Get file name
+in_file = os.path.abspath(sys.argv[1])
+if not os.path.isfile(in_file):
+	sys.stderr.write('\nError: File \'%s\' not found.\n\n' % (sys.argv[1]))
+	sys.exit(1)
+
+# Create temporary output file
+out_file = tempfile.NamedTemporaryFile().name
+
+# Run 'indent' tool
+run_indent(in_file, out_file)
+
+# Run 'meld'
+run_meld(in_file, out_file)
 
