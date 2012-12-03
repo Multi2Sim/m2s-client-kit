@@ -34,7 +34,7 @@ def get_m2s_root(file_name):
 			return m2s_root
 	
 	# Not found
-	sys.stderr.write('error: file \'%s\' is not within the Multi2Sim trunk\n' % file_name)
+	sys.stderr.write('Error: File \'%s\' does not seem to be part of the Multi2Sim trunk\n' % file_name)
 	sys.exit(1)
 
 
@@ -58,63 +58,6 @@ def print_errors(file_name):
 	error_list.sort()
 	for error in error_list:
 		print '\tline %d: %s' % (error[0] + 1, error[1])
-
-
-def check_indent(lines, line_num, num_tabs, num_spaces):
-
-	# Error string
-	error_string = 'wrong indentation, %d tabs and %d spaces expected' % \
-		(num_tabs, num_spaces)
-
-	# Empty line is fine
-	if lines[line_num] == '':
-		return
-	
-	# Check minimum length
-	length = len(lines[line_num])
-	if length < num_tabs + num_spaces:
-		add_error(line_num, error_string)
-		return
-
-	# Check tabs
-	for i in range(num_tabs):
-		if lines[line_num][i] != '\t':
-			add_error(line_num, error_string)
-			return
-	
-	# Check spaces
-	for i in range(num_spaces):
-		if lines[line_num][num_tabs + i] != ' ':
-			add_error(line_num, error_string)
-			return
-
-	# If the spaces and tabs are the whole string, fine
-	if length == num_tabs + num_spaces:
-		return
-
-	# Otherwise, check that next character is not tab or space
-	if lines[line_num][num_tabs + num_spaces] in ['\t', ' ']:
-		add_error(line_num, error_string)
-		return
-
-
-def get_indent(lines, line_num):
-
-	num_tabs = 0
-	for i in range(len(lines[line_num])):
-		if lines[line_num][i] != '\t':
-			return num_tabs
-		num_tabs += 1
-
-	return num_tabs
-
-
-def check_trailing_spaces(lines):
-
-	for line_num in range(len(lines)):
-		line = lines[line_num]
-		if len(line) and line[len(line) - 1] in [ '\t', ' ' ]:
-			add_error(line_num, 'trailing spaces or tabs found')
 
 
 def check_copyright(lines):
@@ -147,158 +90,6 @@ def check_copyright(lines):
 	if len(lines) > 19 and lines[19] == '':
 		add_error(19, 'beginning of code expected right here')
 		return
-
-def check_includes_is_standard(include, m2s_root):
-	
-	if not re.match(r"#include <.*>", include):
-		return False
-	file_name = re.sub(r"#include <(.*)>", r"\1", include)
-	return not os.path.exists(m2s_root + '/src/' + file_name)
-
-
-def check_includes_is_library(include, m2s_root):
-
-	if not re.match(r"#include <.*>", include):
-		return False
-	file_name = re.sub(r"#include <(.*)>", r"\1", include)
-	return os.path.exists(m2s_root + '/src/' + file_name)
-
-
-def check_includes_is_local(include):
-
-	if re.match(r"#include \".*\"", include):
-		return True
-	return False
-
-
-def check_includes(lines, m2s_root):
-
-	# Skip copyright and blank lines
-	line_num = 0
-	while line_num < len(lines):
-		if lines[line_num] != '' and \
-				not re.match(r".*/\*.*", lines[line_num]) and \
-				not re.match(r" \*.*", lines[line_num]) and \
-				not re.match(r".*\*/.*", lines[line_num]):
-			break;
-		line_num += 1
-
-	# Get blank lines and includes
-	includes = []
-	while line_num < len(lines):
-		if lines[line_num] != '' and \
-				not re.match(r"#include .*", lines[line_num]):
-			break;
-		includes.append(lines[line_num])
-		line_num += 1
-	
-	# No include is fine
-	if includes == []:
-		return
-	
-	# Exactly two blank lines after includes
-	blank_lines = 0
-	while len(includes) and includes[len(includes) - 1] == '':
-		blank_lines += 1
-		includes.pop()
-	if blank_lines != 2:
-		add_error(line_num, 'exactly two blank lines expected after #includes')
-	
-	# Create groups
-	include_groups = []
-	include_group = []
-	while len(includes):
-		include = includes.pop(0)
-		if include == '':
-			if include_group == []:
-				add_error(line_num, 'only one blank line expected between #include groups')
-			else:
-				include_groups.append(include_group[:])
-				include_group = []
-		else:
-			include_group.append(include)
-	if include_group != []:
-		include_groups.append(include_group[:])
-
-	# At the most 3 include groups
-	if len(include_groups) > 3:
-		add_error(line_num, 'set of %d #include groups found, but a maximum of 3 is expected' % \
-			(len(include_groups)))
-		return
-	
-	# Check that each group is sorted
-	for i in range(len(include_groups)):
-		include_group = include_groups[i][:]
-		for j in range(len(include_group)):
-			include_group[j] = re.sub(r"[\.\-/<>\"]", r"_", include_group[j])
-		if include_group != sorted(include_group):
-			add_error(line_num, 'set of #includes in group %d are not sorted' % (i + 1))
-	
-	# Print types
-	#for i in range(len(include_groups)):
-	#	print
-	#	print 'Group', i
-	#	include_group = include_groups[i]
-	#	for include in include_group:
-	#		print include
-	#		print '\tis_standard: ', check_includes_is_standard(include, m2s_root)
-	#		print '\tis_library:  ', check_includes_is_library(include, m2s_root)
-	#		print '\tis_local:    ', check_includes_is_local(include)
-	
-	# One include group
-	standard_includes = []
-	standard_includes_index = -1
-	library_includes = []
-	library_includes_index = -1
-	local_includes = []
-	local_includes_index = -1
-	for include_group_index in range(len(include_groups)):
-		include_group = include_groups[include_group_index]
-		include = include_group[0]
-		if check_includes_is_standard(include, m2s_root):
-			if standard_includes_index > -1:
-				add_error(line_num, 'groups of #includes %d and %d use standard #includes (e.g., <stdio.h>)' % \
-					(standard_includes_index + 1, include_group_index + 1))
-			standard_includes = include_group
-			standard_includes_index = include_group_index
-		elif check_includes_is_library(include, m2s_root):
-			if library_includes_index > -1:
-				add_error(line_num, 'groups of #includes %d and %d use library #includes (e.g., <lib/util/debug.h>)' % \
-					(library_includes_index + 1, include_group_index + 1))
-			library_includes = include_group
-			library_includes_index = include_group_index
-		elif check_includes_is_local(include):
-			if local_includes_index > -1:
-				add_error(line_num, 'groups of #includes %d and %d use local #includes (e.g., "cpu.h")' % \
-					(local_includes_index + 1, include_group_index + 1))
-			local_includes = include_group
-			local_includes_index = include_group_index
-		else:
-			add_error(line_num, 'cannot determine type of #include \'%s\'' % (include))
-	
-	# Check order of groups
-	if standard_includes_index > -1 and library_includes_index > -1 \
-			and standard_includes_index > library_includes_index:
-		add_error(line_num, 'standard includes should appear before library includes')
-	if standard_includes_index > -1 and local_includes_index > -1 \
-			and standard_includes_index > local_includes_index:
-		add_error(line_num, 'standard includes should appear before local includes')
-	if library_includes_index > -1 and local_includes_index > -1 \
-			and library_includes_index > local_includes_index:
-		add_error(line_num, 'library includes should appear before local includes')
-		
-	# Check types
-	for include in standard_includes:
-		if not check_includes_is_standard(include, m2s_root):
-			add_error(line_num, 'line \'%s\' should be a standard Linux #include (e.g., <stdio.h>)' % (include))
-	for include in library_includes:
-		if not check_includes_is_library(include, m2s_root):
-			add_error(line_num, 'line \'%s\' should be a Multi2Sim library #include (e.g., <lib/util/debug.h>)' % (include))
-	for include in local_includes:
-		if not check_includes_is_local(include):
-			add_error(line_num, 'line \'%s\' should be a local #include (e.g., "cpu.h")' % (include))
-
-
 
 
 def check_comments(lines):
@@ -693,26 +484,41 @@ def run_meld(old_file, new_file):
 		sys.exit(1)
 
 
-def process_includes(lines):
+def is_library_include(include, m2s_root):
 
-	# Skip comments and blank lines
+	if not re.match(r"<.*>", include):
+		return False
+	file_name = re.sub(r"<(.*)>", r"\1", include)
+	return os.path.exists(m2s_root + '/src/' + file_name)
+
+
+def is_local_include(include):
+
+	if re.match(r"\".*\"", include):
+		return True
+	return False
+
+
+def process_includes(lines, m2s_root):
+
+	# Skip comments, blank lines, and compiler directives other than 'include'
 	line_num = 0
 	while line_num < len(lines):
 
-		# Check if line is blank or comment
-		is_comment = re.match(r"^[ \t]*/\*.*", lines[line_num])
-		is_blank = re.match(r"^[ \t]*$", lines[line_num])
-
 		# If line is blank, next
-		if is_blank:
-			print 'Blank: \'' + lines[line_num] + '\''
+		if re.match(r"^[ \t]*$", lines[line_num]):
+			line_num += 1
+			continue
+
+		# If line is compiler directive other than 'include', next
+		if re.match(r"^#.*", lines[line_num]) and \
+				not re.match(r"#include[ \t]+.*", lines[line_num]):
 			line_num += 1
 			continue
 
 		# If line is comment, skip
-		if is_comment:
+		if re.match(r"^[ \t]*/\*.*", lines[line_num]):
 			while line_num < len(lines) and not re.match(r".*\*/.*", lines[line_num]):
-				print 'Skip: \'' + lines[line_num] + '\''
 				line_num += 1
 			line_num += 1
 			continue
@@ -720,27 +526,132 @@ def process_includes(lines):
 		# Not a blank line and not a comment - first line
 		break
 
-	print 'First line: \'' + lines[line_num] + '\''
-
-	# File empty after skipping
+	# File empty after skipping header
 	if line_num >= len(lines):
 		return
 
-def run_post_process(file_name):
+	# Create list of includes
+	line_first_include = line_num
+	line_last_include = -1
+	includes = []
+	while line_num < len(lines):
+		
+		# If line is blank, next
+		if re.match(r"^[ \t]*$", lines[line_num]):
+			line_num += 1
+			continue
 
-	# Open file
-	try:
-		f = open(file_name, 'r')
-	except:
-		sys.stderr.write('Error: %s: Cannot open file\n' % (file_name))
-		sys.exit(1)
+		# Line is an include
+		m = re.match(r"^#include[ \t]*([<\"].*\.h[>\"])[ \t]*", lines[line_num])
+		if m:
+			line_last_include = line_num
+			includes.append(m.groups(1)[0])
+			line_num += 1
+			continue
+
+		# Line is not an include
+		break
+
+	# No includes found
+	if len(includes) == 0:
+		return
+
+	# Sort includes
+	for i in range(len(includes)):
+		includes[i] = ( re.sub(r"[\.\-/<>\"]", r"_", includes[i]), includes[i] )
+	includes.sort()
+	includes = [ v for k, v in includes ]
+
+	# Classify includes as standard, library, and local
+	standard_includes = []
+	library_includes = []
+	local_includes = []
+	for include in includes:
+		if is_library_include(include, m2s_root):
+			library_includes.append(include)
+		elif is_local_include(include):
+			local_includes.append(include)
+		else:
+			standard_includes.append(include)
 	
+	# Create new list of includes
+	new_includes = []
+	if len(standard_includes):
+		new_includes.append('')
+		new_includes.extend('#include ' + include \
+			for include in standard_includes)
+	if len(library_includes):
+		new_includes.append('')
+		new_includes.extend('#include ' + include \
+			for include in library_includes)
+	if len(local_includes):
+		new_includes.append('')
+		new_includes.extend('#include ' + include \
+			for include in local_includes)
+	new_includes.extend(['', ''])
+	
+	# Make 'line_first_include' embrace first blank line
+	while line_first_include > 0 and \
+			re.match(r"^[ \t]*$", lines[line_first_include - 1]):
+		line_first_include -= 1
+
+	# Make 'line_last_include' embrace last blank line
+	while line_last_include < len(lines) - 1 and \
+			re.match(r"^[ \t]*$", lines[line_last_include + 1]):
+		line_last_include += 1
+
+	# Replace lines
+	lines[line_first_include : line_last_include + 1] = new_includes
+
+
+def process_last_line(lines):
+
+	while len(lines) > 0 and lines[-1] == '':
+		lines.pop()
+
+
+def process_comments(lines):
+
+	line_num = 0
+	while line_num < len(lines):
+		lines[line_num] = re.sub(r"(.*)//(.*)$", r"\1/*\2*/", lines[line_num])
+		line_num += 1
+
+def run_pre_process(f):
+
 	# Read file
+	f.seek(0)
 	content = f.read()
 	lines = content.split('\n')
 
-	# Process includes
-	process_includes(lines)
+	# Replace C++ type comments
+	process_comments(lines)
+
+	# Write file
+	f.seek(0)
+	f.truncate(0)
+	f.writelines(line + '\n' for line in lines)
+	f.flush()
+
+
+def run_post_process(f, m2s_root):
+
+	# Read file
+	f.seek(0)
+	content = f.read()
+	lines = content.split('\n')
+
+	# Sort includes
+	process_includes(lines, m2s_root)
+
+	# One line at the end of file
+	process_last_line(lines)
+
+	# Write file
+	f.seek(0)
+	f.truncate(0)
+	f.writelines(line + '\n' for line in lines)
+	f.flush()
 
 
 
@@ -769,20 +680,42 @@ if len(sys.argv) != 2:
 	sys.exit(1)
 
 # Get file name
-in_file = os.path.abspath(sys.argv[1])
-if not os.path.isfile(in_file):
+file_name = os.path.abspath(sys.argv[1])
+if not os.path.isfile(file_name):
 	sys.stderr.write('\nError: File \'%s\' not found.\n\n' % (sys.argv[1]))
 	sys.exit(1)
 
-# Create temporary output file
-out_file = tempfile.NamedTemporaryFile().name
+# Read Multi2Sim root directory
+m2s_root = get_m2s_root(file_name)
+
+# Create temporary input and output files
+in_file = tempfile.NamedTemporaryFile()
+out_file = tempfile.NamedTemporaryFile()
+in_file_name = in_file.name
+out_file_name = out_file.name
+
+# Copy 'file_name' to 'in_file'
+try:
+	# Read from source
+	f = open(file_name, 'r')
+	lines = f.readlines()
+	f.close()
+
+	# Write to 'in_file'
+	in_file.seek(0)
+	in_file.truncate(0)
+	in_file.writelines(lines)
+	in_file.flush()
+
+except:
+	sys.stderr('\nError: Couldn\'t read input file.\n\n')
+	sys.exit(1)
 
 # Run 'indent' tool
-run_indent(in_file, out_file)
-
-# Post-process file generated by 'indent'
-run_post_process(out_file)
+run_pre_process(in_file)
+run_indent(in_file_name, out_file_name)
+run_post_process(out_file, m2s_root)
 
 # Run 'meld'
-run_meld(in_file, out_file)
+run_meld(file_name, out_file_name)
 
