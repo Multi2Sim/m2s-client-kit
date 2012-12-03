@@ -96,6 +96,7 @@ def check_indent(lines, line_num, num_tabs, num_spaces):
 		add_error(line_num, error_string)
 		return
 
+
 def get_indent(lines, line_num):
 
 	num_tabs = 0
@@ -105,6 +106,14 @@ def get_indent(lines, line_num):
 		num_tabs += 1
 
 	return num_tabs
+
+
+def check_trailing_spaces(lines):
+
+	for line_num in range(len(lines)):
+		line = lines[line_num]
+		if len(line) and line[len(line) - 1] in [ '\t', ' ' ]:
+			add_error(line_num, 'trailing spaces or tabs found')
 
 
 def check_copyright(lines):
@@ -369,6 +378,138 @@ def check_line_length(lines):
 			add_error(line_num, 'line with %d characters ' % (length) + \
 				'(up to 80 recommended, 100 max., tab counts as 8)')
 
+def check_strings(lines):
+
+	for line_num in range(len(lines)):
+
+		line = lines[line_num]
+		index = 0
+		while index < len(line):
+			if line[index] == '"':
+				index += 1
+				while index < len(line):
+					
+					# End of string
+					if line[index] == '"':
+						break
+
+					# Escaped character
+					if line[index] == '\\':
+						line = line[:index] + 'x' + line[index + 2:]
+						index += 1
+						continue
+
+					# Any character but space
+					if line[index] != ' ':
+						line = line[:index] + 'x' + line[index + 1:]
+						index += 1
+						continue
+
+					# Skip space
+					index += 1
+					continue
+			index += 1
+		lines[line_num] = line
+
+
+# Get the next character as an array [line_num, index]. If there are no more characters,
+# [-1, -1] is returned.
+def get_next_char(lines, line_num, index):
+
+	# Already at an invalid position
+	if line_num < 0 or index < 0 or line_num >= len(lines):
+		return [-1, -1]
+	
+	# Get next
+	index += 1
+	while index >= len(lines[line_num]):
+		index = 0
+		line_num += 1
+		if line_num >= len(lines):
+			return [-1, -1]
+	
+	# Return
+	return [line_num, index]
+	
+
+# Get the previous character as an array [line_num, index]. If there are no more characters,
+# [-1, -1] is returned.
+def get_prev_char(lines, line_num, index):
+
+	# Already at an invalid position
+	if line_num < 0 or index < 0:
+		return [-1, -1]
+	
+	# Get previous
+	index -= 1
+	while index < 0:
+		line_num -= 1
+		if line_num < 0:
+			return [-1, -1]
+		index = len(lines[line_num]) - 1
+	
+	# Return
+	return [line_num, index]
+	
+
+# Given an open curly bracket, square bracket, or parenthesis at line 'line_num'
+# and position 'index', find its closing match. A 2-element is returned containing
+# values [ line_num, index ] where the closing match was found.
+def get_matching_bracket(lines, line_num, index):
+
+	# Check type of bracket
+	open_bracket = lines[line_num][index]
+	if open_bracket == '[':
+		close_bracket = ']'
+	elif open_bracket == '{':
+		close_bracket = '}'
+	elif open_bracket == '(':
+		close_bracket = ')'
+	else:
+		sys.stderr.write('get_matching_bracket: invalid character \'%c\'\n"' % \
+			(lines[line_num][index]))
+		sys.exit(1)
+	
+	# Find closing match
+	orig_line_num = line_num
+	orig_index = index
+	num_brackets = 1
+	while True:
+
+		# Next character
+		[line_num, index] = get_next_char(lines, line_num, index)
+		if line_num < 0:
+			sys.stderr.write('line %d:%d ' \
+				% (orig_line_num + 1, orig_index + 1) + \
+				'no matching bracket found\n')
+			sys.exit(1)
+
+		# One more open bracket
+		if lines[line_num][index] == open_bracket:
+			num_brackets += 1
+
+		# Closing bracket
+		if lines[line_num][index] == close_bracket:
+			num_brackets -= 1
+			if num_brackets == 0:
+				return [ line_num, index ]
+
+# Get the first occurrence of a given character starting at line 'line_num' and position
+# 'index'. A 2-element array is returned containing values [ line_num, index ] where
+# the character was found, or [ -1, -1 ] if it was not present.
+def get_next_occurrence(lines, line_num, index, c):
+
+	while True:
+
+		# Check character
+		if lines[line_num][index] == c:
+			return [line_num, index]
+
+		# Next character
+		[line_num, index] = get_next_char(line_num, index)
+		if line_num < 0:
+			return [-1, -1]
+	
 
 def check_style(file_name):
 
@@ -388,10 +529,13 @@ def check_style(file_name):
 	lines = content.split('\n')
 
 	# Global checks
+	check_line_length(lines)
 	check_comments(lines)
+	check_trailing_spaces(lines)
 	check_copyright(lines)
 	check_includes(lines, m2s_root)
-	check_line_length(lines)
+	check_strings(lines)
+
 
 	# Close file
 	f.close()
@@ -410,6 +554,71 @@ Arguments:
   	File to check style for.
 
 '''
+
+
+# Options for 'indent' program
+options = []
+
+# Leave a blank line before a multi-line comment
+# Format all comments
+# Also modify comments an indentation level 1
+options.append('-bad')
+options.append('-fca')
+options.append('-fc1')
+
+# Blank line after function body
+options.append('-bap')
+
+# Insert '*' at the beginning of each new line of a multi-line comment
+options.append('-sc')
+
+# In code blocks, an open bracket should go to a new line.
+# Do it with 0 additional indentation levels.
+options.append('-bl')
+options.append('-bli0')
+
+# Cuddle up do-while loops
+options.append('-cdw')
+
+# In switch-case statement, 0 indentations for blocks and 'case'
+options.append('-cli0')
+options.append('-cbi0')
+
+# No space before semicolon in empty blocks
+options.append('-nss')
+
+# No space between function name and open parenthesis in function call
+options.append('-npcs')
+
+# Space after type cast
+options.append('-cs')
+
+# No space after 'sizeof'
+options.append('-nbs')
+
+# Space after 'for', 'if', and 'while'
+options.append('-saf')
+options.append('-sai')
+options.append('-saw')
+
+# No indentation for variable names after type in declarations.
+# No new line for multiple-variable declaration sharing type.
+options.append('-di1')
+options.append('-nbc')
+
+# Don't split function return type and name
+options.append('-npsl')
+
+# New line before open bracket in structure declaration and
+# function definition
+options.append('-bls')
+options.append('-blf')
+
+# Indentation of 1 tab, no extra indentation for broken lines,
+# no broken-line indentation depending on expression above
+options.append('-i8')
+options.append('-ci0')
+options.append('-nlp')
 
 
 # Syntax
