@@ -1,9 +1,12 @@
 #!/usr/bin/python
 
+import ConfigParser
 import os
 import re
+import subprocess
 import sys
 import tempfile
+import time
 
 error_list = []
 
@@ -347,6 +350,56 @@ def check_tool(tool_name):
 		sys.exit(1)
 
 
+def check_svn(exe):
+
+	# If 'exe_path' is '/home/user/m2s-client-kit/local-tests/test-style.py',
+	# 'client_kit_path' is '/home/ubal/m2s-client-kit'
+	exe_path = os.path.abspath(exe)
+	local_tests_path = os.path.dirname(exe_path)
+	client_kit_path = os.path.split(local_tests_path)[0]
+
+	# Check valid client_kit_path
+	if not os.path.isdir(os.path.join(client_kit_path, '.svn')):
+		sys.stderr.write('\nError: Failed to locate client kit.\n\n')
+		sys.exit(1)
+	
+	# INI file containing last check
+	tmp_dir = os.path.join(client_kit_path, 'tmp')
+	ini_file = os.path.join(tmp_dir, 'test-style.ini')
+	config = ConfigParser.ConfigParser()
+	config.read(ini_file)
+
+	try:
+		last_check_str = config.get('General', 'LastCheck', 0)
+		last_check = float(last_check_str)
+	except:
+		last_check = 0
+	
+	# Skip check if it was done recently
+	if last_check != 0 and time.time() - last_check < 60 * 60 * 24:
+		return
+
+	# Check latest SVN version
+	svn_current_output = subprocess.check_output(['svn', 'info', client_kit_path])
+	svn_head_output = subprocess.check_output(['svn', 'info', '-r', 'HEAD', client_kit_path])
+	current_revision = re.sub(r".*^Revision: ([0-9]*)$.*", r"\1", svn_current_output, flags = re.M | re.S)
+	head_revision = re.sub(r".*^Revision: ([0-9]*)$.*", r"\1", svn_head_output, flags = re.M | re.S)
+	if current_revision < head_revision:
+		sys.stderr('\nError: SVN Repository \'m2s-client-kit\' is not up to date.\n' + \
+			'Please update to the latest revision by running command \'svn up\'.\n\n')
+		sys.exit(1)
+
+	# Record last check
+	try:
+		config.add_section('General')
+	except:
+		pass
+	last_check = time.time()
+	config.set('General', 'LastCheck', last_check)
+	with open(ini_file, 'wb') as config_file:
+		config.write(config_file)
+
+
 def get_indent_options():
 
 	# Options for 'indent' program
@@ -684,6 +737,10 @@ file_name = os.path.abspath(sys.argv[1])
 if not os.path.isfile(file_name):
 	sys.stderr.write('\nError: File \'%s\' not found.\n\n' % (sys.argv[1]))
 	sys.exit(1)
+
+# Check that client kit is in the latest SVN revision
+check_svn(sys.argv[0])
+sys.exit(0) ##############
 
 # Read Multi2Sim root directory
 m2s_root = get_m2s_root(file_name)
