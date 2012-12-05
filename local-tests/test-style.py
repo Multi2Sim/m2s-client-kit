@@ -19,9 +19,12 @@ std_types = [ \
 	'short', \
 	'int', \
 	'long', \
+	'float', \
+	'double', \
 	'enum', \
 	'struct', \
-	'union' \
+	'union', \
+	'void' \
 ]
 	
 # Non-standard C types
@@ -99,6 +102,60 @@ non_std_types = [ \
 	'Elf32_Conflict' \
 ]
 
+
+
+# Check whether a line of code is a variable declaration. Returns the number of
+# lines spanned by the declaration, or 0 if the line is not a declaration.
+def is_decl(lines, line_num):
+	
+	# Split line in tokens
+	line = re.sub(r"[ \t]*(.*$)", r"\1", lines[line_num])
+	tokens = line.split()
+
+	# Empty
+	if len(tokens) == 0:
+		return 0
+
+	# Not a declaration
+	token = tokens[0]
+	if not token in std_types and \
+			not token in non_std_types and \
+			not token.endswith('_t'):
+		return 0
+
+	# Declaration - check number of lines
+	start_line_num = line_num
+	while line_num < len(lines):
+		if re.match(r".*;[ \t]*", lines[line_num]):
+			break
+		line_num += 1
+
+	# Return number of lines
+	return line_num - start_line_num + 1
+
+
+# Return true if a declaration contains an assignment
+def is_decl_with_assign(lines):
+
+	for line in lines:
+		if re.match(r"[^\"]*=.*", line):
+			return True
+
+	return False
+
+
+# Return the type of a declaration (e.g. 'sig_set_t', 'struct', ...)
+def get_decl_type(lines):
+
+	if len(lines) == 0:
+		sys.stderr.write('get_decl_type: no lines passed')
+		sys.exit(1)
+	line = re.sub(r"^[ \t]*(.*$)", r"\1", lines[0])
+	tokens = line.split()
+	if len(tokens) == 0:
+		sys.stderr.write('get_decl_type: 0 tokens obtained')
+		sys.exit(1)
+	return tokens[0]
 
 
 def get_m2s_root(file_name):
@@ -773,6 +830,15 @@ def process_var_decl_block(lines, line_num, index):
 	if indent_level != get_indent(lines, close_line_num):
 		add_error(line_num, 'indentation of open and closing bracket (line %d) does not match' % close_line_num)
 		return
+	
+	# Skip if this is a 'struct' or 'union' definition, and not a code block
+	if line_num > 0:
+		prev_line = lines[line_num - 1]
+	else:
+		prev_line = ''
+	if re.match(r"^[ \t]*struct[ \t]+[^;]*$", prev_line) or \
+			re.match(r"^[ \t]*union[ \t]+[^;]*$", prev_line):
+		return
 
 	# Check declarations
 	line_num += 1
@@ -796,22 +862,14 @@ def process_var_decl_block(lines, line_num, index):
 			continue
 		
 		# Split line in tokens
-		line = re.sub(r"[ \t]*(.*$)", r"\1", lines[line_num])
-		tokens = line.split()
-
-		# Declaration
-		if len(tokens) > 0:
-			token = tokens[0]
-		else:
-			token = ''
-		if token in std_types or token in non_std_types or token.endswith('_t'):
+		if is_decl(lines, line_num):
 			if not decl_allowed:
 				add_error(line_num, 'declaration only allowed at the beginning of code block')
 			line_num += 1
 			continue
 
 		# Declaration within for loop
-		if re.match(r"^for[ \t]+\([ \t]*int[ \t]+.*", line):
+		if re.match(r"^for[ \t]+\([ \t]*int[ \t]+.*", lines[line_num]):
 			add_error(line_num, 'no declaration allowed in header of \'for\' loop')
 
 		# Not a declaration - no more declarations allowed
@@ -819,7 +877,6 @@ def process_var_decl_block(lines, line_num, index):
 		line_num += 1
 		continue
 		
-
 
 # Check that all variable declarations occur in the beginning if a code block
 def process_var_decl(lines):
@@ -835,6 +892,141 @@ def process_var_decl(lines):
 		line_num += 1
 
 
+def print_decl_groups(decl_groups):
+
+	print '*' * 80
+	for group_id in range(len(decl_groups)):
+		print 'Group %d' % group_id
+		group = decl_groups[group_id]
+		for decl_id in range(len(group)):
+			print '\tDeclaration %d' % decl_id
+			decl = group[decl_id]
+			print '\t\t', decl
+	print '*' * 80
+
+# Make groups of variable declarations for a single block
+def process_sort_decl_block(lines, line_num, index):
+
+	# Get end of block
+	open_line_num, open_index = [ line_num, index ]
+	close_line_num, close_index = get_matching_bracket(lines, line_num, index)
+
+	# Read declarations
+	line_num += 1
+	first_decl_line_num = -1
+	last_decl_line_num = -1
+	decl_group = []
+	decl_with_assign_group = []
+	while line_num < close_line_num:
+
+		# Skip empty line
+		if re.match(r"^[ \t]*$", lines[line_num]):
+			line_num += 1
+			continue
+
+		# Declaration
+		decl_num_lines = is_decl(lines, line_num)
+		if decl_num_lines:
+
+			# Add declaration
+			decl = lines[line_num : line_num + decl_num_lines]
+			if is_decl_with_assign(decl):
+				decl_with_assign_group.append(decl)
+			else:
+				decl_group.append(decl)
+
+			# Update first/last declaration lines
+			last_decl_line_num = line_num + decl_num_lines - 1
+			if first_decl_line_num < 0:
+				first_decl_line_num = line_num
+
+			# Next
+			line_num += decl_num_lines
+			continue
+
+		# No more declarations
+		break
+	
+	# No declaration found
+	if decl_group == [] and decl_with_assign_group == []:
+		return
+
+	# Adjust beginning and end of declarations skipping empty lines
+	while first_decl_line_num > 0 and \
+			re.match(r"^[ \t]*$", lines[first_decl_line_num - 1]):
+		first_decl_line_num -= 1
+	while last_decl_line_num < len(lines) - 1 and \
+			re.match(r"^[ \t]*$", lines[last_decl_line_num + 1]):
+		last_decl_line_num += 1
+
+	# Create replacement declaration block. This block includes:
+	# 1) All declarations with assignments
+	# 2) Rest of declarations split in groups as per type
+	decl_groups = []
+	for decl in decl_group:
+		found = False
+		for group in decl_groups:
+			if get_decl_type(group[0]) == get_decl_type(decl):
+				found = True
+				group.append(decl)
+				break
+		if not found:
+			decl_groups.append([ decl ])
+	if decl_with_assign_group != []:
+		decl_groups.insert(0, decl_with_assign_group)
+
+	# Decide whether we want spaces between groups based on their size.
+	# If there is at least one group with more than 3 declarations, yes.
+	# If there is more than 1 group with 1 declaration, no
+	num_groups_4_or_more_decl = 0
+	num_groups_1_decl = 0
+	for group in decl_groups:
+		if len(group) > 3:
+			num_groups_4_or_more_decl += 1
+		elif len(group) == 1:
+			num_groups_1_decl += 1
+	if num_groups_4_or_more_decl > 0:
+		force_spaces = True
+	elif num_groups_1_decl > 1:
+		force_spaces = False
+	else:
+		force_spaces = True
+
+	# Create new lines with declarations
+	new_lines = []
+	for group in decl_groups:
+		for decl in group:
+			new_lines.extend(decl)
+		if force_spaces:
+			new_lines.append('')
+	if not force_spaces:
+		new_lines.append('')
+
+	# Replace lines
+	lines[first_decl_line_num : last_decl_line_num + 1] = new_lines
+
+
+
+# Make groups of variable declarations based on their type
+def process_sort_decl(lines):
+
+	line_num = 0
+	while line_num < len(lines):
+
+		# Number of open brackets
+		num_open_brackets = lines[line_num].count('{')
+		if num_open_brackets != 1:
+			line_num += 1
+			continue
+
+		# Process this block
+		index = lines[line_num].index('{')
+		process_sort_decl_block(lines, line_num, index)
+
+		# Next
+		line_num += 1
+
+
 def run_pre_indent_process(f):
 
 	# Read file
@@ -842,7 +1034,7 @@ def run_pre_indent_process(f):
 	content = f.read()
 	lines = content.split('\n')
 
-	# Replace C++ type comments
+	# Passes
 	process_comments(lines)
 
 	# Write file
@@ -863,6 +1055,7 @@ def run_post_indent_process(f, m2s_root):
 	# Passes
 	process_includes(lines, m2s_root)
 	process_last_line(lines)
+	process_sort_decl(lines)
 
 	# Write file
 	f.seek(0)
