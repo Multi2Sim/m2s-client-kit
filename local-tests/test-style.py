@@ -11,6 +11,96 @@ import time
 error_list = []
 
 
+# Standard C types
+std_types = [ \
+	'signed', \
+	'unsigned', \
+	'char', \
+	'short', \
+	'int', \
+	'long', \
+	'enum', \
+	'struct', \
+	'union' \
+]
+	
+# Non-standard C types
+non_std_types = [ \
+	'FILE', \
+	'va_list', \
+	'off_t', \
+	'off64_t', \
+	'size_t', \
+	'ssize_t', \
+	'fpos_t', \
+	'fpos64_t', \
+	\
+	'sig_atomic_t', \
+	'sigset_t', \
+	'pid_t', \
+	'uid_t', \
+	'sighandler_t', \
+	'sig_t', \
+	\
+	'Elf32_Half', \
+	'Elf64_Half', \
+	'Elf32_Word', \
+	'Elf32_Sword', \
+	'Elf64_Word', \
+	'Elf64_Sword', \
+	'Elf32_Xword', \
+	'Elf32_Sxword', \
+	'Elf64_Xword', \
+	'Elf64_Sxword', \
+	'Elf32_Addr', \
+	'Elf64_Addr', \
+	'Elf32_Off', \
+	'Elf64_Off', \
+	'Elf32_Section', \
+	'Elf64_Section', \
+	'Elf32_Versym', \
+	'Elf64_Versym', \
+	'Elf32_Ehdr', \
+	'Elf64_Ehdr', \
+	'Elf32_Shdr', \
+	'Elf64_Shdr', \
+	'Elf32_Sym', \
+	'Elf64_Sym', \
+	'Elf32_Syminfo', \
+	'Elf64_Syminfo', \
+	'Elf32_Rel', \
+	'Elf64_Rel', \
+	'Elf32_Rela', \
+	'Elf64_Rela', \
+	'Elf32_Phdr', \
+	'Elf64_Phdr', \
+	'Elf32_Dyn', \
+	'Elf64_Dyn', \
+	'Elf32_Verdef', \
+	'Elf64_Verdef', \
+	'Elf32_Verdaux', \
+	'Elf64_Verdaux', \
+	'Elf32_Verneed', \
+	'Elf64_Verneed', \
+	'Elf32_Vernaux', \
+	'Elf64_Vernaux', \
+	'Elf32_auxv_t', \
+	'Elf64_auxv_t', \
+	'Elf32_Nhdr', \
+	'Elf64_Nhdr', \
+	'Elf32_Move', \
+	'Elf64_Move', \
+	'Elf32_gptab', \
+	'Elf32_RegInfo', \
+	'Elf_Options', \
+	'Elf_Options_Hw', \
+	'Elf32_Lib', \
+	'Elf64_Lib', \
+	'Elf32_Conflict' \
+]
+
+
+
 def get_m2s_root(file_name):
 
 	# Check full path given
@@ -41,6 +131,25 @@ def get_m2s_root(file_name):
 	sys.exit(1)
 
 
+# Return number of tabs prefixing the line
+def get_indent(lines, line_num):
+	
+	# Invalid line
+	if line_num < 0 or line_num >= len(lines):
+		return 0
+
+	# Obtain tabs
+	tabs = 0
+	for index in range(len(lines[line_num])):
+		if lines[line_num][index] == '\t':
+			tabs += 1
+		else:
+			break
+
+	# Return number of tabs
+	return tabs
+
+
 def add_error(line_num, text):
 
 	global error_list
@@ -48,7 +157,7 @@ def add_error(line_num, text):
 	error_list.append([line_num, text])
 
 
-def print_errors(file_name):
+def print_errors():
 
 	# No errors
 	if error_list == []:
@@ -56,14 +165,19 @@ def print_errors(file_name):
 
 	# Header
 	sys.stdout.write( \
-		'\nWARNING: There are still some issues in the code formatting that could not be\n' + \
-		'fixed automatically. Please check the list below and fix them manually in\n' + \
-		'your source code before committing it.\n\n');
+		'\n' + \
+		'*' * 80 + '\n' + \
+		'WARNING: There are still some issues in the code format that could not be fixed\n' + \
+		'automatically. Please address the issues listed below manually, then re-run this\n' + \
+		'script before committing your code.\n' +
+		'*' * 80 + \
+		'\n\n');
 	
 	# Errors
 	error_list.sort()
 	for error in error_list:
-		print '\tline %d: %s' % (error[0] + 1, error[1])
+		print '\tLine %d: %s' % (error[0] + 1, error[1])
+	print
 
 
 def check_copyright(lines):
@@ -475,68 +589,16 @@ def get_indent_options():
 	return options
 	
 	
-# Return list of 'typedef' types that need to be passed to 'indent' tool
-def get_indent_types():
-
-	types = []
-
-	# Types in <stdio.h>
-	types.append('FILE')
-	types.append('va_list')
-	types.append('off_t')
-	types.append('off64_t')
-	types.append('size_t')
-	types.append('ssize_t')
-	types.append('fpos_t')
-	types.append('fpos64_t')
-
-	# Types in <signal.h>
-	types.append('sig_atomic_t')
-	types.append('sigset_t')
-	types.append('pid_t')
-	types.append('uid_t')
-	types.append('sighandler_t')
-	types.append('sig_t')
-
-	# Return them
-	return types
-
-
-# Return list of standard C types
-def get_std_types():
-
-	types = []
-
-	# Type prefixes
-	types.append('signed')
-	types.append('unsigned')
-
-	# Types
-	types.append('char')
-	types.append('short')
-	types.append('int')
-	types.append('long')
-
-	# Other
-	types.append('enum')
-	types.append('struct')
-	types.append('union')
-
-	# Return them
-	return types
-
-
 def run_indent(in_file, out_file):
 
 	# Get list of options and types
 	options = get_indent_options()
-	types = get_indent_types()
 
 	# Create command line
 	command_line = 'indent'
 	for option in options:
 		command_line += ' ' + option
-	for t in types:
+	for t in non_std_types:
 		command_line += ' -T ' + t
 	command_line += ' ' + in_file + ' -o ' + out_file
 
@@ -556,7 +618,7 @@ def run_meld(old_file, new_file):
 		'Then remember to save your changes.\n' + \
 		'\n' + \
 		'Note: for correct visualization of suggested changes, change meld\'s tab width to\n' + \
-		'8 through option Edit - Preferences - Editor - Tab Width.\n' + \
+		'8 using option Edit - Preferences - Editor - Tab Width.\n' + \
 		'\n' + \
 		'Press ENTER to continue...\n')
 	raw_input()
@@ -703,7 +765,60 @@ def process_comments(lines):
 # Check declarations for a given code block
 def process_var_decl_block(lines, line_num, index):
 
-	print 'Checking block at (%d, %d)' % (line_num + 1, index + 1)
+	# Get closing bracket
+	close_line_num, close_index = get_matching_bracket(lines, line_num, index)
+
+	# Check matching indentation
+	indent_level = get_indent(lines, line_num)
+	if indent_level != get_indent(lines, close_line_num):
+		add_error(line_num, 'indentation of open and closing bracket (line %d) does not match' % close_line_num)
+		return
+
+	# Check declarations
+	line_num += 1
+	indent_level += 1
+	decl_allowed = True
+	while line_num < close_line_num:
+		
+		# Ignore blank line
+		if re.match(r"^[ \t]*$", lines[line_num]):
+			line_num += 1
+			continue
+
+		# Ignore comment
+		if re.match(r"[ \t]*/\*.*/*/[ \t]*", lines[line_num]):
+			line_num += 1
+			continue
+
+		# Ignore if indentation level is higher
+		if get_indent(lines, line_num) != indent_level:
+			line_num += 1
+			continue
+		
+		# Split line in tokens
+		line = re.sub(r"[ \t]*(.*$)", r"\1", lines[line_num])
+		tokens = line.split()
+
+		# Declaration
+		if len(tokens) > 0:
+			token = tokens[0]
+		else:
+			token = ''
+		if token in std_types or token in non_std_types or token.endswith('_t'):
+			if not decl_allowed:
+				add_error(line_num, 'declaration only allowed at the beginning of code block')
+			line_num += 1
+			continue
+
+		# Declaration within for loop
+		if re.match(r"^for[ \t]+\([ \t]*int[ \t]+.*", line):
+			add_error(line_num, 'no declaration allowed in header of \'for\' loop')
+
+		# Not a declaration - no more declarations allowed
+		decl_allowed = False
+		line_num += 1
+		continue
+		
 
 
 # Check that all variable declarations occur in the beginning if a code block
@@ -748,7 +863,6 @@ def run_post_indent_process(f, m2s_root):
 	# Passes
 	process_includes(lines, m2s_root)
 	process_last_line(lines)
-	process_var_decl(lines)
 
 	# Write file
 	f.seek(0)
@@ -766,7 +880,7 @@ def run_post_meld_process(f):
 	lines = content.split('\n')
 
 	# Passes
-	add_error(2, 'test error')
+	process_var_decl(lines)
 
 	# Print errors
 	if error_list != []:
@@ -799,8 +913,8 @@ if len(sys.argv) != 2:
 	sys.exit(1)
 
 # Get file name
-file_name = os.path.abspath(sys.argv[1])
-if not os.path.isfile(file_name):
+source_file_name = os.path.abspath(sys.argv[1])
+if not os.path.isfile(source_file_name):
 	sys.stderr.write('\nError: File \'%s\' not found.\n\n' % (sys.argv[1]))
 	sys.exit(1)
 
@@ -808,7 +922,7 @@ if not os.path.isfile(file_name):
 check_svn()
 
 # Read Multi2Sim root directory
-m2s_root = get_m2s_root(file_name)
+m2s_root = get_m2s_root(source_file_name)
 
 # Create temporary input and output files
 in_file = tempfile.NamedTemporaryFile()
@@ -816,12 +930,11 @@ out_file = tempfile.NamedTemporaryFile()
 in_file_name = in_file.name
 out_file_name = out_file.name
 
-# Copy 'file_name' to 'in_file'
+# Copy 'source_file' to 'in_file'
 try:
 	# Read from source
-	f = open(file_name, 'r')
-	lines = f.readlines()
-	f.close()
+	source_file = open(source_file_name, 'r')
+	lines = source_file.readlines()
 
 	# Write to 'in_file'
 	in_file.seek(0)
@@ -830,7 +943,7 @@ try:
 	in_file.flush()
 
 except:
-	sys.stderr('\nError: Couldn\'t read input file.\n\n')
+	sys.stderr.write('\nError: Couldn\'t read input file.\n\n')
 	sys.exit(1)
 
 # Run 'indent' tool
@@ -839,6 +952,6 @@ run_indent(in_file_name, out_file_name)
 run_post_indent_process(out_file, m2s_root)
 
 # Run 'meld'
-run_meld(file_name, out_file_name)
-run_post_meld_process(out_file)
+run_meld(source_file_name, out_file_name)
+run_post_meld_process(source_file)
 
