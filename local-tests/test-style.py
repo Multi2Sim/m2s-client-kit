@@ -1027,6 +1027,18 @@ def process_sort_decl(lines):
 		line_num += 1
 
 
+# Check calls to malloc/calloc/realloc/strdup
+def process_alloc(lines):
+
+	line_num = 0
+	while line_num < len(lines):
+
+		if re.match(r".*\b(malloc|calloc|realloc|strdup)\b.*", lines[line_num]):
+			add_error(line_num, 'function malloc/calloc/realloc/strdup not allowed, ' + \
+				'use xmalloc/xcalloc/xrealloc/xstrdup')
+		line_num += 1
+
+
 def run_pre_indent_process(f):
 
 	# Read file
@@ -1074,6 +1086,7 @@ def run_post_meld_process(f):
 
 	# Passes
 	process_var_decl(lines)
+	process_alloc(lines)
 
 	# Print errors
 	if error_list != []:
