@@ -49,15 +49,18 @@ def add_error(line_num, text):
 
 
 def print_errors(file_name):
-	
-	# File name
-	print 'File \'%s\'' % (file_name)
 
 	# No errors
-	if len(error_list) == 0:
-		print '\tCoding style OK'
+	if error_list == []:
 		return
 
+	# Header
+	sys.stdout.write( \
+		'\nWARNING: There are still some issues in the code formatting that could not be\n' + \
+		'fixed automatically. Please check the list below and fix them manually in\n' + \
+		'your source code before committing it.\n\n');
+	
+	# Errors
 	error_list.sort()
 	for error in error_list:
 		print '\tline %d: %s' % (error[0] + 1, error[1])
@@ -350,11 +353,11 @@ def check_tool(tool_name):
 		sys.exit(1)
 
 
-def check_svn(exe):
+def check_svn():
 
 	# If 'exe_path' is '/home/user/m2s-client-kit/local-tests/test-style.py',
 	# 'client_kit_path' is '/home/ubal/m2s-client-kit'
-	exe_path = os.path.abspath(exe)
+	exe_path = os.path.abspath(__file__)
 	local_tests_path = os.path.dirname(exe_path)
 	client_kit_path = os.path.split(local_tests_path)[0]
 
@@ -385,8 +388,10 @@ def check_svn(exe):
 	current_revision = re.sub(r".*^Revision: ([0-9]*)$.*", r"\1", svn_current_output, flags = re.M | re.S)
 	head_revision = re.sub(r".*^Revision: ([0-9]*)$.*", r"\1", svn_head_output, flags = re.M | re.S)
 	if current_revision < head_revision:
-		sys.stderr('\nError: SVN Repository \'m2s-client-kit\' is not up to date.\n' + \
-			'Please update to the latest revision by running command \'svn up\'.\n\n')
+		sys.stderr.write('\nError: SVN Repository \'m2s-client-kit\' is not up to date.\n' + \
+			'Please update to the latest revision by running these commands:\n\n' + \
+			'\tcd ' + client_kit_path + '\n' + \
+			'\tsvn up\n\n')
 		sys.exit(1)
 
 	# Record last check
@@ -492,6 +497,30 @@ def get_indent_types():
 	types.append('uid_t')
 	types.append('sighandler_t')
 	types.append('sig_t')
+
+	# Return them
+	return types
+
+
+# Return list of standard C types
+def get_std_types():
+
+	types = []
+
+	# Type prefixes
+	types.append('signed')
+	types.append('unsigned')
+
+	# Types
+	types.append('char')
+	types.append('short')
+	types.append('int')
+	types.append('long')
+
+	# Other
+	types.append('enum')
+	types.append('struct')
+	types.append('union')
 
 	# Return them
 	return types
@@ -670,7 +699,28 @@ def process_comments(lines):
 		lines[line_num] = re.sub(r"(.*)//(.*)$", r"\1/*\2*/", lines[line_num])
 		line_num += 1
 
-def run_pre_process(f):
+
+# Check declarations for a given code block
+def process_var_decl_block(lines, line_num, index):
+
+	print 'Checking block at (%d, %d)' % (line_num + 1, index + 1)
+
+
+# Check that all variable declarations occur in the beginning if a code block
+def process_var_decl(lines):
+
+	line_num = 0
+	while line_num < len(lines):
+		num_open_brackets = lines[line_num].count('{')
+		if num_open_brackets == 1:
+			index = lines[line_num].index('{')
+			process_var_decl_block(lines, line_num, index)
+		elif num_open_brackets > 1:
+			add_error(line_num, 'multiple open brackets in one line')
+		line_num += 1
+
+
+def run_pre_indent_process(f):
 
 	# Read file
 	f.seek(0)
@@ -687,24 +737,40 @@ def run_pre_process(f):
 	f.flush()
 
 
-def run_post_process(f, m2s_root):
+def run_post_indent_process(f, m2s_root):
 
 	# Read file
+	f.flush()
 	f.seek(0)
 	content = f.read()
 	lines = content.split('\n')
 
-	# Sort includes
+	# Passes
 	process_includes(lines, m2s_root)
-
-	# One line at the end of file
 	process_last_line(lines)
+	process_var_decl(lines)
 
 	# Write file
 	f.seek(0)
 	f.truncate(0)
 	f.writelines(line + '\n' for line in lines)
 	f.flush()
+
+
+def run_post_meld_process(f):
+
+	# Read file
+	f.flush()
+	f.seek(0)
+	content = f.read()
+	lines = content.split('\n')
+
+	# Passes
+	add_error(2, 'test error')
+
+	# Print errors
+	if error_list != []:
+		print_errors()
 
 
 
@@ -739,8 +805,7 @@ if not os.path.isfile(file_name):
 	sys.exit(1)
 
 # Check that client kit is in the latest SVN revision
-check_svn(sys.argv[0])
-sys.exit(0) ##############
+check_svn()
 
 # Read Multi2Sim root directory
 m2s_root = get_m2s_root(file_name)
@@ -769,10 +834,11 @@ except:
 	sys.exit(1)
 
 # Run 'indent' tool
-run_pre_process(in_file)
+run_pre_indent_process(in_file)
 run_indent(in_file_name, out_file_name)
-run_post_process(out_file, m2s_root)
+run_post_indent_process(out_file, m2s_root)
 
 # Run 'meld'
 run_meld(file_name, out_file_name)
+run_post_meld_process(out_file)
 
