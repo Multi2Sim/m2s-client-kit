@@ -6,7 +6,7 @@
 ; MM: 128 sets, 8 ways, Block size 128
 
 [Commands]
-Command[0] = Access mod-l1-0 NCStore 0x0
+Command[0] = Access mod-l1-0 1 NCStore 0x0
 Command[1] = CheckBlock mod-l1-0 0 1 0x0 N
 Command[2] = CheckBlock mod-l2-0 0 3 0x0 E
 Command[3] = CheckBlock mod-mm 0 7 0x0 E

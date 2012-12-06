@@ -9,7 +9,7 @@
 Command[0] = SetBlock mod-mm 0 7 0x0 M
 Command[1] = SetSharers mod-mm 0 7 0 None
 Command[2] = SetOwner mod-mm 0 7 0 None
-Command[3] = Access mod-l1-0 LOAD 0x0
+Command[3] = Access mod-l1-0 1 LOAD 0x0
 Command[4] = CheckBlock mod-l1-0 0 1 0x0 E
 Command[5] = CheckBlock mod-l2-0 0 3 0x0 E
 Command[6] = CheckSharers mod-l2-0 0 3 0 mod-l1-0
