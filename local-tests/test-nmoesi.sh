@@ -107,6 +107,7 @@ do
 	[ -e "$net_config" ] || error "missing net-config in $config_dir"
 
 	# Run tests
+	temp_file=`mktemp`
 	for test_dir in $test_dir_list
 	do
 		# Get test directory
@@ -126,8 +127,15 @@ do
 		echo -ne "\t${test_dir:2}"
 		$m2s_bin --x86-sim detailed --x86-config $x86_config \
 			--mem-config $mem_config_commands \
-			--net-config $net_config >/dev/null 2>&1
+			--net-config $net_config >$temp_file 2>&1
 		err=$?
+
+		# If simulation terminated OK, check output
+		if [ "$err" == 0 ]
+		then
+			grep -q "^>>> .* - failed$" $temp_file
+			[ $? == 1 ] || err=1
+		fi
 
 		# Report error
 		total_count=`expr $total_count + 1`
@@ -144,5 +152,6 @@ done
 
 # End
 echo "$total_count tests, $passed_count passed, $failed_count failed"
+rm -f $temp_file
 exit 0
 
