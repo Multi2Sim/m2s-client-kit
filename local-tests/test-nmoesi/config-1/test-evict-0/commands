@@ -1,0 +1,35 @@
+; l1-0, l2-0, l3-0, and mm have addr 0 in E
+; Cycle 1 - l1-0 writes addr 0 (block in l1-0 turns M)
+; Cycle 2 - l1-1 reads addr 0x200 (conflict in l1-0 and l2-0, but not in l3)
+
+; L1: 4 sets, 1 way, 64-byte blocks, 1-cycle latency
+; L2: 8 sets, 1 way, 64-byte blocks, 2-cycle latency
+; L3: 16 sets, 1 way, 64-byte blocks, 4-cycle latency
+; MM directory: 32 sets, 1 way, 64-byte blocks, 8-cycle latency
+
+[ Commands ]
+Command[0] = SetBlock mod-l1-0 0 0 0x0 E
+Command[1] = SetBlock mod-l2-0 0 0 0x0 E
+Command[2] = SetBlock mod-l3 0 0 0x0 E
+Command[3] = SetBlock mod-mm 0 0 0x0 E
+Command[4] = SetOwner mod-l2-0 0 0 0 mod-l1-0
+Command[5] = SetOwner mod-l3 0 0 0 mod-l2-0
+Command[6] = SetOwner mod-mm 0 0 0 mod-l3
+Command[7] = SetSharers mod-l2-0 0 0 0 mod-l1-0
+Command[8] = SetSharers mod-l3 0 0 0 mod-l2-0
+Command[9] = SetSharers mod-mm 0 0 0 mod-l3
+Command[10] = Access mod-l1-0 1 STORE 0x0
+Command[11] = Access mod-l1-1 2 LOAD 0x200
+Command[12] = CheckBlock mod-l1-0 0 0 0x0 I
+Command[13] = CheckBlock mod-l1-1 0 0 0x200 E
+Command[14] = CheckBlock mod-l2-0 0 0 0x200 E
+Command[15] = CheckBlock mod-l3 0 0 0x0 M
+Command[16] = CheckBlock mod-l3 8 0 0x200 E
+Command[17] = CheckBlock mod-mm 0 0 0x0 E
+Command[18] = CheckBlock mod-mm 8 0 0x200 E
+Command[19] = CheckSharers mod-l2-0 0 0 0 mod-l1-1
+Command[20] = CheckSharers mod-l3 0 0 0 None
+Command[21] = CheckSharers mod-l3 8 0 0 mod-l2-0
+Command[22] = CheckOwner mod-l2-0 0 0 0 mod-l1-1
+Command[23] = CheckOwner mod-l3 0 0 0 None
+Command[24] = CheckOwner mod-l3 8 0 0 mod-l2-0
