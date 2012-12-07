@@ -131,10 +131,10 @@ then
 	for num_compute_units in $num_compute_units_list
 	do
 		# Create configuration file
-		gpu_config="$HOME/$M2S_CLIENT_KIT_TMP_PATH/gpu-config"
-		cp /dev/null $gpu_config || exit 1
-		echo "[ Device ]" >> $gpu_config
-		echo "NumComputeUnits = $num_compute_units" >> $gpu_config
+		si_config="$HOME/$M2S_CLIENT_KIT_TMP_PATH/si-config"
+		cp /dev/null $si_config || exit 1
+		echo "[ Device ]" >> $si_config
+		echo "NumComputeUnits = $num_compute_units" >> $si_config
 
 		# BinarySearch
 		bench_name="BinarySearch"
@@ -142,8 +142,9 @@ then
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			amdapp-2.5-si/$bench_name \
 			--sim-arg "--si-sim detailed" \
+			--sim-arg "--si-config si-config" \
 			--bench-arg "-x $size -q" \
-			--send "$gpu_config" \
+			--send "$si_config" \
 			|| exit 1
 	
 		# BinomialOption
@@ -152,8 +153,9 @@ then
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			amdapp-2.5-si/$bench_name \
 			--sim-arg "--si-sim detailed" \
+			--sim-arg "--si-config si-config" \
 			--bench-arg "-x $size -q" \
-			--send "$gpu_config" \
+			--send "$si_config" \
 			|| exit 1
 	
 		# BitonicSort
@@ -162,8 +164,9 @@ then
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			amdapp-2.5-si/$bench_name \
 			--sim-arg "--si-sim detailed" \
+			--sim-arg "--si-config si-config" \
 			--bench-arg "-x $size -q" \
-			--send "$gpu_config" \
+			--send "$si_config" \
 			|| exit 1
 	
 		# BlackScholes
@@ -172,8 +175,9 @@ then
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			amdapp-2.5-si/$bench_name \
 			--sim-arg "--si-sim detailed" \
+			--sim-arg "--si-config si-config" \
 			--bench-arg "-x $size -q" \
-			--send "$gpu_config" \
+			--send "$si_config" \
 			|| exit 1
 	
 		# BoxFilter
@@ -182,8 +186,9 @@ then
 		#$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 		#	amdapp-2.5-si/$bench_name \
 		#	--sim-arg "--si-sim detailed" \
+		#	--sim-arg "--si-config si-config" \
 		#	--bench-arg " -q" \
-		#	--send "$gpu_config" \
+		#	--send "$si_config" \
 		#	|| exit 1
 		
 		# DCT
@@ -192,8 +197,9 @@ then
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			amdapp-2.5-si/$bench_name \
 			--sim-arg "--si-sim detailed" \
+			--sim-arg "--si-config si-config" \
 			--bench-arg "-x $size -y $size -q" \
-			--send "$gpu_config" \
+			--send "$si_config" \
 			|| exit 1
 	
 		# DwtHaar1D
@@ -202,8 +208,9 @@ then
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			amdapp-2.5-si/$bench_name \
 			--sim-arg "--si-sim detailed" \
+			--sim-arg "--si-config si-config" \
 			--bench-arg "-x $size -q" \
-			--send "$gpu_config" \
+			--send "$si_config" \
 			|| exit 1
 	
 		# FastWalshTransform
@@ -212,8 +219,9 @@ then
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			amdapp-2.5-si/$bench_name \
 			--sim-arg "--si-sim detailed" \
+			--sim-arg "--si-config si-config" \
 			--bench-arg "-x $size -q" \
-			--send "$gpu_config" \
+			--send "$si_config" \
 			|| exit 1
 	
 		# FloydWarshall
@@ -222,8 +230,9 @@ then
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			amdapp-2.5-si/$bench_name \
 			--sim-arg "--si-sim detailed" \
+			--sim-arg "--si-config si-config" \
 			--bench-arg "-x $size -q" \
-			--send "$gpu_config" \
+			--send "$si_config" \
 			|| exit 1
 	
 		# Histogram
@@ -232,8 +241,9 @@ then
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			amdapp-2.5-si/$bench_name \
 			--sim-arg "--si-sim detailed" \
+			--sim-arg "--si-config si-config" \
 			--bench-arg "-x $size -y $size -q" \
-			--send "$gpu_config" \
+			--send "$si_config" \
 			|| exit 1
 		
 		# MatrixMultiplication
@@ -242,8 +252,9 @@ then
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			amdapp-2.5-si/$bench_name \
 			--sim-arg "--si-sim detailed" \
+			--sim-arg "--si-config si-config" \
 			--bench-arg "-x $size -y $size -z $size -q" \
-			--send "$gpu_config" \
+			--send "$si_config" \
 			|| exit 1
 	
 		# MatrixTranspose
@@ -252,8 +263,9 @@ then
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			amdapp-2.5-si/$bench_name \
 			--sim-arg "--si-sim detailed" \
+			--sim-arg "--si-config si-config" \
 			--bench-arg "-x $size -y $size -q" \
-			--send "$gpu_config" \
+			--send "$si_config" \
 			|| exit 1
 	
 		# PrefixSum
@@ -262,8 +274,9 @@ then
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			amdapp-2.5-si/$bench_name \
 			--sim-arg "--si-sim detailed" \
+			--sim-arg "--si-config si-config" \
 			--bench-arg "-x $size -q" \
-			--send "$gpu_config" \
+			--send "$si_config" \
 			|| exit 1
 	
 		# RadixSort
@@ -272,8 +285,9 @@ then
 		#$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 		#	amdapp-2.5-si/$bench_name \
 		#	--sim-arg "--si-sim detailed" \
+		#	--sim-arg "--si-config si-config" \
 		#	--bench-arg "-x $size -q" \
-		#	--send "$gpu_config" \
+		#	--send "$si_config" \
 		#	|| exit 1
 	
 		# RecursiveGaussian
@@ -282,8 +296,9 @@ then
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			amdapp-2.5-si/$bench_name \
 			--sim-arg "--si-sim detailed" \
+			--sim-arg "--si-config si-config" \
 			--bench-arg "-x $size -q" \
-			--send "$gpu_config" \
+			--send "$si_config" \
 			|| exit 1
 	
 		# Reduction
@@ -292,8 +307,9 @@ then
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			amdapp-2.5-si/$bench_name \
 			--sim-arg "--si-sim detailed" \
+			--sim-arg "--si-config si-config" \
 			--bench-arg "-x $size -q" \
-			--send "$gpu_config" \
+			--send "$si_config" \
 			|| exit 1
 		
 		# ScanLargeArrays
@@ -302,8 +318,9 @@ then
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			amdapp-2.5-si/$bench_name \
 			--sim-arg "--si-sim detailed" \
+			--sim-arg "--si-config si-config" \
 			--bench-arg "-x $size -q" \
-			--send "$gpu_config" \
+			--send "$si_config" \
 			|| exit 1
 	
 		
@@ -313,8 +330,9 @@ then
 		#$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 		#	amdapp-2.5-si/$bench_name \
 		#	--sim-arg "--si-sim detailed" \
+		#	--sim-arg "--si-config si-config" \
 		#	--bench-arg "-x $size -q" \
-		#	--send "$gpu_config" \
+		#	--send "$si_config" \
 		#	|| exit 1
 	
 		# URNG
@@ -323,8 +341,9 @@ then
 		$m2s_cluster_sh add $cluster_name "$bench_name/$num_compute_units" \
 			amdapp-2.5-si/$bench_name \
 			--sim-arg "--si-sim detailed" \
+			--sim-arg "--si-config si-config" \
 			--bench-arg "-x $size -q" \
-			--send "$gpu_config" \
+			--send "$si_config" \
 			|| exit 1
 	done	
 	
