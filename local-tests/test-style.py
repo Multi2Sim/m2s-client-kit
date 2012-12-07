@@ -819,6 +819,21 @@ def process_comments(lines):
 		line_num += 1
 
 
+def process_stdint_types(lines):
+
+	line_num = 0
+	while line_num < len(lines):
+		lines[line_num] = re.sub(r"\bint8_t\b", r"char", lines[line_num])
+		lines[line_num] = re.sub(r"\bint16_t\b", r"short", lines[line_num])
+		lines[line_num] = re.sub(r"\bint32_t\b", r"int", lines[line_num])
+		lines[line_num] = re.sub(r"\bint64_t\b", r"long long", lines[line_num])
+		lines[line_num] = re.sub(r"\buint8_t\b", r"unsigned char", lines[line_num])
+		lines[line_num] = re.sub(r"\buint16_t\b", r"unsigned short", lines[line_num])
+		lines[line_num] = re.sub(r"\buint32_t\b", r"unsigned int", lines[line_num])
+		lines[line_num] = re.sub(r"\buint64_t\b", r"unsigned long long", lines[line_num])
+		line_num += 1
+
+
 # Check declarations for a given code block
 def process_var_decl_block(lines, line_num, index):
 
@@ -1048,6 +1063,7 @@ def run_pre_indent_process(f):
 
 	# Passes
 	process_comments(lines)
+	process_stdint_types(lines)
 
 	# Write file
 	f.seek(0)
