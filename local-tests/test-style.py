@@ -757,6 +757,17 @@ def process_includes(lines, m2s_root):
 	if len(includes) == 0:
 		return
 
+	# Convert global includes into local if possible
+	source_file_dir = os.path.dirname(source_file_name)
+	for i in range(len(includes)):
+		if not is_library_include(includes[i], m2s_root):
+			continue
+		include_file_name = m2s_root + '/src/' + re.sub(r"<(.*)>", r"\1", includes[i])
+		include_file_dir = os.path.dirname(include_file_name)
+		if os.path.samefile(include_file_dir, source_file_dir):
+			include_file_base = os.path.basename(include_file_name)
+			includes[i] = '"' + include_file_base + '"'
+	
 	# Sort includes
 	for i in range(len(includes)):
 		includes[i] = ( re.sub(r"[\.\-/<>\"]", r"_", includes[i]), includes[i] )
