@@ -375,7 +375,7 @@ function remote_make()
 	' || exit 1
 
 	# Copy executable
-	scp -q -P $port $server:$M2S_SERVER_KIT_TMP_PATH/remote-make/$tarball_dir_name/src/m2s \
+	scp -q -P $port $server:$M2S_SERVER_KIT_TMP_PATH/remote-make/$tarball_dir_name/bin/m2s \
 		$exe_file || exit 1
 	echo -n " [ cached in '$exe_file' ]"
 

@@ -203,6 +203,7 @@ cd $HOME/$M2S_CLIENT_KIT_M2S_PATH
 rm -f $HOME/$M2S_CLIENT_KIT_M2S_PATH/multi2sim*.tar.gz
 if [ ! -e Makefile ]
 then
+	libtoolize >> $log_file 2>&1 && \
 	aclocal >> $log_file 2>&1 && \
 	autoconf >> $log_file 2>&1 && \
 	automake --add-missing >> $log_file 2>&1 && \
@@ -240,7 +241,7 @@ ssh -p $port $server '
 	make || exit 1
 
 	# Copy executable
-	mv src/m2s $HOME/'$M2S_SERVER_KIT_M2S_BIN_PATH' || exit 1
+	mv bin/m2s $HOME/'$M2S_SERVER_KIT_M2S_BIN_PATH' || exit 1
 
 	# Remove build directory
 	cd ..

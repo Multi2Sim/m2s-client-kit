@@ -222,7 +222,8 @@ cp -r $M2S_CLIENT_KIT_M2S_SRC_PATH $M2S_CLIENT_KIT_M2S_BUILD_PATH \
 # Build
 echo -n " - building"
 cd $HOME/$M2S_CLIENT_KIT_M2S_BUILD_PATH
-aclocal >> $log_file 2>&1 && \
+libtoolize >> $log_file 2>&1 && \
+	aclocal >> $log_file 2>&1 && \
 	autoconf >> $log_file 2>&1 && \
 	automake --add-missing >> $log_file 2>&1 && \
 	./configure $configure_args >> $log_file 2>&1 && \
@@ -243,7 +244,7 @@ dist_version=`echo $dist_package | sed "s/^multi2sim-\(.*\)\.tar\.gz/\1/g"`
 echo -n " - saving binary"
 cd && rm -rf $M2S_CLIENT_KIT_M2S_BIN_PATH
 mkdir -p $HOME/$M2S_CLIENT_KIT_M2S_BIN_PATH
-cp $HOME/$M2S_CLIENT_KIT_M2S_BUILD_PATH/src/m2s \
+cp $HOME/$M2S_CLIENT_KIT_M2S_BUILD_PATH/bin/m2s \
 	$HOME/$M2S_CLIENT_KIT_M2S_BIN_EXE_PATH ||
 	error "failed copying binary"
 mv $HOME/$M2S_CLIENT_KIT_M2S_BUILD_PATH/multi2sim-*.tar.gz \
