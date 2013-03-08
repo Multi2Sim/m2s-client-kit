@@ -8,7 +8,7 @@ The generic syntax is:
 	<script-name>.sh <command> [<arguments>]
 where <command> can take any of the possible values.
 
-  submit <server>[:<port>] [<options>]
+  submit [<user>@]<server>[:<port>] [<options>]
       Create one or more clusters and submit them to the server. The clusters
       can be created by explicit calls to 'm2s-cluster.sh', or by recursively
       calling other verification scripts. The following optional arguments can

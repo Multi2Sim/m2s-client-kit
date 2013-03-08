@@ -50,7 +50,7 @@ commands are:
 
           SERVER:~/m2s-server-kit/run/<cluster_name>
 
-  add <cluster> <job_name> [<benchmarks>] [<options>]
+  add <cluster> <job_name> <benchmarks> [<options>]
       Add a new job to the cluster, where <job_name> is the identifier of the
       new job. This identifier can contain '/' characters. The folder in the
       server where the job will reside is
@@ -59,9 +59,9 @@ commands are:
       
       Argument <benchmarks> is a list of applications to run as different
       contexts on the same simulation, passed as different sections of the
-      context configuration file of Multi2Sim. Each benchmarks should be given
-      as <suite>/<benchmark>. For example: AMDAPP-2.5/MatrixMultiplication.
-      Suites and benchmarks should be given as they appear in folder
+      context configuration file of Multi2Sim. Each benchmark should be given
+      as <suite>/<benchmark>. For example 'splash2/fft'. Suites and benchmarks
+      should be given as they appear in folder
 
           SERVER:~/m2s-server-kit/benchmarks
 
@@ -97,7 +97,7 @@ commands are:
           For those benchmarks providing several data sets, this argument
 	  specifies the name. It is set to 'Default' if no value is given.
 
-  submit <cluster> <server> [<options>]
+  submit <cluster> [<user>@]<server> [<options>]
       Submit the cluster to the server and start its execution using condor. A
       cluster must be in state 'Created', 'Completed', or 'Killed' for it to be
       (re-)submitted. The cluster will transition to state 'Submitted'.
@@ -210,16 +210,16 @@ commands are:
       value is given, list all jobs added to <cluster>. A summary of the listed
       clusters is provided in the standard error output.
 
-  list-bench <server> [<suite>]
+  list-bench [<user>@]<server> [<suite>]
       If no optional argument is given, this command lists the benchmark suites
       available in the server. If a benchmark suite is given, the command lists
       the benchmarks available in the server belonging to that suite.
 
   server <cluster>
       Print the server where a cluster is or has been running. The syntax of the
-      output string is <server>[:<port>], where the port is only specified if
-      other than 22. The cluster must be in state 'Submitted', 'Completed', or
-      'Killed'.
+      output string is [<user>@]<server>[:<port>], where the port is only
+      specified if other than 22. The cluster must be in state 'Submitted',
+      'Completed', or 'Killed'.
 
 EOF
 	exit 1

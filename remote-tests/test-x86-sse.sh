@@ -9,7 +9,7 @@ prog_name=`echo $0 | awk -F/ '{ print $NF }'`
 m2s_cluster_sh="$HOME/$M2S_CLIENT_KIT_BIN_PATH/m2s-cluster.sh"
 inifile_py="$HOME/$M2S_CLIENT_KIT_BIN_PATH/inifile.py"
 
-cluster_name="test-x86-sse"
+cluster_name="x86-sse"
 
 num_iter=10000
 
@@ -25,13 +25,13 @@ function syntax()
 
 Run a verification of the x86 SSE instruction set emulation. To add more
 instructions to this process, just add new benchmark executables in the
-'test-x86-sse' suite of the Multi2Sim server kit.
+'x86-sse' suite of the Multi2Sim server kit.
 
 * Secondary verification scripts
 	None
 
 * Associated clusters
-	test-x86-sse
+	x86-sse
 
 --
 
@@ -96,13 +96,13 @@ then
 	server_port=$1
 
 	# Get list of benchmarks
-	bench_list=`$m2s_cluster_sh list-bench $server_port test-x86-sse` || exit 1
+	bench_list=`$m2s_cluster_sh list-bench $server_port x86-sse` || exit 1
 
 	# Create cluster
 	$m2s_cluster_sh create $cluster_name || exit 1
 	for bench in $bench_list
 	do
-		$m2s_cluster_sh add $cluster_name $bench test-x86-sse/$bench \
+		$m2s_cluster_sh add $cluster_name $bench x86-sse/$bench \
 			-p $num_iter \
 			|| exit 1
 	done
@@ -159,7 +159,7 @@ then
 
 	# Get list of benchmarks
 	server_port=`$m2s_cluster_sh server $cluster_name` || exit 1
-	bench_list=`$m2s_cluster_sh list-bench $server_port test-x86-sse` || exit 1
+	bench_list=`$m2s_cluster_sh list-bench $server_port x86-sse` || exit 1
 
 	# Check output for each problem size
 	passed_count=0
