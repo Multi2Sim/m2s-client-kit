@@ -60,9 +60,7 @@ tag=
 tag_arg=
 while true ; do
 	case "$1" in
-	-h|--help)
-		syntax
-		;;
+	-h|--help) syntax ;;
 	-r) rev=$2 ; rev_arg="-r $2" ; shift 2 ;;
 	--tag) tag=$2 ; tag_arg="--tag $2" ; shift 2 ;;
 	--) shift ; break ;;

@@ -53,7 +53,7 @@ Generate Multi2Sim's source code at
   	Folder containing the Multi2Sim binary and tarball packages. The
 	following files are generated in this folder:
 
-        * m2s - Multi2Sim exeutable.
+        * m2s - Multi2Sim executable.
 	* build.ini - Information about this build (INI file)
 	* multi2sim.tar.gz - Tarball containing SVN development source.
 	* multi2sim-XXX.tar.gz - Tarball containing distribution package.
@@ -149,7 +149,7 @@ function check_m2s_build()
 rm -f $log_file
 
 # Options
-temp=`getopt -o r: -l configure-args:,tag: -n $prog_name -- "$@"`
+temp=`getopt -o r:h -l configure-args:,tag:,help -n $prog_name -- "$@"`
 if [ $? != 0 ] ; then exit 1 ; fi
 eval set -- "$temp"
 rev=
@@ -157,6 +157,7 @@ configure_args=
 tag=
 while true ; do
 	case "$1" in
+	-h|--help) syntax ;;
 	-r) rev=$2 ; shift 2 ;;
 	--tag) tag=$2 ; shift 2 ;;
 	--configure-args) configure_args=$2 ; shift 2 ;;
