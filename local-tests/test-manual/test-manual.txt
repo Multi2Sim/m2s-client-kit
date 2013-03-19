@@ -1,0 +1,11 @@
+Syntax:
+    ./<manual-test> <command>
+
+Possible commands are:
+
+  info
+      Show information about the manual test.
+
+  run
+      Run manual test.
+
