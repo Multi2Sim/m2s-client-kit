@@ -34,8 +34,8 @@ Syntax:
 
 Build Multi2Sim on several target machines with the following options:
 
-  * Build of development version using autotools (aclocal, autoconf, automake,
-    configure, make).
+  * Build of development version using autotools (liboolize, aclocal,
+    autoconf, automake, configure, make).
   * Build of distribution package (tar, configure, make).
 
 Both for the development version and the distribution package, the following
@@ -127,6 +127,7 @@ function test_build()
 				rm -rf $dev_dir 2>&1 && \
 				tar -xzf $dev_package_path 2>&1 && \
 				cd $dev_dir 2>&1 && \
+				libtoolize 2>&1 && \
 				aclocal 2>&1 && \
 				autoconf 2>&1 && \
 				automake --add-missing 2>&1 && \
@@ -195,6 +196,7 @@ function test_build()
 		test_dev_build dev-debug-no-glut --enable-debug --disable-glut
 		test_dev_build dev-no-gtk --disable-gtk
 		test_dev_build dev-no-glut --disable-glut
+		test_dev_build dev-no-flex-bison --disable-flex-bison
 
 		# Tests on distribution package
 		test_dist_build dist-default
@@ -203,6 +205,7 @@ function test_build()
 		test_dist_build dist-debug-no-glut --enable-debug --disable-glut
 		test_dist_build dist-no-gtk --disable-gtk
 		test_dist_build dist-no-glut --disable-glut
+		test_dist_build dist-no-flex-bison --disable-flex-bison
 
 		# Remove temporary directory
 		rm -rf $temp_dir
