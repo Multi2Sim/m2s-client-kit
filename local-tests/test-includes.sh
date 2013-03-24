@@ -82,7 +82,9 @@ m2s_dir="$1"
 # Warning
 echo
 echo "WARNING: Please make sure you ran './configure' with flag '--enable-debug'"
-echo "         Wrong #includes could be removed otherwise."
+echo "         Wrong #includes could be removed otherwise. Also, make sure that"
+echo "         you are running this script on a machine where all packages"
+echo "         required by Multi2Sim are present."
 echo
 
 # Initial build
@@ -97,6 +99,7 @@ file_list=`find . -type f | grep -v "\.svn" | grep "\.c$"`
 cd $m2s_dir || exit 1
 
 # Check files
+file_list="driver/opengl/opengl-missing.c driver/opengl/opengl.c"
 for file in $file_list
 do
 	echo "File $file:"
@@ -110,20 +113,9 @@ import sys
 # Get file
 file_name = '$file'
 
-# Discard file 'visual/common/visual-nogtk.c'
-m = re.match(r\".*\\bvisual/common/visual-nogtk\\.c\", file_name)
-if m:
-	sys.stdout.write('\tFile skipped (special file)\n')
-	sys.exit(0)
-
-# Discard file 'glut-missing.c'
-m = re.match(r\".*/glut-missing\\.c\", file_name)
-if m:
-	sys.stdout.write('\tFile skipped (special file)\n')
-	sys.exit(0)
-
-# Discard file 'opengl-missing.c'
-m = re.match(r\".*/opengl-missing\\.c\", file_name)
+# Discard any file with the '-missing.c' suffix, since it might contain code that
+# is compiled conditionally
+m = re.match(r\".*-missing\\.c\", file_name)
 if m:
 	sys.stdout.write('\tFile skipped (special file)\n')
 	sys.exit(0)
