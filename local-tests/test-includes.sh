@@ -28,23 +28,17 @@ function syntax()
 Syntax:
     $prog_name [<options>] <local_dist>
 
+This script check all source (*.c) files in 'multi2sim/src' for redundant
+#includes. This is done by removing them one by one and checking if compilation
+is still successful. The './configure' script must be run before this script
+always using '--enable-debug'. If this flag is not enabled, wrong #includes
+might be considered redundant.
+
 Arguments:
 
   <local_dist>
         Complete path for local distribution of Multi2Sim. Redundant includes
 	will be fixed here.
-
-
-Options:
-
-  -r <rev>
-  	Multi2Sim revision to fetch and build. If none is specified, the latest
-	available SVN revision on the server is fetched.
-
-  --tag <tag>
-  	Fetch subdirectory <tag> in the 'tags' directory on the Multi2Sim
-	repository. If none is specified, the 'trunk' directory is fetched
-	instead.
 
 EOF
 	exit 1
