@@ -47,6 +47,7 @@ configuration scenarios are tested:
   * ./configure script with flags '--enable-debug --disable-glut'.
   * ./configure with flags '--disable-gtk'.
   * ./configure with flags '--disable-glut'.
+  * ./configure with flags '--disable-flex-bison'.
 
 
 Options:
@@ -123,6 +124,9 @@ function test_build()
 			echo ">>> test-build begin $test_name"
 
 			# Build test
+			# NOTE: Line below creating directory "m4" is used to
+			# overcome bugs in older Autotools. Not needed for
+			# newer.
 			cd $temp_dir 2>&1 && \
 				rm -rf $dev_dir 2>&1 && \
 				tar -xzf $dev_package_path 2>&1 && \
@@ -131,6 +135,7 @@ function test_build()
 				aclocal 2>&1 && \
 				autoconf 2>&1 && \
 				automake --add-missing 2>&1 && \
+				mkdir -p m4 && \
 				./configure $configure_args 2>&1 && \
 				make 2>&1
 
