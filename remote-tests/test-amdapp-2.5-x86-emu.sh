@@ -561,7 +561,7 @@ then
 			sim_err="$input_size_dir/sim.err"
 			cp /dev/null $inifile_script
 			echo "read x86 Time 0" >> $inifile_script
-			echo "read x86 EmulatedInstructions 0" >> $inifile_script
+			echo "read x86 Instructions 0" >> $inifile_script
 			echo "read SouthernIslands Time 0" >> $inifile_script
 			echo "read SouthernIslands Instructions 0" >> $inifile_script
 			$inifile_py $sim_err run $inifile_script > $inifile_script_output
