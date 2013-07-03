@@ -1,0 +1,1 @@
+/home/amir/m2s-client-kit/tmp/m2s-bin/m2s --net-sim mynet --net-config /home/amir/m2s-client-kit/local-tests/test-network/./config-0/net-config 			--net-max-cycles 10 >/tmp/tmp.fWRauRr6WC 2>&1

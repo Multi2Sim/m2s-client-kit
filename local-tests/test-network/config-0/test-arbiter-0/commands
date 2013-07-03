@@ -1,0 +1,17 @@
+; Instructions available - Send
+; Checks available : inbuffercheck, outbuffercheck, nodecheck, exactposcheck, receive
+
+
+[Network.mynet.Commands]
+Command[0] = 1 send n0 n2 1 1   
+Command[1] = 1 send n1 n2 1 2
+Command[2] = 1 send n2 n1 1 3
+Command[3] = 2 outbuffercheck n0 1 
+Command[4] = 2 outbuffercheck n1 2
+Command[5] = 2 outbuffercheck n2 3
+Command[6] = 3 inbuffercheck n2 1 
+Command[7] = 4 inbuffercheck n1 3
+Command[8] = 5 inbuffercheck n2 2
+Command[9] = 4 receive n2 1
+command[10] = 5 receive n1 3
+command[11] = 6 receive n2 2
