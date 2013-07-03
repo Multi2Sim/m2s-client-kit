@@ -1,0 +1,11 @@
+This folder is the first configuration for testing BUS:
+
+	n0		n1
+	^		^
+	|		|
+	v		v
+     ==========================
+		^
+		|
+		v
+		n2

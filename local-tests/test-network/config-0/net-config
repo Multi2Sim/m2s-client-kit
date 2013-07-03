@@ -1,0 +1,32 @@
+[Network.mynet]
+DefaultInputBufferSize =4 
+DefaultOutputBufferSize = 4
+DefaultBandwidth = 1
+
+[Network.mynet.Node.N0]
+Type = EndNode
+
+[Network.mynet.Node.N1]
+Type = EndNode
+
+[Network.mynet.Node.N2]
+Type = EndNode
+
+[Network.mynet.Node.B0]
+Type = Bus
+
+[Network.mynet.Link.n0-b0]
+Source = B0
+Dest = N0
+Type = Bidirectional
+
+[Network.mynet.Link.n2-b0]
+Source = N2
+Dest = B0
+Type = Bidirectional
+
+[Network.mynet.Link.n1-b0]
+Source = n1
+Dest = B0
+Type = Bidirectional
+SourceBufferSize = 4

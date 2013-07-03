@@ -4,7 +4,7 @@ M2S_CLIENT_KIT_PATH="m2s-client-kit"
 M2S_CLIENT_KIT_BIN_PATH="$M2S_CLIENT_KIT_PATH/bin"
 M2S_CLIENT_KIT_TMP_PATH="$M2S_CLIENT_KIT_PATH/tmp"
 M2S_CLIENT_KIT_RESULT_PATH="$M2S_CLIENT_KIT_PATH/result"
-M2S_CLIENT_KIT_TEST_NMOESI_PATH="$M2S_CLIENT_KIT_PATH/local-tests/test-nmoesi"
+M2S_CLIENT_KIT_TEST_NETWORK_PATH="$M2S_CLIENT_KIT_PATH/local-tests/test-network"
 
 inifile_py="$HOME/$M2S_CLIENT_KIT_BIN_PATH/inifile.py"
 build_m2s_local_sh="$HOME/$M2S_CLIENT_KIT_BIN_PATH/build-m2s-local.sh"
@@ -77,8 +77,8 @@ $build_m2s_local_sh $rev_arg $tag_arg \
 	|| exit 1
 
 # Get list of configuration directories
-cd $HOME/$M2S_CLIENT_KIT_TEST_NMOESI_PATH \
-	|| error "cannot find NMOESI test path"
+cd $HOME/$M2S_CLIENT_KIT_TEST_NETWORK_PATH \
+	|| error "cannot find NETWORK test path"
 config_dir_list=`find -maxdepth 1 -type d | grep -v "\.svn" | grep -v "^\.$"`
 
 # Run tests
@@ -89,19 +89,15 @@ for config_dir in $config_dir_list
 do
 	# Info
 	echo ${config_dir:2}
-	config_full_path="$HOME/$M2S_CLIENT_KIT_TEST_NMOESI_PATH/$config_dir"
+	config_full_path="$HOME/$M2S_CLIENT_KIT_TEST_NETWORK_PATH/$config_dir"
 
 	# Get list of tests
-	cd $HOME/$M2S_CLIENT_KIT_TEST_NMOESI_PATH/$config_dir \
+	cd $HOME/$M2S_CLIENT_KIT_TEST_NETWORK_PATH/$config_dir \
 		|| error "cannot cd to test directory"
 	test_dir_list=`find -maxdepth 1 -type d | grep -v "\.svn" | grep -v "^\.$"`
 
 	# Configuration files
-	x86_config="$config_full_path/x86-config"
-	mem_config="$config_full_path/mem-config"
 	net_config="$config_full_path/net-config"
-	[ -e "$x86_config" ] || error "missing x86-config in $config_dir"
-	[ -e "$mem_config" ] || error "missing mem-config in $config_dir"
 	[ -e "$net_config" ] || error "missing net-config in $config_dir"
 
 	# Run tests
@@ -109,23 +105,22 @@ do
 	for test_dir in $test_dir_list
 	do
 		# Get test directory
-		test_full_path="$HOME/$M2S_CLIENT_KIT_TEST_NMOESI_PATH/$config_dir/$test_dir"
+		test_full_path="$HOME/$M2S_CLIENT_KIT_TEST_NETWORK_PATH/$config_dir/$test_dir"
 
 		# Check Multi2Sim executable
 		m2s_bin="$HOME/$M2S_CLIENT_KIT_TMP_PATH/m2s-bin/m2s"
 		[ -e $m2s_bin ] || error "cannot find Multi2Sim binary"
 
 		# Reconstruct memory configuration file with commands
-		mem_config_commands="$HOME/$M2S_CLIENT_KIT_TMP_PATH/mem-config"
-		cp $mem_config $mem_config_commands || error "failed to overwrite mem-config"
-		cat "$test_full_path/commands" >> $mem_config_commands \
+		net_config_commands="$HOME/$M2S_CLIENT_KIT_TMP_PATH/net-config"
+		cp $net_config $net_config_commands || error "failed to overwrite net-config"
+		cat "$test_full_path/commands" >> $net_config_commands \
 			|| error "missing 'commands' in $config_dir - $test_dir"
 
 		# Launch
 		echo -ne "\t${test_dir:2}"
-		echo "$m2s_bin --x86-sim detailed --x86-config $x86_config \
-			--mem-config $mem_config_commands \
-			--net-config $net_config >$temp_file 2>&1" > hello
+		echo "$m2s_bin --net-sim mynet --net-config $net_config \
+			--net-max-cycles 10 >$temp_file 2>&1" > hello
 		pwd
 		exit 
 		err=$?
