@@ -123,11 +123,9 @@ do
 
 		# Launch
 		echo -ne "\t${test_dir:2}"
-		echo "$m2s_bin --x86-sim detailed --x86-config $x86_config \
+		$m2s_bin --x86-sim detailed --x86-config $x86_config \
 			--mem-config $mem_config_commands \
-			--net-config $net_config >$temp_file 2>&1" > hello
-		pwd
-		exit 
+			--net-config $net_config >$temp_file 2>&1
 		err=$?
 
 		# If simulation terminated OK, check output

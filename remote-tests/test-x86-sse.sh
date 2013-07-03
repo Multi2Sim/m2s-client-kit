@@ -193,7 +193,7 @@ then
 		fi
 
 		# Check that simulation finished
-		sim_finished=`$inifile_py $sim_err exists CPU`
+		sim_finished=`$inifile_py $sim_err exists x86`
 		if [ "$sim_finished" == 0 ]
 		then
 			unknown_count=`expr $unknown_count + 1`

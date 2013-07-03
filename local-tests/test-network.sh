@@ -119,10 +119,8 @@ do
 
 		# Launch
 		echo -ne "\t${test_dir:2}"
-		echo "$m2s_bin --net-sim mynet --net-config $net_config \
-			--net-max-cycles 10 >$temp_file 2>&1" > hello
-		pwd
-		exit 
+		$m2s_bin --net-sim mynet --net-config $net_config_commands \
+			--net-max-cycles 10 >$temp_file 2>&1
 		err=$?
 
 		# If simulation terminated OK, check output
