@@ -25,10 +25,29 @@ function error()
 
 function syntax()
 {
+	sed_command='sed '"'"'s/\([]\^$*+?.()|{}[]\)/\\\1/g'"'"' test.out'
 	cat << EOF
 
 Syntax:
     $prog_name [<options>] <tests>
+
+Runs simple tests and compares the standard output and standard error output
+agains templates given as regular expressions. To add another test, you just
+need to create one more subdirectory, with the following files:
+
+	* test.sh   File containing the commands to be launched.
+	* test.out  File containing a Python-like regular expression that the
+		    standard output should match to pass the test.
+	* test.err  File containing a regular expression that the standard error
+	            output should match.
+
+Files 'test.out' and 'test.err' are optional. If either one is missing, that
+specific check will not be performed. If you need to create a regular expression
+to match exactly the content of an existing file, you can use the following
+command:
+
+	$sed_command
+
 
 Arguments:
 
@@ -140,7 +159,7 @@ else
 				break
 			fi
 		done
-		[ found=0 ] || continue
+		[ $found = 0 ] || continue
 
 		# Check if it's one ID
 		id_count=`awk -F- '{ print NF }' <<< "$arg"`
@@ -170,7 +189,7 @@ else
 			continue
 		fi
 
-		# Inavlid
+		# Invalid
 		error "$arg: invalid test"
 	done
 	test_list="$new_test_list"

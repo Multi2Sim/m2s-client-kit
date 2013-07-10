@@ -1,0 +1,34 @@
+
+; Multi2Sim .* - A Simulation Framework for CPU-GPU Heterogeneous Computing
+; Please use command 'm2s --help' for a list of command-line options\.
+; Simulation alpha-numeric ID: .*
+
+
+;
+; Simulation Statistics Summary
+;
+
+\[ General \]
+RealTime = .*
+SimEnd = ContextsFinished
+SimTime = .*
+Frequency = 3000 \[MHz\]
+Cycles = .*
+
+\[ x86 \]
+RealTime = .*
+Instructions = .*
+InstructionsPerSecond = .*
+Contexts = 1
+Memory = .*
+SimTime = .*
+Frequency = 3000 \[MHz\]
+Cycles = .*
+CyclesPerSecond = .*
+FastForwardInstructions = 0
+CommittedInstructions = .*
+CommittedInstructionsPerCycle = .*
+CommittedMicroInstructions = .*
+CommittedMicroInstructionsPerCycle = .*
+BranchPredictionAccuracy = .*
+
