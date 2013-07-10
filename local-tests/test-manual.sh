@@ -29,7 +29,18 @@ function syntax()
 	cat << EOF
 
 Syntax:
-    $prog_name [<options>]
+    $prog_name [<options>] <range>
+
+
+Arguments:
+
+  <range>
+	Tests to run. This value can be given in the following formats:
+	all		Run all tests
+	<name>		Run test with name <id> (can be given with of without
+			the '.sh' extension)
+	<id>		Run test number <id>
+	<id1>-<id2>	Run tests from <id1> to <id2>
 
 
 Options:
@@ -72,7 +83,7 @@ while true ; do
 done
 
 # Arguments
-[ $# == 0 ] || syntax
+[ $# == 0 ] && syntax
 
 # Obtain local copy
 $build_m2s_local_sh $rev_arg $tag_arg \
@@ -87,6 +98,59 @@ do
 	script_list="$script_list ${script:2}"
 done
 
+# Obtain tests
+final_script_list=
+script_index_list=
+script_list_count=`echo $script_list | awk '{ print NF }'`
+if [ $# = 1 -a "$1" = "all" ]
+then
+	final_script_list="$script_list"
+else
+	while [ $# -gt 0 ]
+	do
+		# Try to interpret argument as a test name
+		name=$1
+		id=`echo $script_list | awk '{
+			for (i = 1; i < NF; i++)
+			{
+				if ("'$name'" == $i || "'$name'" ".sh" == $i)
+				{
+					print i;
+					exit;
+				}
+			}
+			print 0
+		}'`
+		if [ $id != 0 ]
+		then
+			echo $name | egrep ".*\.sh" > /dev/null || name="${name}.sh"
+			final_script_list="$final_script_list $name"
+			script_index_list="$script_index_list $id"
+			shift
+			continue
+		fi
+
+		# Try to interpret as a test index
+		tokens=`echo $1 | awk -F- '{ print NF }'`
+		[ $tokens = 1 -o $tokens = 2 ] || error "$1: invalid argument"
+		id1=`echo $1 | awk -F- '{ print $1 }'`
+		id2=`echo $1 | awk -F- '{ print $2 }'`
+		[ $tokens = 2 ] || id2="$id1"
+
+		# Check rage
+		[ $id1 -ge 1 -a $id1 -le $script_list_count ] || error "$id1 is an invalid test index"
+		[ $id2 -ge 1 -a $id2 -le $script_list_count ] || error "$id2 is an invalid test index"
+		for i in `seq $id1 $id2`
+		do
+			s=`echo $script_list | awk '{ print $'$i' }'`
+			final_script_list="$final_script_list $s"
+			script_index_list="$script_index_list $i"
+		done
+		shift
+	done
+fi
+script_list="$final_script_list"
+
 # Dump header in log file
 echo >> $log_file
 echo >> $log_file
@@ -98,10 +162,13 @@ index=1
 hline="================================================================================"
 for script in $script_list
 do
+	# Get script index
+	script_index=`echo $script_index_list | awk '{ print $'$index' }'`
+
 	# Print script info
 	clear
 	echo $hline
-	echo "= Test $index - '$script'"
+	echo "= Test $script_index - '$script'"
 	echo $hline
 	echo
 	./$script info
@@ -113,7 +180,7 @@ do
 	echo $hline
 
 	# Run test
-	echo -n "Test $index - '$script' - " >> $log_file
+	echo -n "Test $script_index - '$script' - " >> $log_file
 	./$script run 2>&1 | tee $temp_log_file
 	echo $hline
 	echo
