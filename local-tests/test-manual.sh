@@ -37,6 +37,7 @@ Arguments:
   <range>
 	Tests to run. This value can be given in the following formats:
 	all		Run all tests
+	list		Show list of available tests
 	<name>		Run test with name <id> (can be given with of without
 			the '.sh' extension)
 	<id>		Run test number <id>
@@ -85,10 +86,6 @@ done
 # Arguments
 [ $# == 0 ] && syntax
 
-# Obtain local copy
-$build_m2s_local_sh $rev_arg $tag_arg \
-	|| exit 1
-
 # Get list of configuration directories
 cd $HOME/$M2S_CLIENT_KIT_TEST_MANUAL_PATH \
 	|| error "cannot find 'test-manual' path"
@@ -105,13 +102,27 @@ script_list_count=`echo $script_list | awk '{ print NF }'`
 if [ $# = 1 -a "$1" = "all" ]
 then
 	final_script_list="$script_list"
+elif [ $# = 1 -a "$1" = "list" ]
+then
+	echo
+	echo "List of available tests:"
+	echo
+	index=1
+	for s in $script_list
+	do
+		s="${s%\.sh}"
+		echo "${index}. $s"
+		index=`expr $index + 1`
+	done
+	echo
+	exit 0
 else
 	while [ $# -gt 0 ]
 	do
 		# Try to interpret argument as a test name
 		name=$1
 		id=`echo $script_list | awk '{
-			for (i = 1; i < NF; i++)
+			for (i = 1; i <= NF; i++)
 			{
 				if ("'$name'" == $i || "'$name'" ".sh" == $i)
 				{
@@ -123,7 +134,7 @@ else
 		}'`
 		if [ $id != 0 ]
 		then
-			echo $name | egrep ".*\.sh" > /dev/null || name="${name}.sh"
+			echo $name | egrep -q ".*\.sh" || name="${name}.sh"
 			final_script_list="$final_script_list $name"
 			script_index_list="$script_index_list $id"
 			shift
@@ -150,6 +161,10 @@ else
 	done
 fi
 script_list="$final_script_list"
+
+# Obtain local copy
+$build_m2s_local_sh $rev_arg $tag_arg \
+	|| exit 1
 
 # Dump header in log file
 echo >> $log_file
