@@ -6,6 +6,7 @@ M2S_CLIENT_KIT_TMP_PATH="$M2S_CLIENT_KIT_PATH/tmp"
 M2S_CLIENT_KIT_RESULT_PATH="$M2S_CLIENT_KIT_PATH/result"
 M2S_CLIENT_KIT_TEST_PATH="$M2S_CLIENT_KIT_PATH/local-tests/test-auto"
 
+result_path="$M2S_CLIENT_KIT_RESULT_PATH/test-auto"
 file_match_py="$M2S_CLIENT_KIT_BIN_PATH/file-match.py"
 build_m2s_local_sh="$M2S_CLIENT_KIT_BIN_PATH/build-m2s-local.sh"
 prog_name=$(echo $0 | awk -F/ '{ print $NF }')
@@ -97,6 +98,7 @@ do
 	t="${t#\.\/}"
 	test_list="$test_list $t"
 done
+test_count=`awk '{ print NF }' <<< "$test_list"`
 
 # Get tests
 if [ $# = 1 -a "$1" = "list" ]
@@ -139,15 +141,47 @@ else
 			fi
 		done
 		[ found=0 ] || continue
+
+		# Check if it's one ID
+		id_count=`awk -F- '{ print NF }' <<< "$arg"`
+		if [ $id_count = 1 ]
+		then
+			egrep -q "^[0-9]+$" <<< "$arg" || error "$arg: invalid test"
+			[ $arg -ge 1 -a $arg -le $test_count ] || error "test ID $arg out of range"
+			t=`awk '{ print $'$arg' }' <<< "$test_list"`
+			new_test_list="$new_test_list $t"
+			continue
+		fi
+
+		# Check if it's an ID range
+		if [ $id_count = 2 ]
+		then
+			id1=`awk -F- '{ print $1 }' <<< "$arg"`
+			id2=`awk -F- '{ print $2 }' <<< "$arg"`
+			egrep -q "^[0-9]+$" <<< "$id1" || error "$arg: invalid test"
+			egrep -q "^[0-9]+$" <<< "$id2" || error "$arg: invalid test"
+			[ $id1 -ge 1 -a $id1 -le $test_count ] || error "test ID $id1 out of range"
+			[ $id2 -ge 1 -a $id2 -le $test_count ] || error "test ID $id2 out of range"
+			for id in `seq $id1 $id2`
+			do
+				t=`awk '{ print $'$id' }' <<< "$test_list"`
+				new_test_list="$new_test_list $t"
+			done
+			continue
+		fi
+
+		# Inavlid
+		error "$arg: invalid test"
 	done
 	test_list="$new_test_list"
 fi
 
-#echo $test_list
-#exit #############
-
 # Obtain local copy
 $build_m2s_local_sh $rev_arg $tag_arg || exit 1
+
+# Create path for results and clear it
+mkdir -p $result_path || exit 1
+rm -f "$result_path/*"
 
 # Run tests
 echo
@@ -171,17 +205,33 @@ do
 	cd $test_path || error "$test_path: unexisting directory"
 	out="$M2S_CLIENT_KIT_TMP_PATH/test.out"
 	err="$M2S_CLIENT_KIT_TMP_PATH/test.err"
+	out_copy="$result_path/$t.out"
+	err_copy="$result_path/$t.err"
 	$test_sh >$out 2>$err
 
 	# Check outputs
 	failed=0
+	failed_out=0
+	failed_err=0
 	if [ -f $test_out ]
 	then
-		$file_match_py $out $test_out || failed=1
+		$file_match_py $out $test_out
+		if [ $? != 0 ]
+		then
+			cp $out $out_copy
+			failed_out=1
+			failed=1
+		fi
 	fi
 	if [ -f $test_err ]
 	then
-		$file_match_py $err $test_err || failed=1
+		$file_match_py $err $test_err
+		if [ $? != 0 ]
+		then
+			cp $err $err_copy
+			failed_err=1
+			failed=1
+		fi
 	fi
 
 	# Remove temporaries
@@ -191,11 +241,16 @@ do
 	total_count=`expr $total_count + 1`
 	if [ $failed == 0 ]
 	then
-		echo " - passed"
 		passed_count=`expr $passed_count + 1`
+		echo " - passed"
 	else
-		echo " - failed"
+		echo
+		echo
 		failed_count=`expr $failed_count + 1`
+		[ $failed_out = 0 ] || echo -e "\tMismatch in stdout - copy left in $out_copy"
+		[ $failed_err = 0 ] || echo -e "\tMismatch in stderr - copy left in $err_copy"
+		echo -e "\tFAILED"
+		echo
 	fi
 done
 
