@@ -1,0 +1,24 @@
+Disassembly of section .text:
+
+08048098 <_start>:
+ 8048098:	b8 04 00 00 00       	mov    eax,0x4
+ 804809d:	bb 01 00 00 00       	mov    ebx,0x1
+ 80480a2:	b9 b7 80 04 08       	mov    ecx,0x80480b7
+ 80480a7:	ba 0d 00 00 00       	mov    edx,0xd
+ 80480ac:	cd 80                	int    0x80
+ 80480ae:	b8 01 00 00 00       	mov    eax,0x1
+ 80480b3:	31 db                	xor    ebx,ebx
+ 80480b5:	cd 80                	int    0x80
+
+080480b7 <message>:
+ 80480b7:	48                   	dec    eax
+ 80480b8:	65 6c                	insb
+ 80480ba:	6c                   	insb
+ 80480bb:	6f                   	outsd
+ 80480bc:	2c 20                	sub    al,0x20
+ 80480be:	57                   	push   edi
+ 80480bf:	6f                   	outsd
+ 80480c0:	72 6c                	jb     804812e
+ 80480c2:	64 0a 00             	or     al,BYTE PTR fs:\[eax\]
+
+0
