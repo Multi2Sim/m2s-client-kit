@@ -6,8 +6,8 @@ M2S_CLIENT_KIT_BUILD_PATH="$M2S_CLIENT_KIT_TMP_PATH/m2s-build"
 M2S="$M2S_CLIENT_KIT_BUILD_PATH/bin/m2s"
 
 # Run test
-gcc hello.s -o hello -m32 -nostdlib || exit
-$M2S --x86-disasm hello
+gcc printf.c -o printf -m32 2>/dev/null || exit
+$M2S printf
 echo $?
-rm hello
+rm printf
 
