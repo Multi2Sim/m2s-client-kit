@@ -44,9 +44,15 @@ need to create one more subdirectory, with the following files:
 Files 'test.out' and 'test.err' are optional. If either one is missing, that
 specific check will not be performed. If you need to create a regular expression
 to match exactly the content of an existing file, you can use the following
-command:
+command to escape all special characters:
 
 	$sed_command
+
+Though the basic syntax of Python regular expressions matches Unix expressions,
+more complex expression have a Python-specific syntax. More information on
+Python regular expressions can be found at
+
+	http://docs.python.org/2/library/re.html
 
 
 Arguments:
