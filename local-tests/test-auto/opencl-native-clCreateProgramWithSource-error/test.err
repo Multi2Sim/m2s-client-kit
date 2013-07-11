@@ -1,0 +1,27 @@
+warning: Multi2Sim OpenCL library running on native mode\.
+	You are running on the real machine an OpenCL program linked with
+	Multi2Sim's OpenCL runtime \(libm2s-opencl\)\. In native mode, the only
+	device visible to the application is the x86 CPU\. If you want to see
+	additional devices, please run your application on Multi2Sim\. If you want
+	to run your program using native libraries, please compile it with flag
+	'-lOpenCL' instead of '-lm2s-opencl'\.
+
+fatal: clBuildProgram: runtime kernel compilation not supported\.
+	Your guest OpenCL application is trying to compile an OpenCL kernel
+	by calling function 'clCreateProgramWithSource'\. Dynamic kernel
+	compilation is currently not supported\. The following two
+	alternatives are suggested instead:
+
+	1\) If you are running a benchmark from the AMD APPSDK suite, you can
+	   add option '--load <file>' to the benchmark command line\. This
+	   option is supported by all benchmarks in the suite, and it allows
+	   you to specify a precompiled kernel binary that will be loaded by
+	   the application using 'clCreateProgramWithBinary'\. Notice that
+	   this is an option for the benchmark, and not for the simulator\.
+
+	2\) You can force the Multi2Sim runtime to load a specific kernel
+	   binary every time the application performs a call to
+	   'clCreateProgramWithSource' by setting environment varaible
+	   'M2S_OPENCL_BINARY' to the path of a pre-compiled binary that
+	   will be passed to the application\.
+
