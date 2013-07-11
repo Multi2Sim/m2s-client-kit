@@ -3,8 +3,8 @@
 ; Please use command 'm2s --help' for a list of command-line options\.
 ; Simulation alpha-numeric ID: .*
 
-warning: path '/home/ubal/m2s-client-kit/tmp/m2s-build/lib/\.libs/tls/libm2s-opencl\.so\.1' has been redirected to
-	path '/home/ubal/m2s-client-kit/tmp/m2s-build/lib/\.libs/libm2s-opencl\.so' while loading runtime 'OpenCL'\.
+warning: path .* has been redirected to
+	path .* while loading runtime 'OpenCL'\.
 	The dynamic linker of your application seems to be accessing a
 	runtime library\. A copy of this runtime library has been found
 	in '\$\(TOPDIR\)/lib/\.libs', while running Multi2Sim from its
