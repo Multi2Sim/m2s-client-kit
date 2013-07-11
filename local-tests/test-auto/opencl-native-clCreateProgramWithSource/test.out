@@ -1,0 +1,28 @@
+Number of platforms: 1
+platform=.*
+platform\.name='Multi2Sim OpenCL Platform'
+
+Number of devices: 1
+device=.*
+device\.name='Multi2Sim 32-bit x86 CPU Model'
+
+context=.*
+command_queue=.*
+
+program=.*
+program built
+
+kernel=.*
+
+dst_host_buffer\[0\] = 100
+dst_host_buffer\[1\] = 101
+dst_host_buffer\[2\] = 102
+dst_host_buffer\[3\] = 103
+dst_host_buffer\[4\] = 104
+dst_host_buffer\[5\] = 105
+dst_host_buffer\[6\] = 106
+dst_host_buffer\[7\] = 107
+dst_host_buffer\[8\] = 108
+dst_host_buffer\[9\] = 109
+
+0

@@ -1,0 +1,13 @@
+Number of platforms: 1
+platform=.*
+platform\.name='Multi2Sim OpenCL Platform'
+
+Number of devices: 1
+device=.*
+device\.name='Multi2Sim 32-bit x86 CPU Model'
+
+context=.*
+command_queue=.*
+
+program=.*
+0
