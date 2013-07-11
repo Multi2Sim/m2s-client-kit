@@ -23,6 +23,6 @@ gcc vector-add.c -o vector-add -m32 \
 	-I$M2S_CLIENT_KIT_BUILD_PATH/runtime/include \
 	-L$M2S_CLIENT_KIT_BUILD_PATH/lib/.libs -lm2s-opencl
 LD_LIBRARY_PATH=$M2S_CLIENT_KIT_BUILD_PATH/lib/.libs ./vector-add vector-add.cl
-rm -f vector-add
 echo $?
+rm -f vector-add
 
