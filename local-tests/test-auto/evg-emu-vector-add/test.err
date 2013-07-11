@@ -1,22 +1,21 @@
 
 ; Multi2Sim .* - A Simulation Framework for CPU-GPU Heterogeneous Computing
 ; Please use command 'm2s --help' for a list of command-line options\.
-; Simulation alpha-numeric ID: .*
+; Simulation alpha-numeric ID: .....
 
 warning: path .* has been redirected to
-	path .* while loading runtime 'OpenCL'\.
+	path .* while loading runtime 'm2s-opencl-old'\.
 	The dynamic linker of your application seems to be accessing a
 	runtime library\. A copy of this runtime library has been found
 	in '\$\(TOPDIR\)/lib/\.libs', while running Multi2Sim from its
 	build tree root\. As a safer and portable option, please link
 	your guest program statically with the corresponding runtime\.
 
-warning: clBuildProgram: vector-add\.bin: program binary loaded for device 'Multi2Sim Southern Islands GPU Model'\.
-	Your guest OpenCL application has successfully loaded the program
-	binary passed through environment variable 'M2S_OPENCL_BINARY'
-	after a call to 'clCreateProgramWithSource'\. While this works,
-	a safer option is loading directly from the application with a
-	call to 'clCreateProgramWithBinary'\.
+warning: evg_opencl_clCreateProgramWithSource_impl: binary 'vector-add\.bin' used as pre-compiled kernel\.
+	You have selected a pre-compiled OpenCL kernel binary to be passed to your
+	OpenCL application when it requests a kernel compilation\. It is your
+	responsibility to check that the chosen binary corresponds to the kernel
+	that your application is expecting to load\.
 
 
 ;
@@ -27,18 +26,11 @@ warning: clBuildProgram: vector-add\.bin: program binary loaded for device 'Mult
 RealTime = .*
 SimEnd = ContextsFinished
 
-\[ SouthernIslands \]
+\[ Evergreen \]
 RealTime = .*
-Instructions = .*
-InstructionsPerSecond = 0
+Instructions = 13
+InstructionsPerSecond = .*
 NDRangeCount = 1
-WorkGroupCount = 1
-BranchInstructions = 0
-LDSInstructions = 0
-ScalarALUInstructions = .*
-ScalarMemInstructions = .*
-VectorALUInstructions = .*
-VectorMemInstructions = .*
 
 \[ x86 \]
 RealTime = .*

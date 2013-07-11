@@ -1,0 +1,49 @@
+
+; Multi2Sim .* - A Simulation Framework for CPU-GPU Heterogeneous Computing
+; Please use command 'm2s --help' for a list of command-line options\.
+; Simulation alpha-numeric ID: .....
+
+warning: path .* has been redirected to
+	path .* while loading runtime 'm2s-opencl-old'\.
+	The dynamic linker of your application seems to be accessing a
+	runtime library\. A copy of this runtime library has been found
+	in '\$\(TOPDIR\)/lib/\.libs', while running Multi2Sim from its
+	build tree root\. As a safer and portable option, please link
+	your guest program statically with the corresponding runtime\.
+
+warning: evg_opencl_clCreateProgramWithSource_impl: binary 'vector-add\.bin' used as pre-compiled kernel\.
+	You have selected a pre-compiled OpenCL kernel binary to be passed to your
+	OpenCL application when it requests a kernel compilation\. It is your
+	responsibility to check that the chosen binary corresponds to the kernel
+	that your application is expecting to load\.
+
+
+;
+; Simulation Statistics Summary
+;
+
+\[ General \]
+RealTime = .*
+SimEnd = ContextsFinished
+SimTime = .*
+Frequency = 1000 \[MHz\]
+Cycles = .*
+
+\[ Evergreen \]
+RealTime = .*
+Instructions = 13
+InstructionsPerSecond = .*
+NDRangeCount = 1
+SimTime = .*
+Frequency = 700 \[MHz\]
+Cycles = .*
+CyclesPerSecond = .*
+IPC = .*
+
+\[ x86 \]
+RealTime = .*
+Instructions = .*
+InstructionsPerSecond = .*
+Contexts = 1
+Memory = .*
+

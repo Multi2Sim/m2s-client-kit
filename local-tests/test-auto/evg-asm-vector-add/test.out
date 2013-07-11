@@ -1,0 +1,27 @@
+\*\*
+\*\* Disassembly for '__kernel vector_add'
+\*\*
+
+00 ALU: ADDR\(32\) CNT\(11\) KCACHE0\(CB0:0-15\) KCACHE1\(CB1:0-15\) 
+      0  t: MULLO_INT   ____,  R1\.x,  KC0\[1\]\.x      
+      1  y: ADD_INT     ____,  R0\.x,  PS      
+      2  x: ADD_INT     ____,  PV\.y,  KC0\[6\]\.x      
+      3  w: LSHL        T0\.w,  PV\.x,  \(0x00000002, 2\.802596929e-45f\)\.x      
+      4  z: ADD_INT     ____,  KC1\[0\]\.x,  PV\.w      
+         w: ADD_INT     ____,  KC1\[1\]\.x,  PV\.w      
+      5  x: ADD_INT     R2\.x,  KC1\[2\]\.x,  T0\.w      
+         y: LSHR        R0\.y,  PV\.z,  \(0x00000002, 2\.802596929e-45f\)\.x      
+         z: LSHR        R0\.z,  PV\.w,  \(0x00000002, 2\.802596929e-45f\)\.x      
+01 TEX: ADDR\(48\) CNT\(2\)     
+      6  VFETCH R0\.x___, R0\.y, fc153  MEGA\(4\)       
+         FETCH_TYPE\(NO_INDEX_OFFSET\) 
+      7  VFETCH R1\.x___, R0\.z, fc153  MEGA\(4\)       
+         FETCH_TYPE\(NO_INDEX_OFFSET\) 
+02 ALU: ADDR\(43\) CNT\(3\) 
+      8  x: ADD_INT     R0\.x,  R0\.x,  R1\.x      
+         t: LSHR        R1\.x,  R2\.x,  \(0x00000002, 2\.802596929e-45f\)\.x      
+03 MEM_RAT_CACHELESS_STORE_RAW: RAT\(11\)\[R1\]\.x___, R0, ARRAY_SIZE\(4\)  MARK   VPM
+
+
+
+0

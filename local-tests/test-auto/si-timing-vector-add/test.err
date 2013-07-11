@@ -1,7 +1,7 @@
 
 ; Multi2Sim .* - A Simulation Framework for CPU-GPU Heterogeneous Computing
 ; Please use command 'm2s --help' for a list of command-line options\.
-; Simulation alpha-numeric ID: .*
+; Simulation alpha-numeric ID: .....
 
 warning: path .* has been redirected to
 	path .* while loading runtime 'OpenCL'\.
@@ -26,19 +26,26 @@ warning: clBuildProgram: vector-add\.bin: program binary loaded for device 'Mult
 \[ General \]
 RealTime = .*
 SimEnd = ContextsFinished
+SimTime = .*
+Frequency = 1000 \[MHz\]
+Cycles = .*
 
 \[ SouthernIslands \]
 RealTime = .*
 Instructions = .*
-InstructionsPerSecond = 0
+InstructionsPerSecond = .*
 NDRangeCount = 1
 WorkGroupCount = 1
-BranchInstructions = 0
-LDSInstructions = 0
+BranchInstructions = .*
+LDSInstructions = .*
 ScalarALUInstructions = .*
 ScalarMemInstructions = .*
 VectorALUInstructions = .*
 VectorMemInstructions = .*
+SimTime = .*
+Frequency = .*
+Cycles = .*
+CyclesPerSecond = .*
 
 \[ x86 \]
 RealTime = .*
