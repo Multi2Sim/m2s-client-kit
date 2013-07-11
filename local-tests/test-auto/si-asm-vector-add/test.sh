@@ -15,17 +15,8 @@
 M2S_CLIENT_KIT_PATH="$HOME/m2s-client-kit"
 M2S_CLIENT_KIT_TMP_PATH="$M2S_CLIENT_KIT_PATH/tmp"
 M2S_CLIENT_KIT_BUILD_PATH="$M2S_CLIENT_KIT_TMP_PATH/m2s-build"
-M2S_CLIENT_KIT_TEST_PATH="$M2S_CLIENT_KIT_PATH/local-tests/test-auto"
 M2S="$M2S_CLIENT_KIT_BUILD_PATH/bin/m2s"
 
-cp $M2S_CLIENT_KIT_TEST_PATH/si-asm-vector-add/vector-add.c .
-cp $M2S_CLIENT_KIT_TEST_PATH/si-asm-vector-add/vector-add.cl .
-cp $M2S_CLIENT_KIT_TEST_PATH/si-asm-vector-add/vector-add.bin .
-gcc vector-add.c -o vector-add -m32 \
-	-I$M2S_CLIENT_KIT_BUILD_PATH/runtime/include \
-	-L$M2S_CLIENT_KIT_BUILD_PATH/lib/.libs -lm2s-opencl
-LD_LIBRARY_PATH=$M2S_CLIENT_KIT_BUILD_PATH/lib/.libs \
-	M2S_OPENCL_BINARY=vector-add.bin \
-	$M2S ./vector-add vector-add.cl
+$M2S --si-disasm vector-add.bin
 echo $?
-rm -f vector-add vector-add.c vector-add.cl vector-add.bin
+

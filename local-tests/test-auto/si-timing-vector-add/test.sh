@@ -26,6 +26,6 @@ gcc vector-add.c -o vector-add -m32 \
 	-L$M2S_CLIENT_KIT_BUILD_PATH/lib/.libs -lm2s-opencl
 LD_LIBRARY_PATH=$M2S_CLIENT_KIT_BUILD_PATH/lib/.libs \
 	M2S_OPENCL_BINARY=vector-add.bin \
-	$M2S ./vector-add vector-add.cl
+	$M2S --si-sim detailed vector-add vector-add.cl
 echo $?
 rm -f vector-add vector-add.c vector-add.cl vector-add.bin
