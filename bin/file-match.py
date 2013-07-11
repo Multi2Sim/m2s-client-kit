@@ -66,7 +66,7 @@ regexp_str = r'\A' + regexp_str + r'\Z'
 
 # Compile regular expression
 try:
-	r = re.compile(regexp_str)
+	r = re.compile(regexp_str, re.DOTALL)
 except Exception as e:
 	sys.stderr.write(regexp_name + ': invalid regular expression - ' + \
 			str(e) + '\n')
