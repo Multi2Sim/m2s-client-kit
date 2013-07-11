@@ -87,7 +87,7 @@ int main(int argc, char **argv)
 	/* Get device */
 	cl_device_id device;
 	cl_uint num_devices;
-	ret = clGetDeviceIDs(platform, CL_DEVICE_TYPE_GPU, 1, &device, &num_devices);
+	ret = clGetDeviceIDs(platform, CL_DEVICE_TYPE_CPU, 1, &device, &num_devices);
 	if (ret != CL_SUCCESS)
 	{
 		printf("error: call to 'clGetDeviceIDs' failed\n");

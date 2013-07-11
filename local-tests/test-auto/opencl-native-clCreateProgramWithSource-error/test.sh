@@ -2,12 +2,9 @@
 
 
 # Run natively a program dynamically linked with Multi2Sim's OpenCL runtime,
-# passing the library path with LD_LIBRARY_PATH. The program attemps to load
+# passing the library path with LD_LIBRARY_PATH. The program attempts to load
 # OpenCL source with 'clCreateProgramWithSource'. Environment variable
 # M2S_OPENCL_BINARY is not set, so no valid kernel binary is provided.
-# The following command line is executed:
-# 
-# 	LD_LIBRARY_PATH=$build_dir/lib/.libs ./vector-add-dyn-cpu
 # 
 # First, the program should succeed to link itself dynamically with library
 # 'libm2s-opencl.so'. Then the program should fail with an error message saying
