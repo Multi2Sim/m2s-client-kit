@@ -1,0 +1,12 @@
+
+000080b8 <_start>
+    80b8:	e3a00001	mov  r0, #1   ;0x1
+    80bc:	e59f1014	ldr  r1, \[r15, #20\]!
+    80c0:	e3a0200c	mov  r2, #12   ;0xc
+    80c4:	e3a07004	mov  r7, #4   ;0x4
+    80c8:	ef000000	svc  0x0
+    80cc:	e3a00000	mov  r0, #0   ;0x0
+    80d0:	e3a07001	mov  r7, #1   ;0x1
+    80d4:	ef000000	svc  0x0
+    80d8:	000100dc	\.word   0x000100dc
+0
