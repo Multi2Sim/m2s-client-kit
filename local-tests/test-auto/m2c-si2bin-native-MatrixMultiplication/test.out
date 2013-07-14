@@ -1,0 +1,19 @@
+0
+Platform 0 : Advanced Micro Devices, Inc\.
+MatrixA:    .*
+MatrixB:    .*
+BlockSize:  .*
+
+Selected Platform Vendor : Advanced Micro Devices, Inc\.
+Device 0 : Pitcairn
+Executing kernel for 1 iterations
+-------------------------------------------
+
+globalThreads:  .*
+localThreads:   .*
+
+KernelTime \(ms\) : .*
+GFlops achieved : .*
+
+Passed!
+0
