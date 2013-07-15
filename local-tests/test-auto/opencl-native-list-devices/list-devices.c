@@ -64,35 +64,31 @@ int main(int argc, char **argv)
 	cl_uint num_devices;
 
 	/* Get CPU devices */
+	num_devices = 0;
 	ret = clGetDeviceIDs(platform, CL_DEVICE_TYPE_CPU, MAX_DEVICES,
 		devices, &num_devices);
-	if (ret != CL_SUCCESS)
-		error("call to 'clGetDeviceIDs' failed");
-	printf("List of CPU devices:\n");
+	printf("List of all devices (ret = %d):\n", ret);
 	print_devices(devices, num_devices);
 
 	/* Get GPU devices */
+	num_devices = 0;
 	ret = clGetDeviceIDs(platform, CL_DEVICE_TYPE_GPU, MAX_DEVICES,
 		devices, &num_devices);
-	if (ret != CL_SUCCESS)
-		error("call to 'clGetDeviceIDs' failed");
-	printf("List of GPU devices:\n");
+	printf("List of all devices (ret = %d):\n", ret);
 	print_devices(devices, num_devices);
 
 	/* Get accelerator devices */
+	num_devices = 0;
 	ret = clGetDeviceIDs(platform, CL_DEVICE_TYPE_ACCELERATOR, MAX_DEVICES,
 		devices, &num_devices);
-	if (ret != CL_SUCCESS)
-		error("call to 'clGetDeviceIDs' failed");
-	printf("List of accelerator devices:\n");
+	printf("List of accelerator devices (ret = %d):\n", ret);
 	print_devices(devices, num_devices);
 
 	/* Get all devices */
+	num_devices = 0;
 	ret = clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, MAX_DEVICES,
 		devices, &num_devices);
-	if (ret != CL_SUCCESS)
-		error("call to 'clGetDeviceIDs' failed");
-	printf("List of all devices:\n");
+	printf("List of all devices (ret = %d):\n", ret);
 	print_devices(devices, num_devices);
 
 	return 0;
