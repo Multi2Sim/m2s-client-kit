@@ -1,0 +1,12 @@
+0
+Platform 0 : Advanced Micro Devices, Inc\.
+Input Image images/[0-9]+\.bmp 
+Output Image out[0-9]+\.bmp 
+Searching for input Image at following location : .*
+
+Selected Platform Vendor : Advanced Micro Devices, Inc\.
+Device 0 : Pitcairn
+Executing kernel for 1 iterations
+-------------------------------------------
+Passed!
+0
