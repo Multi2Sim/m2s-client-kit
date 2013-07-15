@@ -1,16 +1,16 @@
 Number of platforms: 1
 platform\.name='Multi2Sim OpenCL Platform'
 
-List of CPU devices:
+List of all devices \(ret = 0\):
 1\. Multi2Sim 32-bit x86 CPU Model
 
-List of GPU devices:
+List of all devices \(ret = 0\):
 1\. Multi2Sim Southern Islands GPU Model
 
-List of accelerator devices:
+List of accelerator devices \(ret = 0\):
 1\. Multi2Sim Union Device
 
-List of all devices:
+List of all devices \(ret = 0\):
 1\. Multi2Sim 32-bit x86 CPU Model
 2\. Multi2Sim Southern Islands GPU Model
 3\. Multi2Sim Union Device
