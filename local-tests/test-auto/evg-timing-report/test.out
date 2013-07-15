@@ -1,0 +1,750 @@
+0
+;
+; GPU Configuration
+;
+
+\[ Config\.Device \]
+Frequency = 700
+NumComputeUnits = 20
+NumStreamCores = 16
+NumRegisters = 16384
+RegisterAllocSize = 32
+RegisterAllocGranularity = WorkGroup
+WavefrontSize = 64
+MaxWorkGroupsPerComputeUnit = 8
+MaxWavefrontsPerComputeUnit = 32
+SchedulingPolicy = RoundRobin
+
+\[ Config\.LocalMemory \]
+Size = 32768
+AllocSize = 1024
+BlockSize = 256
+Latency = 2
+Ports = 2
+
+\[ Config\.CFEngine \]
+InstructionMemoryLatency = 2
+
+\[ Config\.ALUEngine \]
+InstructionMemoryLatency = 2
+FetchQueueSize = 64
+ProcessingElementLatency = 4
+
+\[ Config\.TEXEngine \]
+InstructionMemoryLatency = 2
+FetchQueueSize = 32
+LoadQueueSize = 8
+
+
+;
+; Simulation Statistics
+;
+
+\[ Device \]
+
+NDRangeCount = [^\n]*
+Instructions = [^\n]*
+Cycles = [^\n]*
+InstructionsPerCycle = [^\n]*
+
+
+\[ ComputeUnit 0 \]
+
+WorkGroupCount = [^\n]*
+Instructions = [^\n]*
+Cycles = [^\n]*
+InstructionsPerCycle = [^\n]*
+
+CFEngine\.Instructions = [^\n]*
+CFEngine\.InstructionsPerCycle = [^\n]*
+CFEngine\.ALUClauseTriggers = [^\n]*
+CFEngine\.TEXClauseTriggers = [^\n]*
+CFEngine\.GlobalMemWrites = [^\n]*
+
+ALUEngine\.WavefrontCount = [^\n]*
+ALUEngine\.Instructions = [^\n]*
+ALUEngine\.InstructionSlots = [^\n]*
+ALUEngine\.LocalMemorySlots = [^\n]*
+ALUEngine\.VLIWOccupancy = [^\n]*
+ALUEngine\.Cycles = [^\n]*
+ALUEngine\.InstructionsPerCycle = [^\n]*
+
+TEXEngine\.WavefrontCount = [^\n]*
+TEXEngine\.Instructions = [^\n]*
+TEXEngine\.Cycles = [^\n]*
+TEXEngine\.InstructionsPerCycle = [^\n]*
+
+LocalMemory\.Accesses = [^\n]*
+LocalMemory\.Reads = [^\n]*
+LocalMemory\.EffectiveReads = [^\n]*
+LocalMemory\.CoalescedReads = [^\n]*
+LocalMemory\.Writes = [^\n]*
+LocalMemory\.EffectiveWrites = [^\n]*
+LocalMemory\.CoalescedWrites = [^\n]*
+
+
+\[ ComputeUnit 1 \]
+
+WorkGroupCount = 0
+Instructions = 0
+Cycles = 0
+InstructionsPerCycle = 0
+
+CFEngine\.Instructions = 0
+CFEngine\.InstructionsPerCycle = 0
+CFEngine\.ALUClauseTriggers = 0
+CFEngine\.TEXClauseTriggers = 0
+CFEngine\.GlobalMemWrites = 0
+
+ALUEngine\.WavefrontCount = 0
+ALUEngine\.Instructions = 0
+ALUEngine\.InstructionSlots = 0
+ALUEngine\.LocalMemorySlots = 0
+ALUEngine\.VLIWOccupancy = 0 0 0 0 0
+ALUEngine\.Cycles = 0
+ALUEngine\.InstructionsPerCycle = 0
+
+TEXEngine\.WavefrontCount = 0
+TEXEngine\.Instructions = 0
+TEXEngine\.Cycles = 0
+TEXEngine\.InstructionsPerCycle = 0
+
+LocalMemory\.Accesses = 0
+LocalMemory\.Reads = 0
+LocalMemory\.EffectiveReads = 0
+LocalMemory\.CoalescedReads = 0
+LocalMemory\.Writes = 0
+LocalMemory\.EffectiveWrites = 0
+LocalMemory\.CoalescedWrites = 0
+
+
+\[ ComputeUnit 2 \]
+
+WorkGroupCount = 0
+Instructions = 0
+Cycles = 0
+InstructionsPerCycle = 0
+
+CFEngine\.Instructions = 0
+CFEngine\.InstructionsPerCycle = 0
+CFEngine\.ALUClauseTriggers = 0
+CFEngine\.TEXClauseTriggers = 0
+CFEngine\.GlobalMemWrites = 0
+
+ALUEngine\.WavefrontCount = 0
+ALUEngine\.Instructions = 0
+ALUEngine\.InstructionSlots = 0
+ALUEngine\.LocalMemorySlots = 0
+ALUEngine\.VLIWOccupancy = 0 0 0 0 0
+ALUEngine\.Cycles = 0
+ALUEngine\.InstructionsPerCycle = 0
+
+TEXEngine\.WavefrontCount = 0
+TEXEngine\.Instructions = 0
+TEXEngine\.Cycles = 0
+TEXEngine\.InstructionsPerCycle = 0
+
+LocalMemory\.Accesses = 0
+LocalMemory\.Reads = 0
+LocalMemory\.EffectiveReads = 0
+LocalMemory\.CoalescedReads = 0
+LocalMemory\.Writes = 0
+LocalMemory\.EffectiveWrites = 0
+LocalMemory\.CoalescedWrites = 0
+
+
+\[ ComputeUnit 3 \]
+
+WorkGroupCount = 0
+Instructions = 0
+Cycles = 0
+InstructionsPerCycle = 0
+
+CFEngine\.Instructions = 0
+CFEngine\.InstructionsPerCycle = 0
+CFEngine\.ALUClauseTriggers = 0
+CFEngine\.TEXClauseTriggers = 0
+CFEngine\.GlobalMemWrites = 0
+
+ALUEngine\.WavefrontCount = 0
+ALUEngine\.Instructions = 0
+ALUEngine\.InstructionSlots = 0
+ALUEngine\.LocalMemorySlots = 0
+ALUEngine\.VLIWOccupancy = 0 0 0 0 0
+ALUEngine\.Cycles = 0
+ALUEngine\.InstructionsPerCycle = 0
+
+TEXEngine\.WavefrontCount = 0
+TEXEngine\.Instructions = 0
+TEXEngine\.Cycles = 0
+TEXEngine\.InstructionsPerCycle = 0
+
+LocalMemory\.Accesses = 0
+LocalMemory\.Reads = 0
+LocalMemory\.EffectiveReads = 0
+LocalMemory\.CoalescedReads = 0
+LocalMemory\.Writes = 0
+LocalMemory\.EffectiveWrites = 0
+LocalMemory\.CoalescedWrites = 0
+
+
+\[ ComputeUnit 4 \]
+
+WorkGroupCount = 0
+Instructions = 0
+Cycles = 0
+InstructionsPerCycle = 0
+
+CFEngine\.Instructions = 0
+CFEngine\.InstructionsPerCycle = 0
+CFEngine\.ALUClauseTriggers = 0
+CFEngine\.TEXClauseTriggers = 0
+CFEngine\.GlobalMemWrites = 0
+
+ALUEngine\.WavefrontCount = 0
+ALUEngine\.Instructions = 0
+ALUEngine\.InstructionSlots = 0
+ALUEngine\.LocalMemorySlots = 0
+ALUEngine\.VLIWOccupancy = 0 0 0 0 0
+ALUEngine\.Cycles = 0
+ALUEngine\.InstructionsPerCycle = 0
+
+TEXEngine\.WavefrontCount = 0
+TEXEngine\.Instructions = 0
+TEXEngine\.Cycles = 0
+TEXEngine\.InstructionsPerCycle = 0
+
+LocalMemory\.Accesses = 0
+LocalMemory\.Reads = 0
+LocalMemory\.EffectiveReads = 0
+LocalMemory\.CoalescedReads = 0
+LocalMemory\.Writes = 0
+LocalMemory\.EffectiveWrites = 0
+LocalMemory\.CoalescedWrites = 0
+
+
+\[ ComputeUnit 5 \]
+
+WorkGroupCount = 0
+Instructions = 0
+Cycles = 0
+InstructionsPerCycle = 0
+
+CFEngine\.Instructions = 0
+CFEngine\.InstructionsPerCycle = 0
+CFEngine\.ALUClauseTriggers = 0
+CFEngine\.TEXClauseTriggers = 0
+CFEngine\.GlobalMemWrites = 0
+
+ALUEngine\.WavefrontCount = 0
+ALUEngine\.Instructions = 0
+ALUEngine\.InstructionSlots = 0
+ALUEngine\.LocalMemorySlots = 0
+ALUEngine\.VLIWOccupancy = 0 0 0 0 0
+ALUEngine\.Cycles = 0
+ALUEngine\.InstructionsPerCycle = 0
+
+TEXEngine\.WavefrontCount = 0
+TEXEngine\.Instructions = 0
+TEXEngine\.Cycles = 0
+TEXEngine\.InstructionsPerCycle = 0
+
+LocalMemory\.Accesses = 0
+LocalMemory\.Reads = 0
+LocalMemory\.EffectiveReads = 0
+LocalMemory\.CoalescedReads = 0
+LocalMemory\.Writes = 0
+LocalMemory\.EffectiveWrites = 0
+LocalMemory\.CoalescedWrites = 0
+
+
+\[ ComputeUnit 6 \]
+
+WorkGroupCount = 0
+Instructions = 0
+Cycles = 0
+InstructionsPerCycle = 0
+
+CFEngine\.Instructions = 0
+CFEngine\.InstructionsPerCycle = 0
+CFEngine\.ALUClauseTriggers = 0
+CFEngine\.TEXClauseTriggers = 0
+CFEngine\.GlobalMemWrites = 0
+
+ALUEngine\.WavefrontCount = 0
+ALUEngine\.Instructions = 0
+ALUEngine\.InstructionSlots = 0
+ALUEngine\.LocalMemorySlots = 0
+ALUEngine\.VLIWOccupancy = 0 0 0 0 0
+ALUEngine\.Cycles = 0
+ALUEngine\.InstructionsPerCycle = 0
+
+TEXEngine\.WavefrontCount = 0
+TEXEngine\.Instructions = 0
+TEXEngine\.Cycles = 0
+TEXEngine\.InstructionsPerCycle = 0
+
+LocalMemory\.Accesses = 0
+LocalMemory\.Reads = 0
+LocalMemory\.EffectiveReads = 0
+LocalMemory\.CoalescedReads = 0
+LocalMemory\.Writes = 0
+LocalMemory\.EffectiveWrites = 0
+LocalMemory\.CoalescedWrites = 0
+
+
+\[ ComputeUnit 7 \]
+
+WorkGroupCount = 0
+Instructions = 0
+Cycles = 0
+InstructionsPerCycle = 0
+
+CFEngine\.Instructions = 0
+CFEngine\.InstructionsPerCycle = 0
+CFEngine\.ALUClauseTriggers = 0
+CFEngine\.TEXClauseTriggers = 0
+CFEngine\.GlobalMemWrites = 0
+
+ALUEngine\.WavefrontCount = 0
+ALUEngine\.Instructions = 0
+ALUEngine\.InstructionSlots = 0
+ALUEngine\.LocalMemorySlots = 0
+ALUEngine\.VLIWOccupancy = 0 0 0 0 0
+ALUEngine\.Cycles = 0
+ALUEngine\.InstructionsPerCycle = 0
+
+TEXEngine\.WavefrontCount = 0
+TEXEngine\.Instructions = 0
+TEXEngine\.Cycles = 0
+TEXEngine\.InstructionsPerCycle = 0
+
+LocalMemory\.Accesses = 0
+LocalMemory\.Reads = 0
+LocalMemory\.EffectiveReads = 0
+LocalMemory\.CoalescedReads = 0
+LocalMemory\.Writes = 0
+LocalMemory\.EffectiveWrites = 0
+LocalMemory\.CoalescedWrites = 0
+
+
+\[ ComputeUnit 8 \]
+
+WorkGroupCount = 0
+Instructions = 0
+Cycles = 0
+InstructionsPerCycle = 0
+
+CFEngine\.Instructions = 0
+CFEngine\.InstructionsPerCycle = 0
+CFEngine\.ALUClauseTriggers = 0
+CFEngine\.TEXClauseTriggers = 0
+CFEngine\.GlobalMemWrites = 0
+
+ALUEngine\.WavefrontCount = 0
+ALUEngine\.Instructions = 0
+ALUEngine\.InstructionSlots = 0
+ALUEngine\.LocalMemorySlots = 0
+ALUEngine\.VLIWOccupancy = 0 0 0 0 0
+ALUEngine\.Cycles = 0
+ALUEngine\.InstructionsPerCycle = 0
+
+TEXEngine\.WavefrontCount = 0
+TEXEngine\.Instructions = 0
+TEXEngine\.Cycles = 0
+TEXEngine\.InstructionsPerCycle = 0
+
+LocalMemory\.Accesses = 0
+LocalMemory\.Reads = 0
+LocalMemory\.EffectiveReads = 0
+LocalMemory\.CoalescedReads = 0
+LocalMemory\.Writes = 0
+LocalMemory\.EffectiveWrites = 0
+LocalMemory\.CoalescedWrites = 0
+
+
+\[ ComputeUnit 9 \]
+
+WorkGroupCount = 0
+Instructions = 0
+Cycles = 0
+InstructionsPerCycle = 0
+
+CFEngine\.Instructions = 0
+CFEngine\.InstructionsPerCycle = 0
+CFEngine\.ALUClauseTriggers = 0
+CFEngine\.TEXClauseTriggers = 0
+CFEngine\.GlobalMemWrites = 0
+
+ALUEngine\.WavefrontCount = 0
+ALUEngine\.Instructions = 0
+ALUEngine\.InstructionSlots = 0
+ALUEngine\.LocalMemorySlots = 0
+ALUEngine\.VLIWOccupancy = 0 0 0 0 0
+ALUEngine\.Cycles = 0
+ALUEngine\.InstructionsPerCycle = 0
+
+TEXEngine\.WavefrontCount = 0
+TEXEngine\.Instructions = 0
+TEXEngine\.Cycles = 0
+TEXEngine\.InstructionsPerCycle = 0
+
+LocalMemory\.Accesses = 0
+LocalMemory\.Reads = 0
+LocalMemory\.EffectiveReads = 0
+LocalMemory\.CoalescedReads = 0
+LocalMemory\.Writes = 0
+LocalMemory\.EffectiveWrites = 0
+LocalMemory\.CoalescedWrites = 0
+
+
+\[ ComputeUnit 10 \]
+
+WorkGroupCount = 0
+Instructions = 0
+Cycles = 0
+InstructionsPerCycle = 0
+
+CFEngine\.Instructions = 0
+CFEngine\.InstructionsPerCycle = 0
+CFEngine\.ALUClauseTriggers = 0
+CFEngine\.TEXClauseTriggers = 0
+CFEngine\.GlobalMemWrites = 0
+
+ALUEngine\.WavefrontCount = 0
+ALUEngine\.Instructions = 0
+ALUEngine\.InstructionSlots = 0
+ALUEngine\.LocalMemorySlots = 0
+ALUEngine\.VLIWOccupancy = 0 0 0 0 0
+ALUEngine\.Cycles = 0
+ALUEngine\.InstructionsPerCycle = 0
+
+TEXEngine\.WavefrontCount = 0
+TEXEngine\.Instructions = 0
+TEXEngine\.Cycles = 0
+TEXEngine\.InstructionsPerCycle = 0
+
+LocalMemory\.Accesses = 0
+LocalMemory\.Reads = 0
+LocalMemory\.EffectiveReads = 0
+LocalMemory\.CoalescedReads = 0
+LocalMemory\.Writes = 0
+LocalMemory\.EffectiveWrites = 0
+LocalMemory\.CoalescedWrites = 0
+
+
+\[ ComputeUnit 11 \]
+
+WorkGroupCount = 0
+Instructions = 0
+Cycles = 0
+InstructionsPerCycle = 0
+
+CFEngine\.Instructions = 0
+CFEngine\.InstructionsPerCycle = 0
+CFEngine\.ALUClauseTriggers = 0
+CFEngine\.TEXClauseTriggers = 0
+CFEngine\.GlobalMemWrites = 0
+
+ALUEngine\.WavefrontCount = 0
+ALUEngine\.Instructions = 0
+ALUEngine\.InstructionSlots = 0
+ALUEngine\.LocalMemorySlots = 0
+ALUEngine\.VLIWOccupancy = 0 0 0 0 0
+ALUEngine\.Cycles = 0
+ALUEngine\.InstructionsPerCycle = 0
+
+TEXEngine\.WavefrontCount = 0
+TEXEngine\.Instructions = 0
+TEXEngine\.Cycles = 0
+TEXEngine\.InstructionsPerCycle = 0
+
+LocalMemory\.Accesses = 0
+LocalMemory\.Reads = 0
+LocalMemory\.EffectiveReads = 0
+LocalMemory\.CoalescedReads = 0
+LocalMemory\.Writes = 0
+LocalMemory\.EffectiveWrites = 0
+LocalMemory\.CoalescedWrites = 0
+
+
+\[ ComputeUnit 12 \]
+
+WorkGroupCount = 0
+Instructions = 0
+Cycles = 0
+InstructionsPerCycle = 0
+
+CFEngine\.Instructions = 0
+CFEngine\.InstructionsPerCycle = 0
+CFEngine\.ALUClauseTriggers = 0
+CFEngine\.TEXClauseTriggers = 0
+CFEngine\.GlobalMemWrites = 0
+
+ALUEngine\.WavefrontCount = 0
+ALUEngine\.Instructions = 0
+ALUEngine\.InstructionSlots = 0
+ALUEngine\.LocalMemorySlots = 0
+ALUEngine\.VLIWOccupancy = 0 0 0 0 0
+ALUEngine\.Cycles = 0
+ALUEngine\.InstructionsPerCycle = 0
+
+TEXEngine\.WavefrontCount = 0
+TEXEngine\.Instructions = 0
+TEXEngine\.Cycles = 0
+TEXEngine\.InstructionsPerCycle = 0
+
+LocalMemory\.Accesses = 0
+LocalMemory\.Reads = 0
+LocalMemory\.EffectiveReads = 0
+LocalMemory\.CoalescedReads = 0
+LocalMemory\.Writes = 0
+LocalMemory\.EffectiveWrites = 0
+LocalMemory\.CoalescedWrites = 0
+
+
+\[ ComputeUnit 13 \]
+
+WorkGroupCount = 0
+Instructions = 0
+Cycles = 0
+InstructionsPerCycle = 0
+
+CFEngine\.Instructions = 0
+CFEngine\.InstructionsPerCycle = 0
+CFEngine\.ALUClauseTriggers = 0
+CFEngine\.TEXClauseTriggers = 0
+CFEngine\.GlobalMemWrites = 0
+
+ALUEngine\.WavefrontCount = 0
+ALUEngine\.Instructions = 0
+ALUEngine\.InstructionSlots = 0
+ALUEngine\.LocalMemorySlots = 0
+ALUEngine\.VLIWOccupancy = 0 0 0 0 0
+ALUEngine\.Cycles = 0
+ALUEngine\.InstructionsPerCycle = 0
+
+TEXEngine\.WavefrontCount = 0
+TEXEngine\.Instructions = 0
+TEXEngine\.Cycles = 0
+TEXEngine\.InstructionsPerCycle = 0
+
+LocalMemory\.Accesses = 0
+LocalMemory\.Reads = 0
+LocalMemory\.EffectiveReads = 0
+LocalMemory\.CoalescedReads = 0
+LocalMemory\.Writes = 0
+LocalMemory\.EffectiveWrites = 0
+LocalMemory\.CoalescedWrites = 0
+
+
+\[ ComputeUnit 14 \]
+
+WorkGroupCount = 0
+Instructions = 0
+Cycles = 0
+InstructionsPerCycle = 0
+
+CFEngine\.Instructions = 0
+CFEngine\.InstructionsPerCycle = 0
+CFEngine\.ALUClauseTriggers = 0
+CFEngine\.TEXClauseTriggers = 0
+CFEngine\.GlobalMemWrites = 0
+
+ALUEngine\.WavefrontCount = 0
+ALUEngine\.Instructions = 0
+ALUEngine\.InstructionSlots = 0
+ALUEngine\.LocalMemorySlots = 0
+ALUEngine\.VLIWOccupancy = 0 0 0 0 0
+ALUEngine\.Cycles = 0
+ALUEngine\.InstructionsPerCycle = 0
+
+TEXEngine\.WavefrontCount = 0
+TEXEngine\.Instructions = 0
+TEXEngine\.Cycles = 0
+TEXEngine\.InstructionsPerCycle = 0
+
+LocalMemory\.Accesses = 0
+LocalMemory\.Reads = 0
+LocalMemory\.EffectiveReads = 0
+LocalMemory\.CoalescedReads = 0
+LocalMemory\.Writes = 0
+LocalMemory\.EffectiveWrites = 0
+LocalMemory\.CoalescedWrites = 0
+
+
+\[ ComputeUnit 15 \]
+
+WorkGroupCount = 0
+Instructions = 0
+Cycles = 0
+InstructionsPerCycle = 0
+
+CFEngine\.Instructions = 0
+CFEngine\.InstructionsPerCycle = 0
+CFEngine\.ALUClauseTriggers = 0
+CFEngine\.TEXClauseTriggers = 0
+CFEngine\.GlobalMemWrites = 0
+
+ALUEngine\.WavefrontCount = 0
+ALUEngine\.Instructions = 0
+ALUEngine\.InstructionSlots = 0
+ALUEngine\.LocalMemorySlots = 0
+ALUEngine\.VLIWOccupancy = 0 0 0 0 0
+ALUEngine\.Cycles = 0
+ALUEngine\.InstructionsPerCycle = 0
+
+TEXEngine\.WavefrontCount = 0
+TEXEngine\.Instructions = 0
+TEXEngine\.Cycles = 0
+TEXEngine\.InstructionsPerCycle = 0
+
+LocalMemory\.Accesses = 0
+LocalMemory\.Reads = 0
+LocalMemory\.EffectiveReads = 0
+LocalMemory\.CoalescedReads = 0
+LocalMemory\.Writes = 0
+LocalMemory\.EffectiveWrites = 0
+LocalMemory\.CoalescedWrites = 0
+
+
+\[ ComputeUnit 16 \]
+
+WorkGroupCount = 0
+Instructions = 0
+Cycles = 0
+InstructionsPerCycle = 0
+
+CFEngine\.Instructions = 0
+CFEngine\.InstructionsPerCycle = 0
+CFEngine\.ALUClauseTriggers = 0
+CFEngine\.TEXClauseTriggers = 0
+CFEngine\.GlobalMemWrites = 0
+
+ALUEngine\.WavefrontCount = 0
+ALUEngine\.Instructions = 0
+ALUEngine\.InstructionSlots = 0
+ALUEngine\.LocalMemorySlots = 0
+ALUEngine\.VLIWOccupancy = 0 0 0 0 0
+ALUEngine\.Cycles = 0
+ALUEngine\.InstructionsPerCycle = 0
+
+TEXEngine\.WavefrontCount = 0
+TEXEngine\.Instructions = 0
+TEXEngine\.Cycles = 0
+TEXEngine\.InstructionsPerCycle = 0
+
+LocalMemory\.Accesses = 0
+LocalMemory\.Reads = 0
+LocalMemory\.EffectiveReads = 0
+LocalMemory\.CoalescedReads = 0
+LocalMemory\.Writes = 0
+LocalMemory\.EffectiveWrites = 0
+LocalMemory\.CoalescedWrites = 0
+
+
+\[ ComputeUnit 17 \]
+
+WorkGroupCount = 0
+Instructions = 0
+Cycles = 0
+InstructionsPerCycle = 0
+
+CFEngine\.Instructions = 0
+CFEngine\.InstructionsPerCycle = 0
+CFEngine\.ALUClauseTriggers = 0
+CFEngine\.TEXClauseTriggers = 0
+CFEngine\.GlobalMemWrites = 0
+
+ALUEngine\.WavefrontCount = 0
+ALUEngine\.Instructions = 0
+ALUEngine\.InstructionSlots = 0
+ALUEngine\.LocalMemorySlots = 0
+ALUEngine\.VLIWOccupancy = 0 0 0 0 0
+ALUEngine\.Cycles = 0
+ALUEngine\.InstructionsPerCycle = 0
+
+TEXEngine\.WavefrontCount = 0
+TEXEngine\.Instructions = 0
+TEXEngine\.Cycles = 0
+TEXEngine\.InstructionsPerCycle = 0
+
+LocalMemory\.Accesses = 0
+LocalMemory\.Reads = 0
+LocalMemory\.EffectiveReads = 0
+LocalMemory\.CoalescedReads = 0
+LocalMemory\.Writes = 0
+LocalMemory\.EffectiveWrites = 0
+LocalMemory\.CoalescedWrites = 0
+
+
+\[ ComputeUnit 18 \]
+
+WorkGroupCount = 0
+Instructions = 0
+Cycles = 0
+InstructionsPerCycle = 0
+
+CFEngine\.Instructions = 0
+CFEngine\.InstructionsPerCycle = 0
+CFEngine\.ALUClauseTriggers = 0
+CFEngine\.TEXClauseTriggers = 0
+CFEngine\.GlobalMemWrites = 0
+
+ALUEngine\.WavefrontCount = 0
+ALUEngine\.Instructions = 0
+ALUEngine\.InstructionSlots = 0
+ALUEngine\.LocalMemorySlots = 0
+ALUEngine\.VLIWOccupancy = 0 0 0 0 0
+ALUEngine\.Cycles = 0
+ALUEngine\.InstructionsPerCycle = 0
+
+TEXEngine\.WavefrontCount = 0
+TEXEngine\.Instructions = 0
+TEXEngine\.Cycles = 0
+TEXEngine\.InstructionsPerCycle = 0
+
+LocalMemory\.Accesses = 0
+LocalMemory\.Reads = 0
+LocalMemory\.EffectiveReads = 0
+LocalMemory\.CoalescedReads = 0
+LocalMemory\.Writes = 0
+LocalMemory\.EffectiveWrites = 0
+LocalMemory\.CoalescedWrites = 0
+
+
+\[ ComputeUnit 19 \]
+
+WorkGroupCount = 0
+Instructions = 0
+Cycles = 0
+InstructionsPerCycle = 0
+
+CFEngine\.Instructions = 0
+CFEngine\.InstructionsPerCycle = 0
+CFEngine\.ALUClauseTriggers = 0
+CFEngine\.TEXClauseTriggers = 0
+CFEngine\.GlobalMemWrites = 0
+
+ALUEngine\.WavefrontCount = 0
+ALUEngine\.Instructions = 0
+ALUEngine\.InstructionSlots = 0
+ALUEngine\.LocalMemorySlots = 0
+ALUEngine\.VLIWOccupancy = 0 0 0 0 0
+ALUEngine\.Cycles = 0
+ALUEngine\.InstructionsPerCycle = 0
+
+TEXEngine\.WavefrontCount = 0
+TEXEngine\.Instructions = 0
+TEXEngine\.Cycles = 0
+TEXEngine\.InstructionsPerCycle = 0
+
+LocalMemory\.Accesses = 0
+LocalMemory\.Reads = 0
+LocalMemory\.EffectiveReads = 0
+LocalMemory\.CoalescedReads = 0
+LocalMemory\.Writes = 0
+LocalMemory\.EffectiveWrites = 0
+LocalMemory\.CoalescedWrites = 0
+
+
