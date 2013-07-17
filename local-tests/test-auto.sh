@@ -7,6 +7,7 @@ M2S_CLIENT_KIT_RESULT_PATH="$M2S_CLIENT_KIT_PATH/result"
 M2S_CLIENT_KIT_TEST_PATH="$M2S_CLIENT_KIT_PATH/local-tests/test-auto"
 
 result_path="$M2S_CLIENT_KIT_RESULT_PATH/test-auto"
+log_file="$M2S_CLIENT_KIT_RESULT_PATH/test-auto.log"
 file_match_py="$M2S_CLIENT_KIT_BIN_PATH/file-match.py"
 build_m2s_local_sh="$M2S_CLIENT_KIT_BIN_PATH/build-m2s-local.sh"
 prog_name=$(echo $0 | awk -F/ '{ print $NF }')
@@ -207,6 +208,7 @@ $build_m2s_local_sh $rev_arg $tag_arg || exit 1
 # Create path for results and clear it
 mkdir -p $result_path || exit 1
 rm -f "$result_path/*"
+rm -f $log_file
 
 # Run tests
 echo

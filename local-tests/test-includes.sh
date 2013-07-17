@@ -99,7 +99,6 @@ file_list=`find . -type f | grep -v "\.svn" | grep "\.c$"`
 cd $m2s_dir || exit 1
 
 # Check files
-file_list="driver/opengl/opengl-missing.c driver/opengl/opengl.c"
 for file in $file_list
 do
 	echo "File $file:"
