@@ -8,6 +8,8 @@ M2C="$M2S_CLIENT_KIT_BUILD_PATH/bin/m2c"
 # Run test
 name="vector-add"
 
+rm -f $name $name.bin
+
 gcc $name.c \
 	-L$M2S_CLIENT_KIT_BUILD_PATH/lib/.libs \
 	-I$M2S_CLIENT_KIT_BUILD_PATH/runtime/include \
@@ -20,5 +22,5 @@ echo $?
 m2s $name $name.bin
 echo $?
 
-rm -f $name $name.clp $name.llvm $name.s $name.bin
+rm -f $name $name.bin
 

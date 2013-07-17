@@ -65,7 +65,6 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 	printf("Number of platforms: %d\n", num_platforms);
-	printf("platform=%p\n", platform);
 
 	/* Get platform name */
 	char platform_name[100];
@@ -94,7 +93,6 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 	printf("Number of devices: %d\n", num_devices);
-	printf("device=%p\n", device);
 
 	/* Get device name */
 	char device_name[100];
@@ -121,7 +119,6 @@ int main(int argc, char **argv)
 		printf("error: call to 'clCreateContext' failed\n");
 		exit(1);
 	}
-	printf("context=%p\n", context);
 
 	
 
@@ -137,7 +134,6 @@ int main(int argc, char **argv)
 		printf("error: call to 'clCreateCommandQueue' failed\n");
 		exit(1);
 	}
-	printf("command_queue=%p\n", command_queue);
 	printf("\n");
 
 
@@ -167,7 +163,6 @@ int main(int argc, char **argv)
 		printf("error: call to 'clCreateProgramWithSource' failed\n");
 		exit(1);
 	}
-	printf("program=%p\n", program);
 
 	/* Build program */
 	ret = clBuildProgram(program, 1, &device, NULL, NULL, NULL);
@@ -205,7 +200,6 @@ int main(int argc, char **argv)
 		printf("error: call to 'clCreateKernel' failed\n");
 		exit(1);
 	}
-	printf("kernel=%p\n", kernel);
 	printf("\n");
 
 

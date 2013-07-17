@@ -1,0 +1,23 @@
+0
+Number of platforms: 1
+platform\.name='Multi2Sim OpenCL Platform'
+
+Number of devices: 1
+device\.name='Multi2Sim Southern Islands GPU Model'
+
+
+program built
+
+
+dst_host_buffer\[0\] = 0
+dst_host_buffer\[1\] = 1
+dst_host_buffer\[2\] = 2
+dst_host_buffer\[3\] = 3
+dst_host_buffer\[4\] = 4
+dst_host_buffer\[5\] = 5
+dst_host_buffer\[6\] = 6
+dst_host_buffer\[7\] = 7
+dst_host_buffer\[8\] = 8
+dst_host_buffer\[9\] = 9
+
+0
