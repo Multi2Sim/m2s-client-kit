@@ -93,16 +93,15 @@ echo -n "Initial build"
 make >/dev/null 2>&1 || error "initial build failed"
 echo " - ok"
 
-# List files in distribution package
-cd $m2s_dir/src || exit 1
-file_list=`find . -type f | grep -v "\.svn" | grep "\.c$"`
+# List files in distribution package multi2sim/src
 cd $m2s_dir || exit 1
+file_list=`find . -type f | grep -v "\.svn" | grep "\.c$"`
 
 # Check files
+cd $m2s_dir || exit 1
 for file in $file_list
 do
 	echo "File $file:"
-	file="src/$file"
 
 	python <<< "
 import os
