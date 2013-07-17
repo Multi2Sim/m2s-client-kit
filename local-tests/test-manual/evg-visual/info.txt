@@ -1,4 +1,4 @@
-Run a timing simulation of the matrix multiplication algorithm for Southern Islands
+Run a timing simulation of the matrix multiplication algorithm on Evergreen
 and activate option '--trace'. The simulation will run on a GPU configuration
 with 4 compute units.
 
