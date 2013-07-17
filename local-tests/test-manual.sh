@@ -1,16 +1,16 @@
 #!/bin/bash
 
-M2S_CLIENT_KIT_PATH="m2s-client-kit"
+M2S_CLIENT_KIT_PATH="$HOME/m2s-client-kit"
 M2S_CLIENT_KIT_BIN_PATH="$M2S_CLIENT_KIT_PATH/bin"
 M2S_CLIENT_KIT_TMP_PATH="$M2S_CLIENT_KIT_PATH/tmp"
 M2S_CLIENT_KIT_RESULT_PATH="$M2S_CLIENT_KIT_PATH/result"
-M2S_CLIENT_KIT_TEST_MANUAL_PATH="$M2S_CLIENT_KIT_PATH/local-tests/test-manual"
+M2S_CLIENT_KIT_TEST_PATH="$M2S_CLIENT_KIT_PATH/local-tests/test-manual"
 
-inifile_py="$HOME/$M2S_CLIENT_KIT_BIN_PATH/inifile.py"
-build_m2s_local_sh="$HOME/$M2S_CLIENT_KIT_BIN_PATH/build-m2s-local.sh"
+inifile_py="$M2S_CLIENT_KIT_BIN_PATH/inifile.py"
+build_m2s_local_sh="$M2S_CLIENT_KIT_BIN_PATH/build-m2s-local.sh"
 prog_name=$(echo $0 | awk -F/ '{ print $NF }')
-log_file="$HOME/$M2S_CLIENT_KIT_RESULT_PATH/test-manual.log"
-temp_log_file="$HOME/$M2S_CLIENT_KIT_TMP_PATH/test-manual.log"
+log_file="$M2S_CLIENT_KIT_RESULT_PATH/test-manual.log"
+temp_log_file="$M2S_CLIENT_KIT_TMP_PATH/test-manual.log"
 
 
 #
@@ -30,6 +30,22 @@ function syntax()
 
 Syntax:
     $prog_name [<options>] <range>
+
+
+Runs tests that require user interaction, such as visualization tools,
+navigation through visual diagrams, observation of trends in results, etc.
+
+To add a new test, you just need to add a new subdirectory under
+'m2s-client-kit/local-tests/test-manual/' with the following files:
+
+	* info.txt	Information describing the type of test and the expected
+			output. When any user runs the test, he/she should be
+			able to determine whether the results are correct or not
+			from this description.
+	* test.sh	Shell script swith the equence of commands running the
+			test. Any additional file required by the test can be in
+			this directory. But when many tests use the same files,
+			this script can copy them from other directories.
 
 
 Arguments:
@@ -86,81 +102,91 @@ done
 # Arguments
 [ $# == 0 ] && syntax
 
-# Get list of configuration directories
-cd $HOME/$M2S_CLIENT_KIT_TEST_MANUAL_PATH \
-	|| error "cannot find 'test-manual' path"
-script_list=""
-for script in `find -maxdepth 1 -type f -executable | grep -v "\.svn" | grep -v "^\.$" | sort`
+# Get list of tests
+cd $M2S_CLIENT_KIT_TEST_PATH || error "cannot find test path"
+test_list=
+for t in `find -maxdepth 1 -type d | grep -v "\.svn" | grep -v "^\.$" | sort`
 do
-	script_list="$script_list ${script:2}"
+	t="${t#\.\/}"
+	test_list="$test_list $t"
 done
+test_count=`awk '{ print NF }' <<< "$test_list"`
 
-# Obtain tests
-final_script_list=
-script_index_list=
-script_list_count=`echo $script_list | awk '{ print NF }'`
-if [ $# = 1 -a "$1" = "all" ]
-then
-	final_script_list="$script_list"
-elif [ $# = 1 -a "$1" = "list" ]
+# Get tests
+if [ $# = 1 -a "$1" = "list" ]
 then
 	echo
 	echo "List of available tests:"
 	echo
 	index=1
-	for s in $script_list
+	for t in $test_list
 	do
-		s="${s%\.sh}"
-		echo "${index}. $s"
+		echo "$index. $t"
 		index=`expr $index + 1`
 	done
 	echo
 	exit 0
+elif [ $# = 1 -a "$1" = "all" ]
+then
+
+	# Nothing to do here
+	# Keep all tests
+	test_list="$test_list"
+
 else
-	while [ $# -gt 0 ]
+	new_test_list=""
+	while [ $# != 0 ]
 	do
-		# Try to interpret argument as a test name
-		name=$1
-		id=`echo $script_list | awk '{
-			for (i = 1; i <= NF; i++)
-			{
-				if ("'$name'" == $i || "'$name'" ".sh" == $i)
-				{
-					print i;
-					exit;
-				}
-			}
-			print 0
-		}'`
-		if [ $id != 0 ]
+		# Get argument
+		arg=${1%\.sh}
+		shift
+
+		# Check if it's a test name
+		found=0
+		for t in $test_list
+		do
+			if [ "$t" = "$arg" ]
+			then
+				new_test_list="$new_test_list $t"
+				found=1
+				break
+			fi
+		done
+		[ $found = 0 ] || continue
+
+		# Check if it's one ID
+		id_count=`awk -F- '{ print NF }' <<< "$arg"`
+		if [ $id_count = 1 ]
 		then
-			echo $name | egrep -q ".*\.sh" || name="${name}.sh"
-			final_script_list="$final_script_list $name"
-			script_index_list="$script_index_list $id"
-			shift
+			egrep -q "^[0-9]+$" <<< "$arg" || error "$arg: invalid test"
+			[ $arg -ge 1 -a $arg -le $test_count ] || error "test ID $arg out of range"
+			t=`awk '{ print $'$arg' }' <<< "$test_list"`
+			new_test_list="$new_test_list $t"
 			continue
 		fi
 
-		# Try to interpret as a test index
-		tokens=`echo $1 | awk -F- '{ print NF }'`
-		[ $tokens = 1 -o $tokens = 2 ] || error "$1: invalid argument"
-		id1=`echo $1 | awk -F- '{ print $1 }'`
-		id2=`echo $1 | awk -F- '{ print $2 }'`
-		[ $tokens = 2 ] || id2="$id1"
+		# Check if it's an ID range
+		if [ $id_count = 2 ]
+		then
+			id1=`awk -F- '{ print $1 }' <<< "$arg"`
+			id2=`awk -F- '{ print $2 }' <<< "$arg"`
+			egrep -q "^[0-9]+$" <<< "$id1" || error "$arg: invalid test"
+			egrep -q "^[0-9]+$" <<< "$id2" || error "$arg: invalid test"
+			[ $id1 -ge 1 -a $id1 -le $test_count ] || error "test ID $id1 out of range"
+			[ $id2 -ge 1 -a $id2 -le $test_count ] || error "test ID $id2 out of range"
+			for id in `seq $id1 $id2`
+			do
+				t=`awk '{ print $'$id' }' <<< "$test_list"`
+				new_test_list="$new_test_list $t"
+			done
+			continue
+		fi
 
-		# Check rage
-		[ $id1 -ge 1 -a $id1 -le $script_list_count ] || error "$id1 is an invalid test index"
-		[ $id2 -ge 1 -a $id2 -le $script_list_count ] || error "$id2 is an invalid test index"
-		for i in `seq $id1 $id2`
-		do
-			s=`echo $script_list | awk '{ print $'$i' }'`
-			final_script_list="$final_script_list $s"
-			script_index_list="$script_index_list $i"
-		done
-		shift
+		# Invalid
+		error "$arg: invalid test"
 	done
+	test_list="$new_test_list"
 fi
-script_list="$final_script_list"
 
 # Obtain local copy
 $build_m2s_local_sh $rev_arg $tag_arg \
@@ -172,21 +198,30 @@ echo >> $log_file
 echo ">>> Manual tests launched on `date`" >> $log_file
 
 # Start execution
-cd $HOME/$M2S_CLIENT_KIT_TEST_MANUAL_PATH || exit 1
-index=1
+cd $M2S_CLIENT_KIT_TEST_PATH || exit 1
 hline="================================================================================"
-for script in $script_list
+for t in $test_list
 do
-	# Get script index
-	script_index=`echo $script_index_list | awk '{ print $'$index' }'`
+	# Check that script exists
+	cd $M2S_CLIENT_KIT_TEST_PATH || exit 1
+	if [ ! -f $t/test.sh ]
+	then
+		echo >&2
+		echo "Test '$t' - failed (test script not found)" >> $log_file
+		echo "error: file $t/test.sh not found" >&2
+		echo "Press ENTER to continue ..."
+		echo >&2
+		read
+		continue
+	fi
 
 	# Print script info
 	clear
 	echo $hline
-	echo "= Test $script_index - '$script'"
+	echo "= Test '$t'"
 	echo $hline
 	echo
-	./$script info
+	[ -e $t/info.txt ] && cat $t/info.txt
 
 	# Wait for user input
 	echo
@@ -195,8 +230,9 @@ do
 	echo $hline
 
 	# Run test
-	echo -n "Test $script_index - '$script' - " >> $log_file
-	./$script run 2>&1 | tee $temp_log_file
+	cd $M2S_CLIENT_KIT_TEST_PATH/$t
+	echo -n "Test '$t' - " >> $log_file
+	./test.sh 2>&1 | tee $temp_log_file
 	echo $hline
 	echo
 

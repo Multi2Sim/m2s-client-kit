@@ -1,0 +1,7 @@
+This tests runs the 'test-threads' mini-benchmark with an x86 detailed
+simulation and option '--trace' active. The trace is then consumed by the
+visualization tool with a call to 'm2s --visual'.
+
+You should observe an M2S-Visual window opening with an x86 CPU panel with 4
+cores and the default memory hierarchy. You should be able to navigate through
+cycles, timing diagrams, and cache memory representations without problems.
