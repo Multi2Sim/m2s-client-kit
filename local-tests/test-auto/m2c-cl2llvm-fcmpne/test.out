@@ -1,0 +1,23 @@
+0
+; ModuleID = 'fcmpne\.llvm'
+
+define void @main\(float %x, float %y\) \{
+block_0:
+  %x_addr = alloca float
+  store float %x, float\* %x_addr
+  %y_addr = alloca float
+  store float %y, float\* %y_addr
+  br label %block_1
+
+block_1:                                          ; preds = %block_0
+  %tmp_0 = load float\* %x_addr
+  %tmp_1 = load float\* %y_addr
+  %tmp_2 = fcmp one float %tmp_0, %tmp_1
+  %tmp_3 = sitofp i1 %tmp_2 to float
+  store float %tmp_3, float\* %x_addr
+  %tmp_4 = load float\* %x_addr
+  %tmp_6 = fcmp one float %tmp_4, 2\.000000e\+00
+  %tmp_7 = sitofp i1 %tmp_6 to float
+  store float %tmp_7, float\* %x_addr
+  ret void
+\}
