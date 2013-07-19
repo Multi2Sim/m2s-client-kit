@@ -1,0 +1,21 @@
+0
+; ModuleID = 'fdiv\.llvm'
+
+define void @main\(float %x, float %y\) \{
+block_0:
+  %x_addr = alloca float
+  store float %x, float\* %x_addr
+  %y_addr = alloca float
+  store float %y, float\* %y_addr
+  br label %block_1
+
+block_1:                                          ; preds = %block_0
+  %tmp_0 = load float\* %x_addr
+  %tmp_1 = load float\* %y_addr
+  %tmp_2 = fdiv float %tmp_0, %tmp_1
+  store float %tmp_2, float\* %x_addr
+  %tmp_4 = load float\* %x_addr
+  %tmp_6 = fdiv float %tmp_4, 2\.000000e\+00
+  store float %tmp_6, float\* %x_addr
+  ret void
+\}

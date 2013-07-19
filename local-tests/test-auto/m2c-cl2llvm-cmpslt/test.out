@@ -1,0 +1,23 @@
+0
+; ModuleID = 'cmpslt\.llvm'
+
+define void @main\(i32 %x, i32 %y\) \{
+block_0:
+  %x_addr = alloca i32
+  store i32 %x, i32\* %x_addr
+  %y_addr = alloca i32
+  store i32 %y, i32\* %y_addr
+  br label %block_1
+
+block_1:                                          ; preds = %block_0
+  %tmp_0 = load i32\* %x_addr
+  %tmp_1 = load i32\* %y_addr
+  %tmp_2 = icmp slt i32 %tmp_0, %tmp_1
+  %tmp_3 = sext i1 %tmp_2 to i32
+  store i32 %tmp_3, i32\* %x_addr
+  %tmp_4 = load i32\* %x_addr
+  %tmp_5 = icmp slt i32 %tmp_4, 2
+  %tmp_6 = sext i1 %tmp_5 to i32
+  store i32 %tmp_6, i32\* %x_addr
+  ret void
+\}
