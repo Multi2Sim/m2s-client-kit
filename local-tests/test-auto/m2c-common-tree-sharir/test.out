@@ -1,0 +1,296 @@
+Starting structural analysis on tree 'Sharir'
+
+Processing node 'J'
+Processing node 'I'
+
+Reducing block region: \{I,J\} -> '__block_0'
+
+Control tree \(edges: \+forward, -back, \*cross, \|tree, =>entry\)
+=>Node 'A': pred=\{__block_0\} succ=\{\|B,\|K\} structof=- pre=0 post=21 type=leaf
+Node 'B': pred=\{A\} succ=\{\|C,\+__block_0\} structof=- pre=1 post=16 type=leaf
+Node 'C': pred=\{B\} succ=\{\|D\} structof=- pre=2 post=15 type=leaf
+Node 'D': pred=\{C,F,G\} succ=\{\|H,\|E\} structof=- pre=3 post=14 type=leaf
+Node 'E': pred=\{D\} succ=\{\|F,\|G\} structof=- pre=8 post=13 type=leaf
+Node 'F': pred=\{E\} succ=\{-D\} structof=- pre=9 post=10 type=leaf
+Node 'G': pred=\{E\} succ=\{-D\} structof=- pre=11 post=12 type=leaf
+Node 'H': pred=\{D\} succ=\{\|__block_0\} structof=- pre=4 post=7 type=leaf
+Node 'I': pred=\{\} succ=\{J\} structof='__block_0' type=leaf
+Node 'J': pred=\{I\} succ=\{\} structof='__block_0' type=leaf
+Node 'K': pred=\{A\} succ=\{\|L\} structof=- pre=17 post=20 type=leaf
+Node 'L': pred=\{K\} succ=\{\} structof=- pre=18 post=19 type=leaf
+Node '__block_0': pred=\{B,H,__block_0\} succ=\{-A,-__block_0\} structof=- pre=5 post=6 type=abstract children=\{I,J\}
+
+Processing node '__block_0'
+
+Reducing loop region: \{__block_0\} -> '__loop_0'
+
+Control tree \(edges: \+forward, -back, \*cross, \|tree, =>entry\)
+=>Node 'A': pred=\{__loop_0\} succ=\{\|B,\|K\} structof=- pre=0 post=21 type=leaf
+Node 'B': pred=\{A\} succ=\{\|C,\+__loop_0\} structof=- pre=1 post=16 type=leaf
+Node 'C': pred=\{B\} succ=\{\|D\} structof=- pre=2 post=15 type=leaf
+Node 'D': pred=\{C,F,G\} succ=\{\|H,\|E\} structof=- pre=3 post=14 type=leaf
+Node 'E': pred=\{D\} succ=\{\|F,\|G\} structof=- pre=8 post=13 type=leaf
+Node 'F': pred=\{E\} succ=\{-D\} structof=- pre=9 post=10 type=leaf
+Node 'G': pred=\{E\} succ=\{-D\} structof=- pre=11 post=12 type=leaf
+Node 'H': pred=\{D\} succ=\{\|__loop_0\} structof=- pre=4 post=7 type=leaf
+Node 'I': pred=\{\} succ=\{J\} structof='__block_0' type=leaf
+Node 'J': pred=\{I\} succ=\{\} structof='__block_0' type=leaf
+Node 'K': pred=\{A\} succ=\{\|L\} structof=- pre=17 post=20 type=leaf
+Node 'L': pred=\{K\} succ=\{\} structof=- pre=18 post=19 type=leaf
+Node '__block_0': pred=\{__block_0\} succ=\{__block_0\} structof='__loop_0' type=abstract children=\{I,J\}
+Node '__loop_0': pred=\{B,H\} succ=\{-A\} structof=- pre=5 post=6 type=abstract children=\{__block_0\}
+
+Processing node '__loop_0'
+Processing node 'H'
+Processing node 'F'
+Processing node 'G'
+Processing node 'E'
+
+Reducing if_then_else region: \{E,F,G\} -> '__if_then_else_0'
+
+Control tree \(edges: \+forward, -back, \*cross, \|tree, =>entry\)
+=>Node 'A': pred=\{__loop_0\} succ=\{\|B,\|K\} structof=- pre=0 post=17 type=leaf
+Node 'B': pred=\{A\} succ=\{\|C,\+__loop_0\} structof=- pre=1 post=12 type=leaf
+Node 'C': pred=\{B\} succ=\{\|D\} structof=- pre=2 post=11 type=leaf
+Node 'D': pred=\{C,__if_then_else_0\} succ=\{\|H,\|__if_then_else_0\} structof=- pre=3 post=10 type=leaf
+Node 'E': pred=\{\} succ=\{F,G\} structof='__if_then_else_0' role=if type=leaf
+Node 'F': pred=\{E\} succ=\{\} structof='__if_then_else_0' role=then type=leaf
+Node 'G': pred=\{E\} succ=\{\} structof='__if_then_else_0' role=else type=leaf
+Node 'H': pred=\{D\} succ=\{\|__loop_0\} structof=- pre=4 post=7 type=leaf
+Node 'I': pred=\{\} succ=\{J\} structof='__block_0' type=leaf
+Node 'J': pred=\{I\} succ=\{\} structof='__block_0' type=leaf
+Node 'K': pred=\{A\} succ=\{\|L\} structof=- pre=13 post=16 type=leaf
+Node 'L': pred=\{K\} succ=\{\} structof=- pre=14 post=15 type=leaf
+Node '__block_0': pred=\{__block_0\} succ=\{__block_0\} structof='__loop_0' type=abstract children=\{I,J\}
+Node '__loop_0': pred=\{B,H\} succ=\{-A\} structof=- pre=5 post=6 type=abstract children=\{__block_0\}
+Node '__if_then_else_0': pred=\{D\} succ=\{-D\} structof=- pre=8 post=9 type=abstract children=\{E,F,G\}
+
+Processing node '__if_then_else_0'
+Processing node 'D'
+
+Reducing while_loop region: \{D,__if_then_else_0\} -> '__while_loop_0'
+
+Control tree \(edges: \+forward, -back, \*cross, \|tree, =>entry\)
+=>Node 'A': pred=\{__loop_0\} succ=\{\|B,\|K\} structof=- pre=0 post=15 type=leaf
+Node 'B': pred=\{A\} succ=\{\|C,\+__loop_0\} structof=- pre=1 post=10 type=leaf
+Node 'C': pred=\{B\} succ=\{\|__while_loop_0\} structof=- pre=2 post=9 type=leaf
+Node 'D': pred=\{__if_then_else_0,__while_loop_0_pre\} succ=\{__if_then_else_0,__while_loop_0_exit\} structof='__while_loop_0' role=headexit_if_true type=leaf
+Node 'E': pred=\{\} succ=\{F,G\} structof='__if_then_else_0' role=if type=leaf
+Node 'F': pred=\{E\} succ=\{\} structof='__if_then_else_0' role=then type=leaf
+Node 'G': pred=\{E\} succ=\{\} structof='__if_then_else_0' role=else type=leaf
+Node 'H': pred=\{__while_loop_0\} succ=\{\|__loop_0\} structof=- pre=4 post=7 type=leaf
+Node 'I': pred=\{\} succ=\{J\} structof='__block_0' type=leaf
+Node 'J': pred=\{I\} succ=\{\} structof='__block_0' type=leaf
+Node 'K': pred=\{A\} succ=\{\|L\} structof=- pre=11 post=14 type=leaf
+Node 'L': pred=\{K\} succ=\{\} structof=- pre=12 post=13 type=leaf
+Node '__block_0': pred=\{__block_0\} succ=\{__block_0\} structof='__loop_0' type=abstract children=\{I,J\}
+Node '__loop_0': pred=\{B,H\} succ=\{-A\} structof=- pre=5 post=6 type=abstract children=\{__block_0\}
+Node '__if_then_else_0': pred=\{D\} succ=\{D\} structof='__while_loop_0' role=tail type=abstract children=\{E,F,G\}
+Node '__while_loop_0': pred=\{C\} succ=\{\|H\} structof=- pre=3 post=8 type=abstract children=\{__while_loop_0_pre,D,__if_then_else_0,__while_loop_0_exit\}
+Node '__while_loop_0_pre': pred=\{\} succ=\{D\} structof='__while_loop_0' role=pre type=leaf
+Node '__while_loop_0_exit': pred=\{D\} succ=\{\} structof='__while_loop_0' role=exit type=leaf
+
+Processing node '__while_loop_0'
+
+Reducing block region: \{__while_loop_0,H\} -> '__block_1'
+
+Control tree \(edges: \+forward, -back, \*cross, \|tree, =>entry\)
+=>Node 'A': pred=\{__loop_0\} succ=\{\|B,\|K\} structof=- pre=0 post=13 type=leaf
+Node 'B': pred=\{A\} succ=\{\|C,\+__loop_0\} structof=- pre=1 post=8 type=leaf
+Node 'C': pred=\{B\} succ=\{\|__block_1\} structof=- pre=2 post=7 type=leaf
+Node 'D': pred=\{__if_then_else_0,__while_loop_0_pre\} succ=\{__if_then_else_0,__while_loop_0_exit\} structof='__while_loop_0' role=headexit_if_true type=leaf
+Node 'E': pred=\{\} succ=\{F,G\} structof='__if_then_else_0' role=if type=leaf
+Node 'F': pred=\{E\} succ=\{\} structof='__if_then_else_0' role=then type=leaf
+Node 'G': pred=\{E\} succ=\{\} structof='__if_then_else_0' role=else type=leaf
+Node 'H': pred=\{__while_loop_0\} succ=\{\} structof='__block_1' type=leaf
+Node 'I': pred=\{\} succ=\{J\} structof='__block_0' type=leaf
+Node 'J': pred=\{I\} succ=\{\} structof='__block_0' type=leaf
+Node 'K': pred=\{A\} succ=\{\|L\} structof=- pre=9 post=12 type=leaf
+Node 'L': pred=\{K\} succ=\{\} structof=- pre=10 post=11 type=leaf
+Node '__block_0': pred=\{__block_0\} succ=\{__block_0\} structof='__loop_0' type=abstract children=\{I,J\}
+Node '__loop_0': pred=\{B,__block_1\} succ=\{-A\} structof=- pre=4 post=5 type=abstract children=\{__block_0\}
+Node '__if_then_else_0': pred=\{D\} succ=\{D\} structof='__while_loop_0' role=tail type=abstract children=\{E,F,G\}
+Node '__while_loop_0': pred=\{\} succ=\{H\} structof='__block_1' type=abstract children=\{__while_loop_0_pre,D,__if_then_else_0,__while_loop_0_exit\}
+Node '__while_loop_0_pre': pred=\{\} succ=\{D\} structof='__while_loop_0' role=pre type=leaf
+Node '__while_loop_0_exit': pred=\{D\} succ=\{\} structof='__while_loop_0' role=exit type=leaf
+Node '__block_1': pred=\{C\} succ=\{\|__loop_0\} structof=- pre=3 post=6 type=abstract children=\{__while_loop_0,H\}
+
+Processing node '__block_1'
+Processing node 'C'
+
+Reducing block region: \{C,__block_1\} -> '__block_2'
+Flatten block region '__block_2' -> \{C,__while_loop_0,H\}
+
+Control tree \(edges: \+forward, -back, \*cross, \|tree, =>entry\)
+=>Node 'A': pred=\{__loop_0\} succ=\{\|B,\|K\} structof=- pre=0 post=11 type=leaf
+Node 'B': pred=\{A\} succ=\{\|__block_2,\+__loop_0\} structof=- pre=1 post=6 type=leaf
+Node 'C': pred=\{\} succ=\{\} structof='__block_2' type=leaf
+Node 'D': pred=\{__if_then_else_0,__while_loop_0_pre\} succ=\{__if_then_else_0,__while_loop_0_exit\} structof='__while_loop_0' role=headexit_if_true type=leaf
+Node 'E': pred=\{\} succ=\{F,G\} structof='__if_then_else_0' role=if type=leaf
+Node 'F': pred=\{E\} succ=\{\} structof='__if_then_else_0' role=then type=leaf
+Node 'G': pred=\{E\} succ=\{\} structof='__if_then_else_0' role=else type=leaf
+Node 'H': pred=\{__while_loop_0\} succ=\{\} structof='__block_2' type=leaf
+Node 'I': pred=\{\} succ=\{J\} structof='__block_0' type=leaf
+Node 'J': pred=\{I\} succ=\{\} structof='__block_0' type=leaf
+Node 'K': pred=\{A\} succ=\{\|L\} structof=- pre=7 post=10 type=leaf
+Node 'L': pred=\{K\} succ=\{\} structof=- pre=8 post=9 type=leaf
+Node '__block_0': pred=\{__block_0\} succ=\{__block_0\} structof='__loop_0' type=abstract children=\{I,J\}
+Node '__loop_0': pred=\{B,__block_2\} succ=\{-A\} structof=- pre=3 post=4 type=abstract children=\{__block_0\}
+Node '__if_then_else_0': pred=\{D\} succ=\{D\} structof='__while_loop_0' role=tail type=abstract children=\{E,F,G\}
+Node '__while_loop_0': pred=\{\} succ=\{H\} structof='__block_2' type=abstract children=\{__while_loop_0_pre,D,__if_then_else_0,__while_loop_0_exit\}
+Node '__while_loop_0_pre': pred=\{\} succ=\{D\} structof='__while_loop_0' role=pre type=leaf
+Node '__while_loop_0_exit': pred=\{D\} succ=\{\} structof='__while_loop_0' role=exit type=leaf
+Node '__block_2': pred=\{B\} succ=\{\|__loop_0\} structof=- pre=2 post=5 type=abstract children=\{C,__while_loop_0,H\}
+
+Processing node '__block_2'
+Processing node 'B'
+
+Reducing if_then region: \{B,__block_2\} -> '__if_then_0'
+
+Control tree \(edges: \+forward, -back, \*cross, \|tree, =>entry\)
+=>Node 'A': pred=\{__loop_0\} succ=\{\|__if_then_0,\|K\} structof=- pre=0 post=9 type=leaf
+Node 'B': pred=\{\} succ=\{__block_2\} structof='__if_then_0' role=if type=leaf
+Node 'C': pred=\{\} succ=\{\} structof='__block_2' type=leaf
+Node 'D': pred=\{__if_then_else_0,__while_loop_0_pre\} succ=\{__if_then_else_0,__while_loop_0_exit\} structof='__while_loop_0' role=headexit_if_true type=leaf
+Node 'E': pred=\{\} succ=\{F,G\} structof='__if_then_else_0' role=if type=leaf
+Node 'F': pred=\{E\} succ=\{\} structof='__if_then_else_0' role=then type=leaf
+Node 'G': pred=\{E\} succ=\{\} structof='__if_then_else_0' role=else type=leaf
+Node 'H': pred=\{__while_loop_0\} succ=\{\} structof='__block_2' type=leaf
+Node 'I': pred=\{\} succ=\{J\} structof='__block_0' type=leaf
+Node 'J': pred=\{I\} succ=\{\} structof='__block_0' type=leaf
+Node 'K': pred=\{A\} succ=\{\|L\} structof=- pre=5 post=8 type=leaf
+Node 'L': pred=\{K\} succ=\{\} structof=- pre=6 post=7 type=leaf
+Node '__block_0': pred=\{__block_0\} succ=\{__block_0\} structof='__loop_0' type=abstract children=\{I,J\}
+Node '__loop_0': pred=\{__if_then_0\} succ=\{-A\} structof=- pre=2 post=3 type=abstract children=\{__block_0\}
+Node '__if_then_else_0': pred=\{D\} succ=\{D\} structof='__while_loop_0' role=tail type=abstract children=\{E,F,G\}
+Node '__while_loop_0': pred=\{\} succ=\{H\} structof='__block_2' type=abstract children=\{__while_loop_0_pre,D,__if_then_else_0,__while_loop_0_exit\}
+Node '__while_loop_0_pre': pred=\{\} succ=\{D\} structof='__while_loop_0' role=pre type=leaf
+Node '__while_loop_0_exit': pred=\{D\} succ=\{\} structof='__while_loop_0' role=exit type=leaf
+Node '__block_2': pred=\{B\} succ=\{\} structof='__if_then_0' role=then type=abstract children=\{C,__while_loop_0,H\}
+Node '__if_then_0': pred=\{A\} succ=\{\|__loop_0\} structof=- pre=1 post=4 type=abstract children=\{B,__block_2\}
+
+Processing node '__if_then_0'
+
+Reducing block region: \{__if_then_0,__loop_0\} -> '__block_3'
+
+Control tree \(edges: \+forward, -back, \*cross, \|tree, =>entry\)
+=>Node 'A': pred=\{__block_3\} succ=\{\|__block_3,\|K\} structof=- pre=0 post=7 type=leaf
+Node 'B': pred=\{\} succ=\{__block_2\} structof='__if_then_0' role=if type=leaf
+Node 'C': pred=\{\} succ=\{\} structof='__block_2' type=leaf
+Node 'D': pred=\{__if_then_else_0,__while_loop_0_pre\} succ=\{__if_then_else_0,__while_loop_0_exit\} structof='__while_loop_0' role=headexit_if_true type=leaf
+Node 'E': pred=\{\} succ=\{F,G\} structof='__if_then_else_0' role=if type=leaf
+Node 'F': pred=\{E\} succ=\{\} structof='__if_then_else_0' role=then type=leaf
+Node 'G': pred=\{E\} succ=\{\} structof='__if_then_else_0' role=else type=leaf
+Node 'H': pred=\{__while_loop_0\} succ=\{\} structof='__block_2' type=leaf
+Node 'I': pred=\{\} succ=\{J\} structof='__block_0' type=leaf
+Node 'J': pred=\{I\} succ=\{\} structof='__block_0' type=leaf
+Node 'K': pred=\{A\} succ=\{\|L\} structof=- pre=3 post=6 type=leaf
+Node 'L': pred=\{K\} succ=\{\} structof=- pre=4 post=5 type=leaf
+Node '__block_0': pred=\{__block_0\} succ=\{__block_0\} structof='__loop_0' type=abstract children=\{I,J\}
+Node '__loop_0': pred=\{__if_then_0\} succ=\{\} structof='__block_3' type=abstract children=\{__block_0\}
+Node '__if_then_else_0': pred=\{D\} succ=\{D\} structof='__while_loop_0' role=tail type=abstract children=\{E,F,G\}
+Node '__while_loop_0': pred=\{\} succ=\{H\} structof='__block_2' type=abstract children=\{__while_loop_0_pre,D,__if_then_else_0,__while_loop_0_exit\}
+Node '__while_loop_0_pre': pred=\{\} succ=\{D\} structof='__while_loop_0' role=pre type=leaf
+Node '__while_loop_0_exit': pred=\{D\} succ=\{\} structof='__while_loop_0' role=exit type=leaf
+Node '__block_2': pred=\{B\} succ=\{\} structof='__if_then_0' role=then type=abstract children=\{C,__while_loop_0,H\}
+Node '__if_then_0': pred=\{\} succ=\{__loop_0\} structof='__block_3' type=abstract children=\{B,__block_2\}
+Node '__block_3': pred=\{A\} succ=\{-A\} structof=- pre=1 post=2 type=abstract children=\{__if_then_0,__loop_0\}
+
+Processing node '__block_3'
+Processing node 'L'
+Processing node 'K'
+
+Reducing block region: \{K,L\} -> '__block_4'
+
+Control tree \(edges: \+forward, -back, \*cross, \|tree, =>entry\)
+=>Node 'A': pred=\{__block_3\} succ=\{\|__block_3,\|__block_4\} structof=- pre=0 post=5 type=leaf
+Node 'B': pred=\{\} succ=\{__block_2\} structof='__if_then_0' role=if type=leaf
+Node 'C': pred=\{\} succ=\{\} structof='__block_2' type=leaf
+Node 'D': pred=\{__if_then_else_0,__while_loop_0_pre\} succ=\{__if_then_else_0,__while_loop_0_exit\} structof='__while_loop_0' role=headexit_if_true type=leaf
+Node 'E': pred=\{\} succ=\{F,G\} structof='__if_then_else_0' role=if type=leaf
+Node 'F': pred=\{E\} succ=\{\} structof='__if_then_else_0' role=then type=leaf
+Node 'G': pred=\{E\} succ=\{\} structof='__if_then_else_0' role=else type=leaf
+Node 'H': pred=\{__while_loop_0\} succ=\{\} structof='__block_2' type=leaf
+Node 'I': pred=\{\} succ=\{J\} structof='__block_0' type=leaf
+Node 'J': pred=\{I\} succ=\{\} structof='__block_0' type=leaf
+Node 'K': pred=\{\} succ=\{L\} structof='__block_4' type=leaf
+Node 'L': pred=\{K\} succ=\{\} structof='__block_4' type=leaf
+Node '__block_0': pred=\{__block_0\} succ=\{__block_0\} structof='__loop_0' type=abstract children=\{I,J\}
+Node '__loop_0': pred=\{__if_then_0\} succ=\{\} structof='__block_3' type=abstract children=\{__block_0\}
+Node '__if_then_else_0': pred=\{D\} succ=\{D\} structof='__while_loop_0' role=tail type=abstract children=\{E,F,G\}
+Node '__while_loop_0': pred=\{\} succ=\{H\} structof='__block_2' type=abstract children=\{__while_loop_0_pre,D,__if_then_else_0,__while_loop_0_exit\}
+Node '__while_loop_0_pre': pred=\{\} succ=\{D\} structof='__while_loop_0' role=pre type=leaf
+Node '__while_loop_0_exit': pred=\{D\} succ=\{\} structof='__while_loop_0' role=exit type=leaf
+Node '__block_2': pred=\{B\} succ=\{\} structof='__if_then_0' role=then type=abstract children=\{C,__while_loop_0,H\}
+Node '__if_then_0': pred=\{\} succ=\{__loop_0\} structof='__block_3' type=abstract children=\{B,__block_2\}
+Node '__block_3': pred=\{A\} succ=\{-A\} structof=- pre=1 post=2 type=abstract children=\{__if_then_0,__loop_0\}
+Node '__block_4': pred=\{A\} succ=\{\} structof=- pre=3 post=4 type=abstract children=\{K,L\}
+
+Processing node '__block_4'
+Processing node 'A'
+
+Reducing while_loop region: \{A,__block_3\} -> '__while_loop_1'
+
+Control tree \(edges: \+forward, -back, \*cross, \|tree, =>entry\)
+Node 'A': pred=\{__block_3,__while_loop_1_pre\} succ=\{__block_3,__while_loop_1_exit\} structof='__while_loop_1' role=head exit_if_false type=leaf
+Node 'B': pred=\{\} succ=\{__block_2\} structof='__if_then_0' role=if type=leaf
+Node 'C': pred=\{\} succ=\{\} structof='__block_2' type=leaf
+Node 'D': pred=\{__if_then_else_0,__while_loop_0_pre\} succ=\{__if_then_else_0,__while_loop_0_exit\} structof='__while_loop_0' role=headexit_if_true type=leaf
+Node 'E': pred=\{\} succ=\{F,G\} structof='__if_then_else_0' role=if type=leaf
+Node 'F': pred=\{E\} succ=\{\} structof='__if_then_else_0' role=then type=leaf
+Node 'G': pred=\{E\} succ=\{\} structof='__if_then_else_0' role=else type=leaf
+Node 'H': pred=\{__while_loop_0\} succ=\{\} structof='__block_2' type=leaf
+Node 'I': pred=\{\} succ=\{J\} structof='__block_0' type=leaf
+Node 'J': pred=\{I\} succ=\{\} structof='__block_0' type=leaf
+Node 'K': pred=\{\} succ=\{L\} structof='__block_4' type=leaf
+Node 'L': pred=\{K\} succ=\{\} structof='__block_4' type=leaf
+Node '__block_0': pred=\{__block_0\} succ=\{__block_0\} structof='__loop_0' type=abstract children=\{I,J\}
+Node '__loop_0': pred=\{__if_then_0\} succ=\{\} structof='__block_3' type=abstract children=\{__block_0\}
+Node '__if_then_else_0': pred=\{D\} succ=\{D\} structof='__while_loop_0' role=tail type=abstract children=\{E,F,G\}
+Node '__while_loop_0': pred=\{\} succ=\{H\} structof='__block_2' type=abstract children=\{__while_loop_0_pre,D,__if_then_else_0,__while_loop_0_exit\}
+Node '__while_loop_0_pre': pred=\{\} succ=\{D\} structof='__while_loop_0' role=pre type=leaf
+Node '__while_loop_0_exit': pred=\{D\} succ=\{\} structof='__while_loop_0' role=exit type=leaf
+Node '__block_2': pred=\{B\} succ=\{\} structof='__if_then_0' role=then type=abstract children=\{C,__while_loop_0,H\}
+Node '__if_then_0': pred=\{\} succ=\{__loop_0\} structof='__block_3' type=abstract children=\{B,__block_2\}
+Node '__block_3': pred=\{A\} succ=\{A\} structof='__while_loop_1' role=tail type=abstract children=\{__if_then_0,__loop_0\}
+Node '__block_4': pred=\{__while_loop_1\} succ=\{\} structof=- pre=1 post=2 type=abstract children=\{K,L\}
+=>Node '__while_loop_1': pred=\{\} succ=\{\|__block_4\} structof=- pre=0 post=3 type=abstract children=\{__while_loop_1_pre,A,__block_3,__while_loop_1_exit\}
+Node '__while_loop_1_pre': pred=\{\} succ=\{A\} structof='__while_loop_1' role=pre type=leaf
+Node '__while_loop_1_exit': pred=\{A\} succ=\{\} structof='__while_loop_1' role=exit type=leaf
+
+Processing node '__while_loop_1'
+
+Reducing block region: \{__while_loop_1,__block_4\} -> '__block_5'
+Flatten block region '__block_5' -> \{__while_loop_1,K,L\}
+
+Control tree \(edges: \+forward, -back, \*cross, \|tree, =>entry\)
+Node 'A': pred=\{__block_3,__while_loop_1_pre\} succ=\{__block_3,__while_loop_1_exit\} structof='__while_loop_1' role=head exit_if_false type=leaf
+Node 'B': pred=\{\} succ=\{__block_2\} structof='__if_then_0' role=if type=leaf
+Node 'C': pred=\{\} succ=\{\} structof='__block_2' type=leaf
+Node 'D': pred=\{__if_then_else_0,__while_loop_0_pre\} succ=\{__if_then_else_0,__while_loop_0_exit\} structof='__while_loop_0' role=headexit_if_true type=leaf
+Node 'E': pred=\{\} succ=\{F,G\} structof='__if_then_else_0' role=if type=leaf
+Node 'F': pred=\{E\} succ=\{\} structof='__if_then_else_0' role=then type=leaf
+Node 'G': pred=\{E\} succ=\{\} structof='__if_then_else_0' role=else type=leaf
+Node 'H': pred=\{__while_loop_0\} succ=\{\} structof='__block_2' type=leaf
+Node 'I': pred=\{\} succ=\{J\} structof='__block_0' type=leaf
+Node 'J': pred=\{I\} succ=\{\} structof='__block_0' type=leaf
+Node 'K': pred=\{\} succ=\{L\} structof='__block_5' type=leaf
+Node 'L': pred=\{K\} succ=\{\} structof='__block_5' type=leaf
+Node '__block_0': pred=\{__block_0\} succ=\{__block_0\} structof='__loop_0' type=abstract children=\{I,J\}
+Node '__loop_0': pred=\{__if_then_0\} succ=\{\} structof='__block_3' type=abstract children=\{__block_0\}
+Node '__if_then_else_0': pred=\{D\} succ=\{D\} structof='__while_loop_0' role=tail type=abstract children=\{E,F,G\}
+Node '__while_loop_0': pred=\{\} succ=\{H\} structof='__block_2' type=abstract children=\{__while_loop_0_pre,D,__if_then_else_0,__while_loop_0_exit\}
+Node '__while_loop_0_pre': pred=\{\} succ=\{D\} structof='__while_loop_0' role=pre type=leaf
+Node '__while_loop_0_exit': pred=\{D\} succ=\{\} structof='__while_loop_0' role=exit type=leaf
+Node '__block_2': pred=\{B\} succ=\{\} structof='__if_then_0' role=then type=abstract children=\{C,__while_loop_0,H\}
+Node '__if_then_0': pred=\{\} succ=\{__loop_0\} structof='__block_3' type=abstract children=\{B,__block_2\}
+Node '__block_3': pred=\{A\} succ=\{A\} structof='__while_loop_1' role=tail type=abstract children=\{__if_then_0,__loop_0\}
+Node '__while_loop_1': pred=\{\} succ=\{\} structof='__block_5' type=abstract children=\{__while_loop_1_pre,A,__block_3,__while_loop_1_exit\}
+Node '__while_loop_1_pre': pred=\{\} succ=\{A\} structof='__while_loop_1' role=pre type=leaf
+Node '__while_loop_1_exit': pred=\{A\} succ=\{\} structof='__while_loop_1' role=exit type=leaf
+=>Node '__block_5': pred=\{\} succ=\{\} structof=- pre=0 post=1 type=abstract children=\{__while_loop_1,K,L\}
+
+Processing node '__block_5'
+Done\.
+
+0
