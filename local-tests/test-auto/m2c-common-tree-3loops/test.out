@@ -1,0 +1,82 @@
+Starting structural analysis on tree 'MyTree'
+
+Processing node 'C'
+
+Reducing loop region: \{C\} -> '__loop_0'
+
+Control tree \(edges: \+forward, -back, \*cross, \|tree, =>entry\)
+=>Node 'A': pred=\{A,__loop_0\} succ=\{\|B,-A\} structof=- pre=0 post=5 type=leaf
+Node 'B': pred=\{A,B\} succ=\{\|__loop_0,-B\} structof=- pre=1 post=4 type=leaf
+Node 'C': pred=\{C\} succ=\{C\} structof='__loop_0' type=leaf
+Node '__loop_0': pred=\{B\} succ=\{-A\} structof=- pre=2 post=3 type=abstract children=\{C\}
+
+Processing node '__loop_0'
+Processing node 'B'
+
+Reducing loop region: \{B\} -> '__loop_1'
+
+Control tree \(edges: \+forward, -back, \*cross, \|tree, =>entry\)
+=>Node 'A': pred=\{A,__loop_0\} succ=\{\|__loop_1,-A\} structof=- pre=0 post=5 type=leaf
+Node 'B': pred=\{B\} succ=\{B\} structof='__loop_1' type=leaf
+Node 'C': pred=\{C\} succ=\{C\} structof='__loop_0' type=leaf
+Node '__loop_0': pred=\{__loop_1\} succ=\{-A\} structof=- pre=2 post=3 type=abstract children=\{C\}
+Node '__loop_1': pred=\{A\} succ=\{\|__loop_0\} structof=- pre=1 post=4 type=abstract children=\{B\}
+
+Processing node '__loop_1'
+
+Reducing block region: \{__loop_1,__loop_0\} -> '__block_0'
+
+Control tree \(edges: \+forward, -back, \*cross, \|tree, =>entry\)
+=>Node 'A': pred=\{A,__block_0\} succ=\{\|__block_0,-A\} structof=- pre=0 post=3 type=leaf
+Node 'B': pred=\{B\} succ=\{B\} structof='__loop_1' type=leaf
+Node 'C': pred=\{C\} succ=\{C\} structof='__loop_0' type=leaf
+Node '__loop_0': pred=\{__loop_1\} succ=\{\} structof='__block_0' type=abstract children=\{C\}
+Node '__loop_1': pred=\{\} succ=\{__loop_0\} structof='__block_0' type=abstract children=\{B\}
+Node '__block_0': pred=\{A\} succ=\{-A\} structof=- pre=1 post=2 type=abstract children=\{__loop_1,__loop_0\}
+
+Processing node '__block_0'
+Processing node 'A'
+
+Reducing loop region: \{A\} -> '__loop_2'
+
+Control tree \(edges: \+forward, -back, \*cross, \|tree, =>entry\)
+Node 'A': pred=\{A\} succ=\{A\} structof='__loop_2' type=leaf
+Node 'B': pred=\{B\} succ=\{B\} structof='__loop_1' type=leaf
+Node 'C': pred=\{C\} succ=\{C\} structof='__loop_0' type=leaf
+Node '__loop_0': pred=\{__loop_1\} succ=\{\} structof='__block_0' type=abstract children=\{C\}
+Node '__loop_1': pred=\{\} succ=\{__loop_0\} structof='__block_0' type=abstract children=\{B\}
+Node '__block_0': pred=\{__loop_2\} succ=\{-__loop_2\} structof=- pre=1 post=2 type=abstract children=\{__loop_1,__loop_0\}
+=>Node '__loop_2': pred=\{__block_0\} succ=\{\|__block_0\} structof=- pre=0 post=3 type=abstract children=\{A\}
+
+Processing node '__loop_2'
+
+Reducing block region: \{__loop_2,__block_0\} -> '__block_1'
+Flatten block region '__block_1' -> \{__loop_2,__loop_1,__loop_0\}
+
+Control tree \(edges: \+forward, -back, \*cross, \|tree, =>entry\)
+Node 'A': pred=\{A\} succ=\{A\} structof='__loop_2' type=leaf
+Node 'B': pred=\{B\} succ=\{B\} structof='__loop_1' type=leaf
+Node 'C': pred=\{C\} succ=\{C\} structof='__loop_0' type=leaf
+Node '__loop_0': pred=\{__loop_1\} succ=\{\} structof='__block_1' type=abstract children=\{C\}
+Node '__loop_1': pred=\{\} succ=\{__loop_0\} structof='__block_1' type=abstract children=\{B\}
+Node '__loop_2': pred=\{\} succ=\{\} structof='__block_1' type=abstract children=\{A\}
+=>Node '__block_1': pred=\{__block_1\} succ=\{-__block_1\} structof=- pre=0 post=1 type=abstract children=\{__loop_2,__loop_1,__loop_0\}
+
+Processing node '__block_1'
+
+Reducing loop region: \{__block_1\} -> '__loop_3'
+
+Control tree \(edges: \+forward, -back, \*cross, \|tree, =>entry\)
+Node 'A': pred=\{A\} succ=\{A\} structof='__loop_2' type=leaf
+Node 'B': pred=\{B\} succ=\{B\} structof='__loop_1' type=leaf
+Node 'C': pred=\{C\} succ=\{C\} structof='__loop_0' type=leaf
+Node '__loop_0': pred=\{__loop_1\} succ=\{\} structof='__block_1' type=abstract children=\{C\}
+Node '__loop_1': pred=\{\} succ=\{__loop_0\} structof='__block_1' type=abstract children=\{B\}
+Node '__loop_2': pred=\{\} succ=\{\} structof='__block_1' type=abstract children=\{A\}
+Node '__block_1': pred=\{__block_1\} succ=\{__block_1\} structof='__loop_3' type=abstract children=\{__loop_2,__loop_1,__loop_0\}
+=>Node '__loop_3': pred=\{\} succ=\{\} structof=- pre=0 post=1 type=abstract children=\{__block_1\}
+
+Processing node '__loop_3'
+Done\.
+
+0

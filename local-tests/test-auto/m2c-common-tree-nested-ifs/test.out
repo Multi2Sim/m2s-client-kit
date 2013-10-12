@@ -1,0 +1,53 @@
+Starting structural analysis on tree 'MyTree'
+
+Processing node 'F'
+Processing node 'C'
+Processing node 'D'
+Processing node 'B'
+
+Reducing if_then_else region: \{B,C,D\} -> '__if_then_else_0'
+
+Control tree \(edges: \+forward, -back, \*cross, \|tree, =>entry\)
+=>Node 'A': pred=\{\} succ=\{\|__if_then_else_0,\|E\} structof=- pre=0 post=7 type=leaf
+Node 'B': pred=\{\} succ=\{C,D\} structof='__if_then_else_0' role=if type=leaf
+Node 'C': pred=\{B\} succ=\{\} structof='__if_then_else_0' role=then type=leaf
+Node 'D': pred=\{B\} succ=\{\} structof='__if_then_else_0' role=else type=leaf
+Node 'E': pred=\{A\} succ=\{\*F\} structof=- pre=5 post=6 type=leaf
+Node 'F': pred=\{__if_then_else_0,E\} succ=\{\} structof=- pre=2 post=3 type=leaf
+Node '__if_then_else_0': pred=\{A\} succ=\{\|F\} structof=- pre=1 post=4 type=abstract children=\{B,C,D\}
+
+Processing node '__if_then_else_0'
+Processing node 'E'
+Processing node 'A'
+
+Reducing if_then_else region: \{A,__if_then_else_0,E\} -> '__if_then_else_1'
+
+Control tree \(edges: \+forward, -back, \*cross, \|tree, =>entry\)
+Node 'A': pred=\{\} succ=\{__if_then_else_0,E\} structof='__if_then_else_1' role=if type=leaf
+Node 'B': pred=\{\} succ=\{C,D\} structof='__if_then_else_0' role=if type=leaf
+Node 'C': pred=\{B\} succ=\{\} structof='__if_then_else_0' role=then type=leaf
+Node 'D': pred=\{B\} succ=\{\} structof='__if_then_else_0' role=else type=leaf
+Node 'E': pred=\{A\} succ=\{\} structof='__if_then_else_1' role=else type=leaf
+Node 'F': pred=\{__if_then_else_1\} succ=\{\} structof=- pre=1 post=2 type=leaf
+Node '__if_then_else_0': pred=\{A\} succ=\{\} structof='__if_then_else_1' role=then type=abstract children=\{B,C,D\}
+=>Node '__if_then_else_1': pred=\{\} succ=\{\|F\} structof=- pre=0 post=3 type=abstract children=\{A,__if_then_else_0,E\}
+
+Processing node '__if_then_else_1'
+
+Reducing block region: \{__if_then_else_1,F\} -> '__block_0'
+
+Control tree \(edges: \+forward, -back, \*cross, \|tree, =>entry\)
+Node 'A': pred=\{\} succ=\{__if_then_else_0,E\} structof='__if_then_else_1' role=if type=leaf
+Node 'B': pred=\{\} succ=\{C,D\} structof='__if_then_else_0' role=if type=leaf
+Node 'C': pred=\{B\} succ=\{\} structof='__if_then_else_0' role=then type=leaf
+Node 'D': pred=\{B\} succ=\{\} structof='__if_then_else_0' role=else type=leaf
+Node 'E': pred=\{A\} succ=\{\} structof='__if_then_else_1' role=else type=leaf
+Node 'F': pred=\{__if_then_else_1\} succ=\{\} structof='__block_0' type=leaf
+Node '__if_then_else_0': pred=\{A\} succ=\{\} structof='__if_then_else_1' role=then type=abstract children=\{B,C,D\}
+Node '__if_then_else_1': pred=\{\} succ=\{F\} structof='__block_0' type=abstract children=\{A,__if_then_else_0,E\}
+=>Node '__block_0': pred=\{\} succ=\{\} structof=- pre=0 post=1 type=abstract children=\{__if_then_else_1,F\}
+
+Processing node '__block_0'
+Done\.
+
+0
