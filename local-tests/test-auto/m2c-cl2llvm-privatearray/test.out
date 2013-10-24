@@ -1,0 +1,17 @@
+0
+; ModuleID = 'privatearray\.llvm'
+
+define void @main\(\) \{
+block_0:
+  %x = alloca \[4 x i32\]
+  br label %block_1
+
+block_1:                                          ; preds = %block_0
+  %tmp_0 = getelementptr \[4 x i32\]\* %x, i32 0, i32 0
+  %tmp_1 = getelementptr i32\* %tmp_0, i32 2
+  store i32 0, i32\* %tmp_1
+  %tmp_2 = getelementptr \[4 x i32\]\* %x, i32 0, i32 0
+  %tmp_3 = getelementptr i32\* %tmp_2, i32 0
+  %tmp_4 = load i32\* %tmp_3
+  ret void
+\}
