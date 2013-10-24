@@ -1,0 +1,16 @@
+0
+; ModuleID = 'localptr.llvm'
+
+define void @main() {
+block_0:
+  %ptr = alloca i32*
+  br label %block_1
+
+block_1:                                          ; preds = %block_0
+  %tmp_0 = load i32** %ptr
+  %tmp_1 = getelementptr i32* %tmp_0, i32 3
+  store i32 0, i32* %tmp_1
+  %tmp_2 = load i32** %ptr
+  %tmp_3 = load i32* %tmp_2
+  ret void
+}

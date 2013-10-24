@@ -13,11 +13,13 @@ block_1:                                          ; preds = %block_0
   %tmp_0 = load float\* %x_addr
   %tmp_1 = load float\* %y_addr
   %tmp_2 = fcmp ogt float %tmp_0, %tmp_1
-  %tmp_3 = sitofp i1 %tmp_2 to float
-  store float %tmp_3, float\* %x_addr
-  %tmp_4 = load float\* %x_addr
-  %tmp_6 = fcmp ogt float %tmp_4, 2\.000000e\+00
-  %tmp_7 = sitofp i1 %tmp_6 to float
-  store float %tmp_7, float\* %x_addr
+  %tmp_3 = sext i1 %tmp_2 to i32
+  %tmp_4 = sitofp i32 %tmp_3 to float
+  store float %tmp_4, float\* %x_addr
+  %tmp_5 = load float\* %x_addr
+  %tmp_7 = fcmp ogt float %tmp_5, 2\.000000e\+00
+  %tmp_8 = sext i1 %tmp_7 to i32
+  %tmp_9 = sitofp i32 %tmp_8 to float
+  store float %tmp_9, float\* %x_addr
   ret void
 \}

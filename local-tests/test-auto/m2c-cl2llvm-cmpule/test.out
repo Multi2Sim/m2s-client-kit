@@ -16,8 +16,8 @@ block_1:                                          ; preds = %block_0
   %tmp_3 = sext i1 %tmp_2 to i32
   store i32 %tmp_3, i32\* %x_addr
   %tmp_4 = load i32\* %x_addr
-  %tmp_6 = icmp ule i32 %tmp_4, 2
-  %tmp_61 = sext i1 %tmp_6 to i32
-  store i32 %tmp_61, i32\* %x_addr
+  %tmp_5 = icmp ule i32 %tmp_4, 2
+  %tmp_6 = sext i1 %tmp_5 to i32
+  store i32 %tmp_6, i32\* %x_addr
   ret void
 \}

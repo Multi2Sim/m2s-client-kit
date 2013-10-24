@@ -1,0 +1,17 @@
+0
+; ModuleID = 'globalptr\.llvm'
+
+define void @main\(i32 addrspace\(1\)\* %x\) \{
+block_0:
+  %x_addr = alloca i32 addrspace\(1\)\*
+  store i32 addrspace\(1\)\* %x, i32 addrspace\(1\)\*\* %x_addr
+  br label %block_1
+
+block_1:                                          ; preds = %block_0
+  %tmp_0 = load i32 addrspace\(1\)\*\* %x_addr
+  %tmp_1 = getelementptr i32 addrspace\(1\)\* %tmp_0, i32 2
+  store i32 0, i32 addrspace\(1\)\* %tmp_1
+  %tmp_2 = load i32 addrspace\(1\)\*\* %x_addr
+  %tmp_3 = load i32 addrspace\(1\)\* %tmp_2
+  ret void
+\}
