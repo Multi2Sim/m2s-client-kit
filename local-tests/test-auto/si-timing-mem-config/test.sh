@@ -4,11 +4,6 @@
 # (virtual) function associated with a timing simulator to create a default
 # memory configuration based on the parameters for that architecture.
 
-M2S_CLIENT_KIT_PATH="$HOME/m2s-client-kit"
-M2S_CLIENT_KIT_TMP_PATH="$M2S_CLIENT_KIT_PATH/tmp"
-M2S_CLIENT_KIT_BUILD_PATH="$M2S_CLIENT_KIT_TMP_PATH/m2s-build"
-M2S="$M2S_CLIENT_KIT_BUILD_PATH/bin/m2s"
-
 # Run test
 for cus in 1 2 3 4 5 6 7 8 9 10 15 20 25 30 40 50 64
 do
