@@ -42,6 +42,19 @@ need to create one more subdirectory, with the following files:
 	* test.err  File containing a regular expression that the standard error
 	            output should match.
 
+File 'test.sh' is mandatory and must appear in every test subdirectory. When the
+script is invoked, it will be done on an empty temporary directory. Also, the
+script can assume that the following environment variables are set:
+
+	* M2S_BUILD_PATH	Path containing a built copy of the Multi2Sim
+				tree. For example, source code files are
+				accessible through \$M2S_BUILD_PATH/src.
+	* M2S_TEST_PATH		Path containing all local tests. If the script
+				needs files present in other tests, they can be
+				accessed using this variable as a root.
+	* M2S			Multi2Sim executable.
+	* M2C			Multi2C executable.
+
 Files 'test.out' and 'test.err' are optional. If either one is missing, that
 specific check will not be performed. If you need to create a regular expression
 to match exactly the content of an existing file, you can use the following
@@ -234,7 +247,11 @@ do
 	err="$M2S_CLIENT_KIT_TMP_PATH/test.err"
 	out_copy="$result_path/$t.out"
 	err_copy="$result_path/$t.err"
-	$test_sh >$out 2>$err
+	M2S_TEST_PATH="$M2S_CLIENT_KIT_TEST_PATH" \
+			M2S_BUILD_PATH="$M2S_CLIENT_KIT_TMP_PATH/m2s-build" \
+			M2S="$M2S_CLIENT_KIT_TMP_PATH/m2s-build/bin/m2s" \
+			M2C="$M2S_CLIENT_KIT_TMP_PATH/m2s-build/bin/m2c" \
+			$test_sh >$out 2>$err
 
 	# Check outputs
 	failed=0

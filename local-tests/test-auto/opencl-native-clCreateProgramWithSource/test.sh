@@ -12,15 +12,10 @@
 # 10-element vector addition.
 
 
-M2S_CLIENT_KIT_PATH="$HOME/m2s-client-kit"
-M2S_CLIENT_KIT_TMP_PATH="$M2S_CLIENT_KIT_PATH/tmp"
-M2S_CLIENT_KIT_BUILD_PATH="$M2S_CLIENT_KIT_TMP_PATH/m2s-build"
-M2S="$M2S_CLIENT_KIT_BUILD_PATH/bin/m2s"
-
 gcc vector-add.c -o vector-add -m32 \
-	-I$M2S_CLIENT_KIT_BUILD_PATH/runtime/include \
-	-L$M2S_CLIENT_KIT_BUILD_PATH/lib/.libs -lm2s-opencl
-LD_LIBRARY_PATH=$M2S_CLIENT_KIT_BUILD_PATH/lib/.libs \
+	-I$M2S_BUILD_PATH/runtime/include \
+	-L$M2S_BUILD_PATH/lib/.libs -lm2s-opencl
+LD_LIBRARY_PATH=$M2S_BUILD_PATH/lib/.libs \
 	M2S_OPENCL_BINARY=vector-add-x86.bin \
 	./vector-add vector-add.cl
 echo $?
