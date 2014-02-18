@@ -1,0 +1,23 @@
+
+; Multi2Sim .* - A Simulation Framework for CPU-GPU Heterogeneous Computing
+; Please use command 'm2s --help' for a list of command-line options.
+; Simulation alpha-numeric ID: .....
+
+>>> check module mod-l1-0, set 1, way 1 - state E, tag 0x440 - passed
+>>> check module mod-l1-0, set 1, way 0 - state E, tag 0x840 - passed
+>>> check module mod-l1-0, set 9, way 1 - state E, tag 0x240 - passed
+>>> check module mod-l1-0, set 9, way 0 - state E, tag 0x640 - passed
+>>> check module mod-l1-0, set 0, way 0 - state I, tag 0x0 - passed
+>>> check module mod-l1-1, set 0, way 0 - state I, tag 0x0 - passed
+>>> check module mod-l2-0, set 0, way 0 - state E, tag 0x800 - passed
+>>> check module mod-l2-0, set 0, way 1 - state E, tag 0x600 - passed
+>>> check module mod-l2-0, set 0, way 2 - state E, tag 0x400 - passed
+>>> check module mod-l2-0, set 0, way 3 - state E, tag 0x200 - passed
+>>> check sharers at module mod-l2-0, set 0, way 0, subblock 1 - { mod-l1-0 } - passed
+>>> check sharers at module mod-l2-0, set 0, way 1, subblock 1 - { mod-l1-0 } - passed
+>>> check sharers at module mod-l2-0, set 0, way 2, subblock 1 - { mod-l1-0 } - passed
+>>> check sharers at module mod-l2-0, set 0, way 3, subblock 1 - { mod-l1-0 } - passed
+>>> check owner at module mod-l2-0, set 0, way 0, subblock 1 - mod-l1-0 - passed
+>>> check owner at module mod-l2-0, set 0, way 1, subblock 1 - mod-l1-0 - passed
+>>> check owner at module mod-l2-0, set 0, way 2, subblock 1 - mod-l1-0 - passed
+>>> check owner at module mod-l2-0, set 0, way 3, subblock 1 - mod-l1-0 - passed

@@ -1,0 +1,23 @@
+
+; Multi2Sim .* - A Simulation Framework for CPU-GPU Heterogeneous Computing
+; Please use command 'm2s --help' for a list of command-line options.
+; Simulation alpha-numeric ID: .....
+
+>>> check module mod-l1-0, set 0, way 1 - state S, tag 0x0 - passed
+>>> check module mod-l1-1, set 0, way 1 - state S, tag 0x0 - passed
+>>> check module mod-l2-0, set 0, way 3 - state E, tag 0x0 - passed
+>>> check module mod-mm, set 0, way 7 - state E, tag 0x0 - passed
+>>> check sharers at module mod-l2-0, set 0, way 3, subblock 0 - { mod-l1-0 mod-l1-1 } - passed
+>>> check sharers at module mod-mm, set 0, way 7, subblock 0 - { mod-l2-0 } - passed
+>>> check owner at module mod-l2-0, set 0, way 3, subblock 0 - None - passed
+>>> check owner at module mod-mm, set 0, way 7, subblock 0 - mod-l2-0 - passed
+>>> check bytes on link_<n0.out_buf_0>_<s0.in_buf_0> - passed
+>>> check bytes on link_<s0.out_buf_0>_<n0.in_buf_0> - passed
+>>> check bytes on link_<n1.out_buf_0>_<s0.in_buf_1> - passed
+>>> check bytes on link_<s0.out_buf_1>_<n1.in_buf_0> - passed
+>>> check bytes on link_<n2.out_buf_0>_<s0.in_buf_2> - passed
+>>> check bytes on link_<s0.out_buf_2>_<n2.in_buf_0> - passed
+>>> check bytes on link_<n6.out_buf_0>_<s2.in_buf_0> - passed
+>>> check bytes on link_<s2.out_buf_0>_<n6.in_buf_0> - passed
+>>> check bytes on link_<n8.out_buf_0>_<s2.in_buf_2> - passed
+>>> check bytes on link_<s2.out_buf_2>_<n8.in_buf_0> - passed
