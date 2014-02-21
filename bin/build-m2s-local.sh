@@ -229,7 +229,7 @@ libtoolize >> $log_file 2>&1 && \
 	automake --add-missing >> $log_file 2>&1 && \
 	./configure $configure_args >> $log_file 2>&1 && \
 	make clean >> $log_file 2>&1 && \
-	make >> $log_file 2>&1 && \
+	make -j 4 >> $log_file 2>&1 && \
 	make dist >> $log_file 2>&1 || \
 		error "build failed"
 
