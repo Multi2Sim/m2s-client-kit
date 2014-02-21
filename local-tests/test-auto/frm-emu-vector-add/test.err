@@ -3,6 +3,14 @@
 ; Please use command 'm2s --help' for a list of command-line options\.
 ; Simulation alpha-numeric ID: .....
 
+warning: path .* has been redirected to
+	path .* while loading runtime 'cuda'\.
+	The dynamic linker of your application seems to be accessing a
+	runtime library\. A copy of this runtime library has been found
+	in '\$\(TOPDIR\)/lib/\.libs', while running Multi2Sim from its
+	build tree root\. As a safer and portable option, please link
+	your guest program statically with the corresponding runtime\.
+
 
 ;
 ; Simulation Statistics Summary
@@ -12,15 +20,10 @@
 RealTime = .*
 SimEnd = ContextsFinished
 
-\[ Fermi \]
-RealTime = .*
-Instructions = .*
-InstructionsPerSecond = 0
-
 \[ x86 \]
 RealTime = .*
 Instructions = .*
 InstructionsPerSecond = .*
-Contexts = 1
+Contexts = .*
 Memory = .*
 
