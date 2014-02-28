@@ -9,10 +9,10 @@
 >>> check module mod-l2-0, set 0, way 0 - state E, tag 0x0 - passed
 >>> check module mod-l2-0, set 0, way 3 - state E, tag 0x400 - passed
 >>> check module mod-l2-0, set 0, way 2 - state E, tag 0x800 - passed
->>> check sharers at module mod-l2-0, set 0, way 0, subblock 0 - { mod-l1-1 } - passed
+>>> check sharers at module mod-l2-0, set 0, way 0, subblock 0 - { mod-l1-0 mod-l1-1 } - passed
 >>> check sharers at module mod-l2-0, set 0, way 3, subblock 0 - { mod-l1-0 } - passed
 >>> check sharers at module mod-l2-0, set 0, way 2, subblock 0 - { mod-l1-0 } - passed
->>> check owner at module mod-l2-0, set 0, way 0, subblock 1 - None - passed
+>>> check owner at module mod-l2-0, set 0, way 0, subblock 0 - None - passed
 >>> check owner at module mod-l2-0, set 0, way 3, subblock 0 - mod-l1-0 - passed
 >>> check owner at module mod-l2-0, set 0, way 2, subblock 0 - mod-l1-0 - passed
 >>> check bytes on link_<n0.out_buf_0>_<s0.in_buf_0> - passed
