@@ -9,11 +9,11 @@
 Command[0] = Access mod-l1-0 1 STORE 0x0
 Command[1] = CheckBlock mod-l1-0 0 1 0x0 M
 Command[2] = CheckBlock mod-l2-0 0 3 0x0 E
-Command[3] = CheckBlock mod-mm 0 7 0x0 E
+Command[3] = CheckBlock mod-mm 0 15 0x0 E
 Command[4] = CheckSharers mod-l2-0 0 3 0 mod-l1-0
-Command[5] = CheckSharers mod-mm 0 7 0 mod-l2-0
+Command[5] = CheckSharers mod-mm 0 15 0 mod-l2-0
 Command[6] = CheckOwner mod-l2-0 0 3 0 mod-l1-0
-Command[7] = CheckOwner mod-mm 0 7 0 mod-l2-0
+Command[7] = CheckOwner mod-mm 0 15 0 mod-l2-0
 Command[8] = CheckLink mod-l1-0 Low Out 8
 Command[9] = CheckLink mod-l1-0 Low In 72
 Command[10] = CheckLink mod-l2-0 High Out 72
