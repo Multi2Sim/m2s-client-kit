@@ -1,0 +1,7 @@
+Return value = 0, errno = 0
+Checking interruption while 0 seconds left \.\.\. OK
+Return value = -1, errno = 4
+Checking interruption while ~1s left \.\.\. OK
+Return value = 0, errno = 4
+Checking interruption while 0 seconds left \.\.\. OK
+0

@@ -1,0 +1,14 @@
+Creating pipe
+ret = 0, errno = 0
+
+Running 'poll' on pipe read descriptor with a 1s timeout\.\.\.
+ret = 0, errno = 0
+
+Running 'poll' on pipe read descriptor without a timeout\.\.\.
+Child writing to pipe
+ret = 1, errno = 0, pollfd\.revents=0x1
+
+Running 'poll' on pipe write descriptor without a timeout\.\.\.
+ret = 1, errno = 0, pollfd\.revents=0x4
+
+0

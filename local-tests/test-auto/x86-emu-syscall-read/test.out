@@ -1,0 +1,15 @@
+Creating pipe
+ret = 0, errno = 0
+
+Child writing into pipe
+Parent reads 6 bytes from child: 'hello' \(errno = 0\)
+
+Performing blocking read interrupted by signal and retried \.\.\.
+Signal 14 received
+Parent reads 4 bytes from child: 'bye' \(errno = 0\)
+
+Performing blocking read interrupted by signal and aborted \.\.\.
+Signal 14 received
+ret = -1, errno = 4
+
+0
