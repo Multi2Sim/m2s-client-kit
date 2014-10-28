@@ -4,7 +4,7 @@ M2S_SVN_URL="http://multi2sim.org/svn/multi2sim"
 M2S_SVN_TAGS_URL="http://multi2sim.org/svn/multi2sim/tags"
 M2S_SVN_TRUNK_URL="http://multi2sim.org/svn/multi2sim/trunk"
 
-M2S_CLIENT_KIT_PATH="m2s-client-kit"
+M2S_CLIENT_KIT_PATH="$M2S_TEST_PATH"
 M2S_CLIENT_KIT_TMP_PATH="$M2S_CLIENT_KIT_PATH/tmp"
 M2S_CLIENT_KIT_BIN_PATH="$M2S_CLIENT_KIT_PATH/bin"
 M2S_CLIENT_KIT_M2S_SRC_PATH="$M2S_CLIENT_KIT_TMP_PATH/m2s-src"
@@ -13,9 +13,9 @@ M2S_CLIENT_KIT_M2S_BIN_PATH="$M2S_CLIENT_KIT_TMP_PATH/m2s-bin"
 M2S_CLIENT_KIT_M2S_BIN_EXE_PATH="$M2S_CLIENT_KIT_M2S_BIN_PATH/m2s"
 M2S_CLIENT_KIT_M2S_BIN_BUILD_INI_PATH="$M2S_CLIENT_KIT_M2S_BIN_PATH/build.ini"
 
-build_ini="$HOME/$M2S_CLIENT_KIT_M2S_BIN_PATH/build.ini"
-inifile_py="$HOME/$M2S_CLIENT_KIT_BIN_PATH/inifile.py"
-log_file="$HOME/$M2S_CLIENT_KIT_PATH/tmp/build-m2s-local.log"
+build_ini="$M2S_CLIENT_KIT_M2S_BIN_PATH/build.ini"
+inifile_py="$M2S_CLIENT_KIT_BIN_PATH/inifile.py"
+log_file="$M2S_CLIENT_KIT_PATH/tmp/build-m2s-local.log"
 prog_name=$(echo $0 | awk -F/ '{ print $NF }')
 
 
@@ -206,10 +206,10 @@ then
 	cd && rm -rf $M2S_CLIENT_KIT_M2S_SRC_PATH
 	if [ -z "$tag" ]
 	then
-		svn co $M2S_SVN_TRUNK_URL $HOME/$M2S_CLIENT_KIT_M2S_SRC_PATH \
+		svn co $M2S_SVN_TRUNK_URL $M2S_CLIENT_KIT_M2S_SRC_PATH \
 			-r $rev >/dev/null || error "cannot get local copy"
 	else
-		svn co $M2S_SVN_TAGS_URL/$tag $HOME/$M2S_CLIENT_KIT_M2S_SRC_PATH \
+		svn co $M2S_SVN_TAGS_URL/$tag $M2S_CLIENT_KIT_M2S_SRC_PATH \
 			-r $rev >/dev/null || error "cannot get local copy"
 	fi
 fi
@@ -222,7 +222,7 @@ cp -r $M2S_CLIENT_KIT_M2S_SRC_PATH $M2S_CLIENT_KIT_M2S_BUILD_PATH \
 
 # Build
 echo -n " - building"
-cd $HOME/$M2S_CLIENT_KIT_M2S_BUILD_PATH
+cd $M2S_CLIENT_KIT_M2S_BUILD_PATH
 libtoolize >> $log_file 2>&1 && \
 	aclocal >> $log_file 2>&1 && \
 	autoconf >> $log_file 2>&1 && \
@@ -234,7 +234,7 @@ libtoolize >> $log_file 2>&1 && \
 		error "build failed"
 
 # Obtain distribution version
-cd $HOME/$M2S_CLIENT_KIT_M2S_BUILD_PATH
+cd $M2S_CLIENT_KIT_M2S_BUILD_PATH
 dist_package=`ls multi2sim-*.tar.gz`
 dist_package_count=`echo $dist_package | wc -w`
 [ "$dist_package_count" == 1 ] || error "invalid number of packages ($dist_package_count)"
@@ -244,17 +244,17 @@ dist_version=`echo $dist_package | sed "s/^multi2sim-\(.*\)\.tar\.gz/\1/g"`
 # Copy executable
 echo -n " - saving binary"
 cd && rm -rf $M2S_CLIENT_KIT_M2S_BIN_PATH
-mkdir -p $HOME/$M2S_CLIENT_KIT_M2S_BIN_PATH
-cp $HOME/$M2S_CLIENT_KIT_M2S_BUILD_PATH/bin/m2s \
-	$HOME/$M2S_CLIENT_KIT_M2S_BIN_EXE_PATH ||
+mkdir -p $M2S_CLIENT_KIT_M2S_BIN_PATH
+cp $M2S_CLIENT_KIT_M2S_BUILD_PATH/bin/m2s \
+	$M2S_CLIENT_KIT_M2S_BIN_EXE_PATH ||
 	error "failed copying binary"
-mv $HOME/$M2S_CLIENT_KIT_M2S_BUILD_PATH/multi2sim-*.tar.gz \
-	$HOME/$M2S_CLIENT_KIT_M2S_BIN_PATH ||
+mv $M2S_CLIENT_KIT_M2S_BUILD_PATH/multi2sim-*.tar.gz \
+	$M2S_CLIENT_KIT_M2S_BIN_PATH ||
 	error "failed moving distribution package"
 
 # Create package with SVN development source
-cd $HOME/$M2S_CLIENT_KIT_M2S_SRC_PATH
-tar -czf $HOME/$M2S_CLIENT_KIT_M2S_BIN_PATH/multi2sim.tar.gz * \
+cd $M2S_CLIENT_KIT_M2S_SRC_PATH
+tar -czf $M2S_CLIENT_KIT_M2S_BIN_PATH/multi2sim.tar.gz * \
 	--transform 's,^,multi2sim/,' --exclude-vcs \
 	|| error "cannot create development package"
 

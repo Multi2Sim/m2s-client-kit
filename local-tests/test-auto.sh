@@ -1,6 +1,7 @@
 #!/bin/bash
 
-M2S_CLIENT_KIT_PATH="$HOME/m2s-client-kit"
+M2S_CLIENT_KIT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"/..
+echo $M2S_CLIENT_KIT_PATH
 M2S_CLIENT_KIT_BIN_PATH="$M2S_CLIENT_KIT_PATH/bin"
 M2S_CLIENT_KIT_TMP_PATH="$M2S_CLIENT_KIT_PATH/tmp"
 M2S_CLIENT_KIT_RESULT_PATH="$M2S_CLIENT_KIT_PATH/result"
@@ -245,13 +246,14 @@ do
 	cd $test_path || error "$test_path: unexisting directory"
 	out="$M2S_CLIENT_KIT_TMP_PATH/test.out"
 	err="$M2S_CLIENT_KIT_TMP_PATH/test.err"
-	out_copy="$result_path/$t.out"
-	err_copy="$result_path/$t.err"
+#out_copy="$result_path/$t.out"
+#err_copy="$result_path/$t.err"
+	out_copy="$test_path/result.out"
+	err_copy="$test_path/result.err"
 	M2S_TEST_PATH="$M2S_CLIENT_KIT_TEST_PATH" \
-			M2S_BUILD_PATH="$M2S_CLIENT_KIT_TMP_PATH/m2s-build" \
-			M2S="$M2S_CLIENT_KIT_TMP_PATH/m2s-build/bin/m2s" \
-			M2C="$M2S_CLIENT_KIT_TMP_PATH/m2s-build/bin/m2c" \
-			$test_sh >$out 2>$err
+		       M2S_BUILD_PATH="$M2S_CLIENT_KIT_TMP_PATH/m2s-build" \
+		       M2S="$M2S_CLIENT_KIT_TMP_PATH/m2s-build/bin/m2s" \
+		       M2C="$M2S_CLIENT_KIT_TMP_PATH/m2s-build/bin/m2c" $test_sh >$out 2>$err
 
 	# Check outputs
 	failed=0
