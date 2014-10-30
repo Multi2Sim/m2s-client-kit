@@ -1,0 +1,52 @@
+version 0:96:$full:$small;
+
+function &hsa_agent_get_info (arg_u32 %status) (arg_u64 %agent, arg_u32 %attribute, arg_u32 %value);
+
+function &main ()(){
+
+	// Query the second device, should get type 0
+	private_u32 %type;
+	{
+		arg_u32 %attribute;			// Attribute to query
+		st_arg_u32 13, [%attribute];		// Set attribue to 13	
+
+		arg_u32 %type_addr;			// Address to the type variable
+		lda_private_u32 $s1, [%type];		// Get address of the type variable
+		st_arg_u32 $s1, [%type_addr];		// Store the address in type_addr
+
+		arg_u64 %agent_handler;			// Declare agent handler variable
+		st_arg_u64 1, [%agent_handler];		// Set the value to 1
+
+		arg_u32 %err;				// Declare the return argument
+
+		call &hsa_agent_get_info (%err) (%agent_handler, %attribute, %type_addr); // Call runtime function
+
+		ld_private_u32 $s1, [%type];		// Retrieve the content in %type
+		syscall_u32 $s1, 1, $s1, 0, 0;		// Print the value of %type
+	}
+
+	// Query the second device, should get type 1
+	{
+		arg_u32 %attribute;			// Attribute to query
+		st_arg_u32 13, [%attribute];		// Set attribue to 13	
+
+		arg_u32 %type_addr;			// Address to the type variable
+		lda_private_u32 $s1, [%type];		// Get address of the type variable
+		st_arg_u32 $s1, [%type_addr];		// Store the address in type_addr
+
+		arg_u64 %agent_handler;			// Declare agent handler variable
+		st_arg_u64 2, [%agent_handler];		// Set the value to 1
+
+		arg_u32 %err;				// Declare the return argument
+
+		call &hsa_agent_get_info (%err) (%agent_handler, %attribute, %type_addr); // Call runtime function
+
+		ld_private_u32 $s1, [%type];		// Retrieve the content in %type
+		syscall_u32 $s1, 1, $s1, 0, 0;		// Print the value of %type
+	}
+
+
+
+	ret;
+};
+
