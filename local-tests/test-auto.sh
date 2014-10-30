@@ -246,10 +246,8 @@ do
 	cd $test_path || error "$test_path: unexisting directory"
 	out="$M2S_CLIENT_KIT_TMP_PATH/test.out"
 	err="$M2S_CLIENT_KIT_TMP_PATH/test.err"
-#out_copy="$result_path/$t.out"
-#err_copy="$result_path/$t.err"
-	out_copy="$test_path/result.out"
-	err_copy="$test_path/result.err"
+	out_copy="$result_path/$t.out"
+	err_copy="$result_path/$t.err"
 	M2S_TEST_PATH="$M2S_CLIENT_KIT_TEST_PATH" \
 		       M2S_BUILD_PATH="$M2S_CLIENT_KIT_TMP_PATH/m2s-build" \
 		       M2S="$M2S_CLIENT_KIT_TMP_PATH/m2s-build/bin/m2s" \
