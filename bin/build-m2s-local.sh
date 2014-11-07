@@ -4,7 +4,7 @@ M2S_SVN_URL="http://multi2sim.org/svn/multi2sim"
 M2S_SVN_TAGS_URL="http://multi2sim.org/svn/multi2sim/tags"
 M2S_SVN_TRUNK_URL="http://multi2sim.org/svn/multi2sim/trunk"
 
-M2S_CLIENT_KIT_PATH="$M2S_TEST_PATH"
+M2S_CLIENT_KIT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"/..
 M2S_CLIENT_KIT_TMP_PATH="$M2S_CLIENT_KIT_PATH/tmp"
 M2S_CLIENT_KIT_BIN_PATH="$M2S_CLIENT_KIT_PATH/bin"
 M2S_CLIENT_KIT_M2S_SRC_PATH="$M2S_CLIENT_KIT_TMP_PATH/m2s-src"
