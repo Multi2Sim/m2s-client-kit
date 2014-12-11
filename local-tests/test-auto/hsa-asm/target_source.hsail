@@ -1,0 +1,823 @@
+// University of Illinois/NCSA
+// Open Source License
+// 
+// Copyright (c) 2013, Advanced Micro Devices, Inc.
+// All rights reserved.
+// 
+// Developed by:
+// 
+//     HSA Team
+// 
+//     Advanced Micro Devices, Inc
+// 
+//     www.amd.com
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy of
+// this software and associated documentation files (the "Software"), to deal with
+// the Software without restriction, including without limitation the rights to
+// use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+// of the Software, and to permit persons to whom the Software is furnished to do
+// so, subject to the following conditions:
+// 
+//     * Redistributions of source code must retain the above copyright notice,
+//       this list of conditions and the following disclaimers.
+// 
+//     * Redistributions in binary form must reproduce the above copyright notice,
+//       this list of conditions and the following disclaimers in the
+//       documentation and/or other materials provided with the distribution.
+// 
+//     * Neither the names of the LLVM Team, University of Illinois at
+//       Urbana-Champaign, nor the names of its contributors may be used to
+//       endorse or promote products derived from this Software without specific
+//       prior written permission.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+// FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
+// SOFTWARE.
+version 0:99:$full:$large; 
+extension "IMAGE";
+
+// Page 295
+global_u32 &t[2];
+global_u64 &i_p; // int *i_p = &t[1];
+pragma "rti", "init", "symbolic", &i_p, &t, 4;
+
+function &TestFunc()()
+{
+
+@aux_label_0:
+	ret;
+};
+
+decl function &foo(arg_u32 %r)(arg_u32 %a);
+decl function &bar(arg_u32 %r)(arg_u32 %a);
+
+function &foo(arg_u32 %r)(arg_u32 %a)
+{
+};
+
+function &bar(arg_u32 %r)(arg_u32 %a)
+{
+};
+
+function &example_call(arg_u32 %res)(arg_u32 %arg1)
+{
+	{
+		arg_u32 %a;
+		arg_u32 %r;
+		st_arg_f32 2.0f, [%a];
+		// call &foo
+		call &foo(%r)(%a);
+		ld_arg_u32 $s1, [%r];
+		st_arg_u32 $s1, [%res];
+	}
+};
+
+function &example_scall(arg_u32 %res)(arg_u32 %arg1)
+{
+	ld_arg_u32 $s1, [%arg1];
+	{
+		arg_u32 %a;
+		arg_u32 %r;
+		st_arg_f32 2.0f, [%a];
+		// call &foo or &bar.
+		scall_width(all)_u32 $s1(%r)(%a) [&foo, &bar];
+		ld_arg_u32 $s1, [%r];
+		st_arg_u32 $s1, [%res];
+	}
+};
+
+signature &bar_or_foo_t(arg_u32 %r)(arg_u32 %a);
+decl indirect function &bar1(arg_u32 %r)(arg_u32 %a);
+decl indirect function &foo1(arg_u32 %r)(arg_u32 %a);
+
+indirect function &bar1(arg_u32 %r)(arg_u32 %a)
+{};
+
+indirect function &foo1(arg_u32 %r)(arg_u32 %a)
+{};
+
+global_u64 &i;
+// First execute kernel to save indirect function descriptor
+// address in a global variable.
+kernel &example_ldi(kernarg_u32 %arg1)
+{
+	ld_kernarg_u32 $s0, [%arg1];
+	cmp_gt_b1_u32 $c1, $s0, 0;
+	ldi_u64 $d1, &foo1;
+	cbr_b1 $c0, @lab;
+	ldi_u64 $d1, &bar1;
+	@lab:
+	st_global_u64 $d1, [&i];
+};
+
+// Then execute a kernel that uses the global variable to call the
+// indirect function. The kernels do not have to execute on the same
+// agent. The actual indirect function called must have been
+// finalized for the same agent and call convention as the
+// finalization of this kernel that will be dispatched, before this
+// kernel is launched.
+kernel &example_icall(kernarg_u64 %res)
+{
+	ld_global_u64 $d1, [&i];
+	{
+		arg_u32 %a;
+		arg_u32 %r;
+		st_arg_f32 2.0f, [%a];
+		// $d1 must contain an indirect function descriptor address
+		// of an indirect function that matches the signature &bar_or_foo_t.
+		// In this case &foo or &bar are the two potential targets.
+		icall_width(all)_u64 $d1(%r)(%a) &bar_or_foo_t;
+		ld_arg_u32 $s1, [%r];
+		ld_kernarg_u64 $d1, [%res];
+		st_global_u32 $s1, [$d1];
+	}
+};
+
+global_s32 &GlobalVar;
+global_u64 &x;
+group_s32 &GroupVar;
+private_s32 &PrivateVar;
+readonly_s32 &ReadonlyVar;
+global_roimg &TestGlobalROImg;
+global_rwimg &TestGlobalRWImg;
+global_rwimg &rwimage1;
+global_woimg &woimage1;
+readonly_roimg &TestReadonlyROImg;
+readonly_roimg &roimage1;
+readonly_rwimg &TestReadonlyRWImg;
+global_samp &TestGlobalSamp;
+readonly_samp &TestReadonlySamp;
+global_sig64 &signal64;
+fbarrier &fbarrier;
+
+kernel &Test()
+{
+	private_u32 %p;
+	global_u32 %g[3];
+	fbarrier %fb;
+
+	// Page 104
+	abs_s32 $s1, $s2;
+	abs_s64 $d1, $d2;
+
+	add_s32 $s1, 42, $s2;
+	add_u32 $s1, $s2, 0x23;
+	add_s64 $d1, $d2, 23;
+	add_u64 $d1, 61, 0x233412349456;
+
+	borrow_s64 $d1, $d2, 23;
+
+	carry_s64 $d1, $d2, 23;
+
+	div_s32 $s1, 100, 10;
+	div_u32 $s1, $s2, 0x23;
+	div_s64 $d1, $d2, 23;
+	div_u64 $d1, $d3, 0x233412349456;
+
+	max_s32 $s1, 100, 10;
+	max_u32 $s1, $s2, 0x23;
+	max_s64 $d1, $d2, 23;
+	max_u64 $d1, $d3, 0x233412349456;
+
+	min_s32 $s1, 100, 10;
+	min_u32 $s1, $s2, 0x23;
+	min_s64 $d1, $d2, 23;
+	min_u64 $d1, $d3, 0x233412349456;
+
+	mul_s32 $s1, 100, 10;
+	mul_u32 $s1, $s2, 0x23;
+	mul_s64 $d1, $d2, 23;
+	mul_u64 $d1, $d3, 0x233412349456;
+
+	mulhi_s32 $s1, $s3, $s3;
+	mulhi_u32 $s1, $s2, $s9;
+
+	neg_s32 $s1, 100;
+	neg_s64 $d1, $d2;
+
+	rem_s32 $s1, 100, 10;
+	rem_u32 $s1, $s2, 0x23;
+	rem_s64 $d1, $d2, 23;
+	rem_u64 $d1, $d3, 0x233412349456;
+
+	sub_s32 $s1, 100, 10;
+	sub_u32 $s1, $s2, 0x23;
+	sub_s64 $d1, $d2, 23;
+	sub_u64 $d1, $d3, 0x233412349456;
+
+	// Page 105
+	abs_p_s8x4 $s1, $s2;
+	abs_p_s32x2 $d1, $d1;
+
+	add_pp_sat_u16x2 $s1, $s0, $s3;
+	add_pp_sat_u16x4 $d1, $d0, $d3;
+
+	max_pp_u8x4 $s1, $s0, $s3;
+
+	min_pp_u8x4 $s1, $s0, $s3;
+
+	mulhi_pp_u8x8 $d1, $d3, $d4;
+
+	neg_s_s8x4 $s1, $s2;
+	neg_s_s8x4 $s1, $s2;
+
+	sub_sp_u8x8 $d1, $d0, $d3;
+
+	// Page 106
+	mad_s32 $s1, $s2, $s3, $s5;
+	mad_s64 $d1, $d2, $d3, $d2;
+	mad_u32 $s1, $s2, $s3, $s3;
+	mad_u64 $d1, $d2, $d3, $d1;
+
+	// Page 107
+	mad24_s32 $s1, $s2, -12, 23;
+	mad24_u32 $s1, $s2, 12, 2;
+
+	mad24hi_s32 $s1, $s2, -12, 23;
+	mad24hi_u32 $s1, $s2, 12, 2;
+
+	mul24_s32 $s1, $s2, -12;
+	mul24_u32 $s1, $s2, 12;
+
+	mul24hi_u32 $s1, $s2, -12;
+	mul24hi_u32 $s1, $s2, 12;
+
+	// Page 110
+	shl_u32 $s1, $s2, 2;
+	shl_u64 $d1, $d2, 2;
+	shl_s32 $s1, $s2, 2;
+	shl_s64 $d1, $d2, 2;
+
+	shr_u32 $s1, $s2, 2;
+	shr_u64 $d1, $d2, 2;
+	shr_s32 $s1, $s2, 2;
+	shr_s64 $d1, $d2, 2;
+
+	shl_u8x8 $d0, $d1, 2;
+	shl_u8x4 $s1, $s2, 2;
+	shl_u8x8 $d1, $d2, 1;
+	shr_u8x4 $s1, $s2, 1;
+	shr_u8x8 $d1, $d2, 2;
+
+	// Page 112
+	and_b1 $c0, $c2, $c3;
+	and_b32 $s0, $s2, $s3;
+	and_b64 $d0, $d1, $d2;
+
+	or_b1 $c0, $c2, $c3;
+	or_b32 $s0, $s2, $s3;
+	or_b64 $d0, $d1, $d2;
+
+	xor_b1 $c0, $c2, $c3;
+	xor_b32 $s0, $s2, $s3;
+	xor_b64 $d0, $d1, $d2;
+
+	not_b1 $c1, $c2;
+	not_b32 $s0, $s2;
+	not_b64 $d0, $d1;
+
+	popcount_u32_b32 $s1, $s2;
+	popcount_u32_b64 $s1, $d2;
+
+	// Page 117
+	bitrev_b32 $s1, $s2;
+	bitrev_b64 $d1, 0x234;
+
+	bitextract_s32 $s1, $s2, 2, 3;
+	bitextract_u64 $d1, $d1, $s1, $s2;
+
+	bitinsert_s32 $s1, $s1, $s2, 2, 3;
+	bitinsert_u64 $d1, $d2, $d3, $s1, $s2;
+
+	bitmask_b32 $s0, $s1, $s2;
+
+	bitselect_b32 $s3, $s0, $s3, $s4;
+
+	firstbit_u32_s32 $s0, $s0;
+	firstbit_u32_u64 $s0, $d6;
+
+	lastbit_u32_u32 $s0, $s0;
+	lastbit_u32_s64 $s0, $d6;
+
+	// Page 119
+	combine_v2_b64_b32 $d0, ($s0, $s1);
+	combine_v4_b128_b32 $q0, ($s0, $s1, $s2, $s3);
+	combine_v2_b128_b64 $q0, ($d0, $d1);
+
+	expand_v2_b32_b64 ($s0, $s1), $d0;
+	expand_v4_b32_b128 ($s0, $s1, $s2, $s3), $q0;
+	expand_v2_b64_b128 ($d0, $d1), $q0;
+
+	lda_private_u32 $s1, [%p];
+	lda_global_u64 $d1, [%g];
+	stof_global_u64_u64 $d0, $d1;
+	lda_global_u64 $d1, [$d1 + 8];
+
+	mov_b1 $c1, 0;
+
+	mov_b32 $s1, 0;
+	mov_b32 $s1, 0.0f;
+
+	mov_b64 $d1, 0;
+	mov_b64 $d1, 0.0;
+
+	// Page 127
+	shuffle_u8x4 $s10, $s12, $s12, 0x55;
+	unpacklo_u8x4 $s1, $s2, 72;
+	unpackhi_f16x2 $s3, $s3,$s4;
+
+	// Packing with no conversions:
+	pack_f32x2_f32 $d1, $d1, $s2, 1;
+	pack_f32x4_f32 $q1, $q2, $s2, 3;
+	pack_u32x2_u32 $d1, $d2, $s1, 2;
+	pack_s64x2_s64 $q1, $q1, $d1, $s1;
+
+	// Packing with integer truncation:
+	pack_u8x4_u32 $s1, $s2, $s3, 2;
+	//pack_s16x4_s64 $d1, $d1, $d2, 0;
+	//pack_u32x2_u64 $d1, $d2, $d3, 0;
+
+	// Packing an f16 and converting from the
+	// implementation-defined register representation:
+	pack_f16x2_f16 $s1, $s2, $s3, 1;
+	pack_f16x4_f16 $d1, $d2, $s3, 3;
+
+	// Unpacking with no conversions:
+	unpack_f32_f32x2 $s1, $d2, 1;
+	unpack_f32_f32x4 $s1, $q2, 3;
+	unpack_u32_u32x4 $s1, $q1, 2;
+	unpack_s64_s64x2 $d1, $q1, 0;
+
+	// Unpacking with integer sign or zero extension:
+	unpack_u32_u8x4 $s1, $s2, 2;
+	unpack_s32_s16x4 $s1, $d1, 0;
+	//unpack_u64_u32x4 $d1, $q1, 2;
+	//unpack_s64_s32x2 $d1, $d2, 0;
+
+	// Unpacking an f16 and converting to the
+	// implementation-defined register representation:
+	unpack_f16_f16x2 $s1, $s2, 1;
+	unpack_f16_f16x4 $s1, $d2, 3;
+
+	// Page 128
+	cmov_b32 $s1, $c3, $s1, $s2;
+	cmov_b64 $d1, $c3, $d1, $d2;
+	cmov_b32 $s1, $c0, $s1, $s2;
+	cmov_u8x4 $s1, $s0, $s1, $s2;
+	cmov_s8x4 $s1, $s0, $s1, $s2;
+	cmov_s8x8 $d1, $d0, $d1, $d2;
+
+	// Page 133
+	add_f32 $s3,$s2,$s1;
+	add_f64 $d3,$d2,$d1;
+	div_f32 $s3,1.0f,$s1;
+	div_f64 $d3,1.0,$d0;
+	fma_f32 $s3,1.0f,$s1,23.0f;
+	fma_f64 $d3,1.0,$d0, $d3;
+	max_f32 $s3,1.0f,$s1;
+	max_f64 $d3,1.0,$d0;
+	min_f32 $s3,1.0f,$s1;
+	min_f64 $d3,1.0,$d0;
+	mul_f32 $s3,1.0f,$s1;
+	mul_f64 $d3,1.0,$d0;
+	sub_f32 $s3,1.0f,$s1;
+	sub_f64 $d3,1.0,$d0;
+	fract_f32 $s0, 3.2f;
+
+	add_pp_f16x2 $s1, $s0, $s3;
+	sub_pp_f16x2 $s1, $s0, $s3;
+
+	// Page 136
+	abs_f32 $s1,$s2;
+	abs_f64 $d1,$d2;
+	class_b1_f32 $c1, $s1, 3;
+	class_b1_f32 $c1, $s1, $s2;
+	class_b1_f64 $c1, $d1, $s2;
+	class_b1_f64 $c1, $d1, 3;
+	copysign_f32 $s3,$s2,$s1;
+	copysign_f64 $d3,$d2,$d1;
+	neg_f32 $s3,1.0f;
+	neg_f64 $d3,1.0;
+
+	abs_p_f16x2 $s1, $s2;
+	abs_p_f32x2 $d1, $d1;
+	neg_p_f16x2 $s1, $s2;
+	add_pp_f16x2 $s1, $s0, $s3;
+
+	// Page 138
+	ncos_f32 $s1, $s0;
+	nexp2_f32 $s1, $s0;
+	nfma_f32 $s3, 1.0f, $s1, 23.0f;
+	nfma_f64 $d3, 1.0D, $d0, $d3;
+	nlog2_f32 $s1, $s0;
+	nrcp_f32 $s1, $s0;
+	nrsqrt_f32 $s1, $s0;
+	nsin_f32 $s1, $s0;
+
+	// Page 142
+	bitalign_b32 $s5, $s0, $s1, $s2;
+	bytealign_b32 $s5, $s0, $s1, $s2;
+	lerp_u8x4 $s5, $s0, $s1, $s2;
+	packcvt_u8x4_f32 $s1, $s2, $s3, $s9, $s3;
+
+	unpackcvt_f32_u8x4 $s5, $s0, 0;
+	unpackcvt_f32_u8x4 $s5, $s0, 1;
+	unpackcvt_f32_u8x4 $s5, $s0, 2;
+	unpackcvt_f32_u8x4 $s5, $s0, 3;
+
+	sad_u32_u32 $s5, $s0, $s1, $s6;
+	sad_u32_u16x2 $s5, $s0, $s1, $s6;
+	sad_u32_u8x4 $s5, $s0, $s1, $s6;
+	sadhi_u16x2_u8x4 $s5, $s0, $s1, $s6;
+
+	// Page 143
+	segmentp_private_b1_u64 $c1, $d0;
+	segmentp_global_b1_u64 $c1, $d0;
+	segmentp_global_nonull_b1_u64 $c1, $d0;
+	segmentp_group_b1_u64 $c1, $d0;
+
+	// Page 145
+	stof_private_u64_u32 $d1, $s1;
+	stof_private_nonull_u64_u32 $d1, $s1;
+	ftos_group_u32_u64 $s1, $d2;
+	ftos_global_u64_u64 $d1, $d2;
+	ftos_global_nonull_u64_u64 $d1, $d2;
+
+	// Page 149
+	cmp_eq_b1_b1 $c1, $c2, 0;
+	cmp_eq_u32_b1 $s1, $c2, 0;
+	cmp_eq_s32_b1 $s1, $c2, 1;
+	cmp_eq_f32_b1 $s1, $c2, 1;
+	cmp_ne_b1_b1 $c1, $c2, 0;
+	cmp_ne_u32_b1 $s1, $c2, 0;
+	cmp_ne_s32_b1 $s1, $c2, 0;
+	cmp_ne_f32_b1 $s1, $c2, 1;
+	cmp_lt_b1_u32 $c1, $s2, 0;
+	cmp_lt_u32_s32 $s1, $s2, 0;
+	cmp_lt_s32_s32 $s1, $s2, 0;
+	cmp_lt_f32_f32 $s1, $s2, 0.0f;
+	cmp_gt_b1_u32 $c1, $s2, 0;
+	cmp_gt_u32_s32 $s1, $s2, 0;
+	cmp_gt_s32_s32 $s1, $s2, 0;
+	cmp_gt_f32_f32 $s1, $s2, 0.0f;
+	cmp_equ_b1_f32 $c1, $s2, 0.0f;
+	cmp_equ_b1_f64 $c1, $d1, $d2;
+	cmp_sltu_b1_f32 $c1, $s2, 0.0f;
+	cmp_sltu_b1_f64 $c1, $d1, $d2;
+	cmp_lt_pp_u8x4_u8x4 $s1, $s2, $s3;
+	cmp_lt_pp_u16x2_f16x2 $s1, $s2, $s3;
+	cmp_lt_pp_u32x2_f32x2 $d1, $d2, $d3;
+
+	// Page 156
+	cvt_f32_f64 $s1, $d1;
+	cvt_upi_u32_f32 $s1, $s2;
+	cvt_u32_f32 $s1, $s2;
+	cvt_f16_f32 $s1, $s2;
+	cvt_s32_u8 $s1, $s2;
+	cvt_s32_b1 $s1, $c2;
+	cvt_f32_f16 $s1, $s2;
+	cvt_s32_f32 $s1, $s2;
+	cvt_ftz_upi_sat_s8_f32 $s1, $s2;
+
+	// Page 175
+	ld_global_f32 $s1, [&x];
+	ld_global_s32 $s1, [&x];
+	ld_global_f16 $s1, [&x];
+	ld_global_f64 $d1, [&x];
+	ld_global_align(8)_f64 $d1, [&x];
+	ld_global_width(WAVESIZE)_f16 $s1, [&x];
+	ld_global_align(2)_const_width(all)_f16 $s1, [&x];
+	//ld_arg_equiv(2)_f32 $s1, [%y];
+	ld_private_f32 $s1, [$s3+4];
+	ld_spill_f32 $s1, [$s3+4];
+	ld_f32 $s1, [$d3+4];
+	ld_align(16)_f32 $s1, [$d3+4];
+	ld_v3_s32 ($s1,$s2,$s6), [$d3+4];
+	ld_v4_f32 ($s1,$s3,$s6,$s2), [$d3+4];
+	ld_v2_equiv(9)_f32 ($s1,$s2), [$d3+4];
+	ld_group_equiv(0)_u32 $s0, [$s2];
+	ld_equiv(1)_u64 $d3, [$d4+32];
+	ld_v2_equiv(1)_u64 ($d1,$d2), [$d0+32];
+	ld_v4_width(8)_f32 ($s1,$s3,$s6,$s2), [$d3+4];
+	ld_equiv(1)_u64 $d6, [128];
+	ld_v2_equiv(9)_width(4)_f32 ($s1,$s2), [$d3+4];
+	ld_width(64)_u32 $s0, [$d2];
+	ld_equiv(1)_width(1024)_u64 $d6, [128];
+	ld_equiv(1)_width(all)_u64 $d6, [128];
+	ld_global_rwimg $d1, [&rwimage1];
+	ld_readonly_roimg $d2, [&roimage1];
+	ld_global_woimg $d2, [&woimage1];
+	//ld_kernarg_samp $d3, [%sampler1];
+	ld_global_sig64 $d3, [&signal64];
+
+	// Page 179
+	st_global_f32 $s1, [&x];
+	st_global_align(4)_f32 $s1, [&x];
+	st_global_u8 $s1, [&x];
+	st_global_u16 $s1, [&x];
+	st_global_u32 $s1, [&x];
+	st_global_u32 200, [&x];
+	st_global_u32 WAVESIZE, [&x];
+	st_global_f16 $s1, [&x];
+	st_global_f64 $d1, [&x];
+	st_global_align(8)_f64 $d1, [&x];
+	st_private_f32 $s1, [$s3+4];
+	st_global_f32 $s1, [$d3+4];
+	st_spill_f32 $s1, [$s3+4];
+	st_arg_f32 $s1, [$s3+4];
+	st_f32 $s1, [$d3+4];
+	st_align(4)_f32 $s1, [$d3+4];
+	st_v4_f32 ($s1,$s1,$s6,$s2), [$d3+4];
+	st_v2_align(8)_equiv(9)_f32 ($s1,$s2), [$d3+4];
+	st_v3_s32 ($s1,$s1,$s6), [$d3+4];
+	st_group_equiv(0)_u32 $s0, [$s2];
+	st_equiv(1)_u64 $d3, [$d4+32];
+	st_align(16)_equiv(1)_u64 $d3, [$d4+32];
+	st_v2_equiv(1)_u64 ($d1,$d2), [$d0+32];
+	st_equiv(1)_u64 $d6, [128];
+	//st_arg_roimg $d2, [&roimage2];
+	//st_arg_rwimg $d1, [&rwimage2];
+	//st_arg_woimg $d2, [&woimage2];
+	//st_arg_samp $d3, [&sampler2];
+	st_global_sig64 $d3, [&signal64];
+
+	// Page 184
+	atomic_ld_global_rlx_sys_equiv(49)_b32 $s1, [&x];
+	atomic_ld_global_scacq_cmp_b32 $s1, [&x];
+	atomic_ld_global_scacq_wg_b32 $s1, [&x];
+	atomic_ld_scacq_sys_b64 $d1, [$d0];
+	//atomic_and_global_ar_wg_u32 $s1, [&x], 23;
+	atomic_and_global_rlx_wv_b32 $s1, [&x], 23;
+	atomic_and_global_rlx_wg_b32 $s1, [&x], 23;
+	atomic_and_rlx_sys_b32 $s1, [$d0], 23;
+	atomic_or_global_scar_sys_b64 $d1, [&x], 23;
+	atomic_or_global_screl_sys_b64 $d1, [&x], 23;
+	atomic_or_global_scacq_wv_b64 $d1, [&x], 23;
+	atomic_or_rlx_sys_b64 $d1, [$d0], 23;
+	atomic_xor_global_scar_sys_b64 $d1, [&x], 23;
+	atomic_xor_global_rlx_sys_b64 $d1, [&x], 23;
+	atomic_xor_global_rlx_wg_b64 $d1, [&x], 23;
+	atomic_xor_screl_cmp_b64 $d1, [$d0], 23;
+	atomic_cas_global_scar_sys_b64 $d1, [&x], 23, 12;
+	atomic_cas_global_rlx_sys_b64 $d1, [&x], 23, 1;
+	atomic_cas_global_rlx_wg_b64 $d1, [&x], 23, 9;
+	atomic_cas_rlx_sys_b64 $d1, [$d0], 23, 12;
+	atomic_exch_global_scar_sys_b64 $d1, [&x], 23;
+	atomic_exch_global_rlx_sys_b64 $d1, [&x], 23;
+	atomic_exch_global_rlx_wg_b64 $d1, [&x], 23;
+	atomic_exch_rlx_sys_b64 $d1, [$d0], 23;
+	atomic_add_global_scar_sys_u64 $d1, [&x], 23;
+	atomic_add_global_rlx_sys_u64 $d1, [&x], 23;
+	atomic_add_global_rlx_wg_u64 $d1, [&x], 23;
+	atomic_add_screl_sys_u64 $d1, [$d0], 23;
+	atomic_sub_global_scar_sys_u64 $d1, [&x], 23;
+	atomic_sub_global_rlx_sys_u64 $d1, [&x], 23;
+	atomic_sub_global_rlx_wg_u64 $d1, [&x], 23;
+	atomic_sub_rlx_cmp_u64 $d1, [$d0], 23;
+	atomic_wrapinc_global_scar_sys_u64 $d1, [&x], 23;
+	atomic_wrapinc_global_rlx_sys_u64 $d1, [&x], 23;
+	atomic_wrapinc_global_rlx_wg_u64 $d1, [&x], 23;
+	atomic_wrapinc_rlx_sys_u64 $d1, [$d0], 23;
+	atomic_wrapdec_global_scar_sys_u64 $d1, [&x], 23;
+	atomic_wrapdec_global_rlx_sys_u64 $d1, [&x], 23;
+	atomic_wrapdec_global_rlx_wg_u64 $d1, [&x], 23;
+	atomic_wrapdec_rlx_sys_u64 $d1, [$d0], 23;
+	atomic_max_global_scar_sys_s64 $d1, [&x], 23;
+	atomic_max_global_rlx_sys_s64 $d1, [&x], 23;
+	atomic_max_global_rlx_wg_u64 $d1, [&x], 23;
+	atomic_max_rlx_sys_u64 $d1, [$d0], 23;
+	atomic_min_global_scar_sys_s64 $d1, [&x], 23;
+	atomic_min_global_rlx_sys_s64 $d1, [&x], 23;
+	atomic_min_global_rlx_wg_u64 $d1, [&x], 23;
+	atomic_min_rlx_sys_u64 $d1, [$d0], 23;
+
+	// Page 187
+	atomicnoret_st_global_rlx_sys_equiv(49)_b32 [&x], $s1;
+	atomicnoret_st_global_screl_cmp_b32 [&x], $s1;
+	atomicnoret_st_global_screl_wg_b32 [&x], $s1;
+	atomicnoret_st_screl_sys_b64 [$d0], $d1;
+	atomicnoret_and_global_scar_wg_b32 [&x], 23;
+	atomicnoret_and_global_rlx_wv_b32 [&x], 23;
+	atomicnoret_and_global_rlx_wg_b32 [&x], 23;
+	atomicnoret_and_rlx_sys_b32 [$d0], 23;
+	atomicnoret_or_global_scar_sys_b64 [&x], 23;
+	atomicnoret_or_global_screl_sys_b64 [&x], 23;
+	atomicnoret_or_global_scacq_wv_b64 [&x], 23;
+	atomicnoret_or_rlx_sys_b64 [$d0], 23;
+	atomicnoret_xor_global_scar_sys_b64 [&x], 23;
+	atomicnoret_xor_global_rlx_sys_b64 [&x], 23;
+	atomicnoret_xor_global_rlx_wg_b64 [&x], 23;
+	atomicnoret_xor_screl_cmp_b64 [$d0], 23;
+	atomicnoret_cas_global_scar_sys_b64 [&x], 23, 12;
+	atomicnoret_cas_global_rlx_sys_b64 [&x], 23, 1;
+	atomicnoret_cas_global_rlx_wg_b64 [&x], 23, 9;
+	atomicnoret_cas_rlx_sys_b64 [$d0], 23, 12;
+	atomicnoret_add_global_scar_sys_u64 [&x], 23;
+	atomicnoret_add_global_rlx_sys_s64 [&x], 23;
+	atomicnoret_add_global_rlx_wg_u64 [&x], 23;
+	atomicnoret_add_screl_sys_s64 [$d0], 23;
+	atomicnoret_sub_global_scar_sys_u64 [&x], 23;
+	atomicnoret_sub_global_rlx_sys_s64 [&x], 23;
+	atomicnoret_sub_global_rlx_wg_u64 [&x], 23;
+	atomicnoret_sub_rlx_cmp_s64 [$d0], 23;
+	atomicnoret_wrapinc_global_scar_sys_u64 [&x], 23;
+	atomicnoret_wrapinc_global_rlx_sys_u64 [&x], 23;
+	atomicnoret_wrapinc_global_rlx_wg_u64 [&x], 23;
+	atomicnoret_wrapinc_rlx_sys_u64 [$d0], 23;
+	atomicnoret_wrapdec_global_scar_sys_u64 [&x], 23;
+	atomicnoret_wrapdec_global_rlx_sys_u64 [&x], 23;
+	atomicnoret_wrapdec_global_rlx_wg_u64 [&x], 23;
+	atomicnoret_wrapdec_rlx_sys_u64 [$d0], 23;
+	atomicnoret_max_global_scar_sys_u64 [&x], 23;
+	atomicnoret_max_global_rlx_sys_s64 [&x], 23;
+	atomicnoret_max_global_rlx_wg_u64 [&x], 23;
+	atomicnoret_max_rlx_sys_s64 [$d0], 23;
+	atomicnoret_min_global_scar_sys_u64 [&x], 23;
+	atomicnoret_min_global_rlx_sys_s64 [&x], 23;
+	atomicnoret_min_global_rlx_wg_u64 [&x], 2;
+
+	// Page 192
+	signal_ld_rlx_b64_sig64 $d2, $d0;
+	signal_and_scar_b64_sig64 $d2, $d0, 23;
+	signal_or_scar_b64_sig64 $d2, $d0, 23;
+	signal_xor_scar_b64_sig64 $d2, $d0, 23;
+	signal_cas_scar_b64_sig64 $d2, $d0, 23, 12;
+	signal_exch_scar_b64_sig64 $d2, $d0, 23;
+	signal_add_scar_u64_sig64 $d2, $d0, 23;
+	signal_sub_scar_u64_sig64 $d2, $d0, 23;
+	signal_wait_eq_rlx_s64_sig64 $d2, $d0, 23;
+	signal_wait_ne_rlx_s64_sig64 $d2, $d0, $d3;
+	signal_waittimeout_eq_rlx_s64_sig64 $d2, $d0, 23, $d4;
+	signal_waittimeout_ne_rlx_s64_sig64 $d2, $d0, $d3, 1000;
+	signalnoret_st_rlx_b64_sig64 $d0, $d2;
+	signalnoret_and_scar_b64_sig64 $d0, 23;
+	signalnoret_or_scar_b64_sig64 $d0, 23;
+	signalnoret_xor_scar_b64_sig64 $d0, 23;
+	signalnoret_cas_scar_b64_sig64 $d0, 23, 12;
+	signalnoret_add_scar_u64_sig64 $d0, 23;
+	signalnoret_sub_scar_u64_sig64 $d0, 23;
+
+	// Page 195
+	memfence_scacq_global(sys);
+	memfence_screl_group(wg);
+	memfence_scacq_global(cmp)_group(wg);
+	memfence_scar_image(wi);
+	memfence_scar_group(wg)_global(wg);
+
+	// Page 224
+	ld_readonly_roimg $d1, [&roimage1];
+	ld_global_samp $d3, [&TestGlobalSamp];
+	rdimage_v4_1d_equiv(12)_s32_roimg_f32 ($s0, $s1, $s5, $s3), $d1, $d3, $s6;
+	rdimage_v4_2d_s32_roimg_f32 ($s0, $s1, $s3, $s4), $d2, $d3, ($s6, $s9);
+	rdimage_v4_3d_s32_roimg_f32 ($s0, $s1, $s3, $s4), $d2, $d3, ($s6, $s9, $s2);
+	rdimage_v4_1da_s32_roimg_f32 ($s0, $s1, $s2, $s3), $d1, $d3, ($s6, $s7);
+	rdimage_v4_2da_s32_roimg_f32 ($s0, $s1, $s3, $s4), $d1, $d3, ($s6, $s9, $s12);
+	rdimage_2ddepth_s32_roimg_f32 $s0, $d2, $d3, ($s6, $s9);
+	rdimage_2dadepth_s32_roimg_f32 $s0, $d2, $d3, ($s6, $s9, $s10);
+
+	// Page 226
+	ld_readonly_roimg $d2, [&roimage1];
+	ldimage_v4_1d_equiv(12)_f32_rwimg_u32 ($s1, $s2, $s3, $s4), $d1, $s4;
+	ldimage_v4_2d_f32_rwimg_u32 ($s1, $s2, $s3, $s4), $d1, ($s4, $s5);
+	ldimage_v4_3d_f32_rwimg_u32 ($s1, $s2, $s3, $s4), $d1, ($s4, $s5, $s6);
+	ldimage_v4_1da_f32_rwimg_u32 ($s1, $s2, $s3, $s4), $d1, ($s4, $s5);
+	ldimage_v4_2da_f32_roimg_u32 ($s1, $s2, $s3, $s4), $d2, ($s4, $s1, $s2);
+	ldimage_v4_1db_f32_roimg_u32 ($s1, $s2, $s3, $s4), $d2, $s4;
+	ldimage_2ddepth_f32_rwimg_u32 $s1, $d1, ($s4, $s5);
+	ldimage_2dadepth_f32_rwimg_u32 $s1, $d1, ($s4, $s5, $s6);
+
+	// Page 228
+	ld_global_woimg $d1, [&woimage1];
+	ld_global_rwimg $d2, [&rwimage1];
+	stimage_v4_1d_equiv(12)_f32_woimg_u32 ($s1, $s2, $s3, $s4), $d1, $s4;
+	stimage_v4_2d_f32_woimg_u32 ($s1, $s2, $s3, $s4), $d1, ($s4, $s5);
+	stimage_v4_3d_f32_woimg_u32 ($s1, $s2, $s3, $s4), $d1, ($s4, $s5, $s6);
+	stimage_v4_1da_f32_rwimg_u32 ($s1, $s2, $s3, $s4), $d2, ($s4, $s5);
+	stimage_v4_2da_f32_rwimg_u32 ($s1, $s2, $s3, $s4), $d2, ($s4, $s5, $s6);
+	stimage_v4_1db_f32_rwimg_u32 ($s1, $s2, $s3, $s4), $d2, $s4;
+	stimage_2ddepth_f32_rwimg_u32 $s1, $d2, ($s4, $s5);
+	stimage_2dadepth_f32_rwimg_u32 $s1, $d2, ($s4, $s5, $s6);
+
+	// Page 230
+	ld_global_rwimg $d1, [&rwimage1];
+	ld_readonly_roimg $d2, [&roimage1];
+	ld_global_woimg $d3, [&woimage1];
+	ld_global_samp $d4, [&TestGlobalSamp];
+	queryimage_1d_width_u32_rwimg $s1, $d1;
+	queryimage_2d_height_u32_rwimg $s0, $d1;
+	queryimage_3d_depth_u32_rwimg $s0, $d1;
+	queryimage_1da_array_u32_roimg $s1, $d2;
+	queryimage_2da_channelorder_u32_roimg $s0, $d2;
+	queryimage_1db_channeltype_u32_roimg $s0, $d2;
+	queryimage_2ddepth_channeltype_u32_woimg $s0, $d3;
+	querysampler_addressing_u32 $s0, $d4;
+	querysampler_coord_u32 $s0, $d4;
+	querysampler_filter_u32 $s0, $d4;
+
+	// Page 253
+	br @label1;
+	cbr_b1 $c0, @label1;
+	cbr_width(2)_b1 $c0, @label2;
+	cbr_width(all)_b1 $c0, @label3;
+	sbr_u32 $s1 [@label1, @label2, @label3];
+	sbr_width(2)_u32 $s1 [@label1, @label2, @label3];
+	sbr_width(all)_u32 $s1 [@label1, @label2, @label3];
+	// ...
+	@label1:
+	// ...
+	@label2:
+	// ...
+	@label3:
+	// ...
+
+	// Page 236
+	barrier;
+	barrier_width(64);
+	barrier_width(WAVESIZE);
+	wavebarrier;
+
+	// Page 246
+	initfbar %fb;
+	joinfbar %fb;
+	waitfbar %fb;
+	arrivefbar %fb;
+	leavefbar %fb;
+	releasefbar %fb;
+	ldf_u32 $s0, %fb;
+	joinfbar $s0;
+
+	// Page 251
+	activelanecount_u32_b1 $s1, $c0;
+	activelaneid_u32 $s1;
+	activelaneid_width(WAVESIZE)_u32 $s1;
+	activelanemask_v4_b64_b1 ($d0, $d1, $d2, $d3), $c0;
+	activelaneshuffle_b32 $s1, $s2, $s2, $s3, $c1;
+	activelaneshuffle_b64 $d1, $d2, 0, 0, 0;
+	activelaneshuffle_width(all)_b128 $q1, $q2, $s2, $q3, $c1;
+
+	// Page 269
+	alloca_u32 $s1, 24;
+	alloca_align(8)_u32 $s1, 24;
+
+	// Page 274
+	currentworkgroupsize_u32 $s1, 0;
+	dim_u32 $s3;
+	gridgroups_u32 $s2, 2;
+	gridsize_u32 $s2, 2;
+	packetcompletionsig_sig64 $d6;
+	packetid_u64 $d0;
+	workgroupid_u32 $s1, 0;
+	workgroupid_u32 $s1, 1;
+	workgroupid_u32 $s1, 2;
+	workgroupsize_u32 $s1, 0;
+	workitemabsid_u32 $s1, 0;
+	workitemabsid_u64 $d1, 1;
+	workitemflatabsid_u32 $s1;
+	workitemflatabsid_u64 $d1;
+	workitemflatid_u32 $s1;
+	workitemid_u32 $s1, 0;
+	workitemid_u32 $s1, 1;
+	workitemid_u32 $s1, 2;
+
+	// Page 276
+	cleardetectexcept_u32 1;
+	getdetectexcept_u32 $s1;
+	setdetectexcept_u32 2;
+
+	// Page 280
+	agentcount_u32 $s0;
+	agentid_u32 $s0;
+	ldk_u64 $d0, &example_ldi;
+	queueid_u32 $s0;
+	queueptr_u64 $d2;
+	ldqueuewriteindex_global_rlx_u64 $d3, [$d2];
+	add_u64 $d4, $d3, 1;
+	casqueuewriteindex_global_scar_u64 $d1, [$d2], $d3, $d4;
+	addqueuewriteindex_global_rlx_u64 $d1, [$d2], 2;
+	ldqueuereadindex_global_scacq_u64 $d5, [$d2];
+	stqueuereadindex_global_screl_u64 [$d2], $d4;
+	stqueuewriteindex_global_screl_u64 [$d2], $d4;
+
+	clock_u64 $d6;
+	debugtrap_u32 $s1;
+	groupbaseptr_u32 $s2;
+	kernargbaseptr_u64 $d2;
+	laneid_u32 $s1;
+	maxcuid_u32 $s6;
+	maxwaveid_u32 $s4;
+	nop;
+	nullptr_group_u32 $s0;
+	nullptr_global_u64 $d1;
+	waveid_u32 $s3;
+
+
+
+	// Ret
+	ret;
+
+};
