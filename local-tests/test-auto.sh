@@ -250,7 +250,8 @@ do
 	M2S_TEST_PATH="$M2S_CLIENT_KIT_TEST_PATH" \
 		       M2S_BUILD_PATH="$M2S_CLIENT_KIT_TMP_PATH/m2s-build" \
 		       M2S="$M2S_CLIENT_KIT_TMP_PATH/m2s-build/bin/m2s" \
-		       M2C="$M2S_CLIENT_KIT_TMP_PATH/m2s-build/bin/m2c" $test_sh >$out 2>$err
+		       M2C="$M2S_CLIENT_KIT_TMP_PATH/m2s-build/bin/m2c" \
+		       timeout 10s $test_sh >$out 2>$err
 
 	# Check outputs
 	failed=0
