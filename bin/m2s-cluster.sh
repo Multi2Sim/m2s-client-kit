@@ -904,14 +904,14 @@ then
 		for suite_name in $suite_list
 		do
 			cd $HOME/m2s-bench-$suite_name || exit 1
-			temp=$(mktemp)
-			svn info > $temp || error "failed running \"svn info\""
-			rev_current=$(sed -n "s,^Revision: ,,gp" $temp)
-			svn info -r HEAD > $temp || error "failed running \"svn info\""
-			rev_latest=$(sed -n "s,^Revision: ,,gp" $temp)
-			rm -f $temp
-			[ "$rev_current" == "$rev_latest" ] || \
-				echo -n " - [WARNING: m2s-bench-$suite_name out of date]"
+			# temp=$(mktemp)
+			# svn info > $temp || error "failed running \"svn info\""
+			# rev_current=$(sed -n "s,^Revision: ,,gp" $temp)
+			# svn info -r HEAD > $temp || error "failed running \"svn info\""
+			# rev_latest=$(sed -n "s,^Revision: ,,gp" $temp)
+			# rm -f $temp
+			# [ "$rev_current" == "$rev_latest" ] || \
+			#	echo -n " - [WARNING: m2s-bench-$suite_name out of date]"
 		done
 
 		# Submit condor cluster
