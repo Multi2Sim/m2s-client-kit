@@ -1,3 +1,0 @@
-[ Commands ]
-Command[0] = LoadTree MyTree.ini MyTree
-Command[1] = StructuralAnalysis MyTree

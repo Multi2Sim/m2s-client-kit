@@ -1,6 +1,0 @@
-.*
-block_0:
-	v_mul_lo_u32 v9, v6, v7
-	s_endpgm 
-.*
-0

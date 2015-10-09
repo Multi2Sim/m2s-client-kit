@@ -1,6 +1,0 @@
-.*
-block_0:
-	v_sub_i32 v9, vcc, v6, v7
-	s_endpgm 
-.*
-0
