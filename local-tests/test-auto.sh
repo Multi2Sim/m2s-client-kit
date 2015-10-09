@@ -302,5 +302,10 @@ done
 echo
 echo "$total_count tests, $passed_count passed, $failed_count failed"
 rm -f $temp_file
-exit 0
+if [ $failed_count == 0 ]
+then
+	exit 0
+else
+	exit 1
+fi
 
