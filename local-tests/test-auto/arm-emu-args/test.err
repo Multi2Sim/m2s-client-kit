@@ -1,7 +1,7 @@
 
 ; Multi2Sim .* - A Simulation Framework for CPU-GPU Heterogeneous Computing
 ; Please use command 'm2s --help' for a list of command-line options\.
-; Simulation alpha-numeric ID: \w*
+; Simulation alpha-numeric ID: .*
 
 
 ;
@@ -16,6 +16,4 @@ SimEnd = ContextsFinished
 RealTime = .*
 Instructions = .*
 InstructionsPerSecond = .*
-Contexts = 1
-Memory = .*
 

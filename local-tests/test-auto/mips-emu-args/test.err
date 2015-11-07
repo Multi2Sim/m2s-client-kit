@@ -16,6 +16,4 @@ SimEnd = ContextsFinished
 RealTime = .*
 Instructions = .*
 InstructionsPerSecond = .*
-Contexts = 1
-Memory = .*
 
