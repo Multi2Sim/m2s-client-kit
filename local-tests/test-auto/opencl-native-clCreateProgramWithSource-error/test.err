@@ -1,4 +1,5 @@
-warning: Multi2Sim OpenCL library running on native mode\.
+
+OpenCL runtime warning: Multi2Sim OpenCL library running on native mode\.
 	You are running on the real machine an OpenCL program linked with
 	Multi2Sim's OpenCL runtime \(libm2s-opencl\.so\)\. In native mode, the only
 	device visible to the application is the x86 CPU\. If you want to see
@@ -6,7 +7,9 @@ warning: Multi2Sim OpenCL library running on native mode\.
 	to run your program using native libraries, please compile it with flag
 	'-lOpenCL' instead of '-lm2s-opencl'\.
 
-fatal: clBuildProgram: runtime kernel compilation not supported\.
+
+
+OpenCL runtime error: clBuildProgram: runtime kernel compilation not supported\.
 	Your guest OpenCL application is trying to compile an OpenCL kernel
 	by calling function 'clCreateProgramWithSource'\. Dynamic kernel
 	compilation is currently not supported\. The following two
@@ -24,4 +27,5 @@ fatal: clBuildProgram: runtime kernel compilation not supported\.
 	   'clCreateProgramWithSource' by setting environment varaible
 	   'M2S_OPENCL_BINARY' to the path of a pre-compiled binary that
 	   will be passed to the application\.
+
 
