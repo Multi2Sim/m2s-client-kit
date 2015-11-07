@@ -1,7 +1,7 @@
 
 000080b8 <_start>
     80b8:	e3a00001	mov  r0, #1   ;0x1
-    80bc:	e59f1014	ldr  r1, \[r15, #20\]!
+    80bc:	e59f1014	ldr  r1, \[r15, #20\] 
     80c0:	e3a0200c	mov  r2, #12   ;0xc
     80c4:	e3a07004	mov  r7, #4   ;0x4
     80c8:	ef000000	svc  0x0
