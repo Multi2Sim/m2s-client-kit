@@ -12,6 +12,7 @@ file_match_py="$M2S_CLIENT_KIT_BIN_PATH/file-match.py"
 build_m2s_local_sh="$M2S_CLIENT_KIT_BIN_PATH/build-m2s-local.sh"
 prog_name=$(echo $0 | awk -F/ '{ print $NF }')
 
+offline_mode=false
 
 #
 # Syntax
@@ -98,6 +99,10 @@ Options:
 	repository. If none is specified, the 'trunk' directory is fetched
 	instead.
 
+  --offline
+    Do not build new version of Multi2Sim. Simply use the version that
+    is currently in /tmp.
+
 EOF
 	exit 1
 }
@@ -109,7 +114,7 @@ EOF
 #
 
 # Options
-temp=`getopt -o r:h -l tag:,help -n $prog_name -- "$@"`
+temp=`getopt -o r:h -l tag:,offline,help -n $prog_name -- "$@"`
 if [ $? != 0 ] ; then exit 1 ; fi
 eval set -- "$temp"
 rev=
@@ -119,6 +124,7 @@ tag_arg=
 while true ; do
 	case "$1" in
 	-h|--help) syntax ;;
+	--offline) offline_mode=true ; shift ;;
 	-r) rev=$2 ; rev_arg="-r $2" ; shift 2 ;;
 	--tag) tag=$2 ; tag_arg="--tag $2" ; shift 2 ;;
 	--) shift ; break ;;
@@ -216,7 +222,10 @@ else
 fi
 
 # Obtain local copy
-$build_m2s_local_sh $rev_arg $tag_arg || exit 1
+if [ $offline_mode != true ]
+then
+	$build_m2s_local_sh $rev_arg $tag_arg || exit 1
+fi
 
 # Create path for results and clear it
 mkdir -p $result_path || exit 1
