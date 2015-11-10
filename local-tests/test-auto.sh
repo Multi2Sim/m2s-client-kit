@@ -1,6 +1,6 @@
 #!/bin/bash
 
-M2S_CLIENT_KIT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"/..
+M2S_CLIENT_KIT_PATH="$(readlink -e "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"/..)"
 M2S_CLIENT_KIT_BIN_PATH="$M2S_CLIENT_KIT_PATH/bin"
 M2S_CLIENT_KIT_TMP_PATH="$M2S_CLIENT_KIT_PATH/tmp"
 M2S_CLIENT_KIT_RESULT_PATH="$M2S_CLIENT_KIT_PATH/result"
@@ -20,7 +20,7 @@ offline_mode=false
 
 function error()
 {
-	echo -e "\nerror: $1\n" >&2
+	echo -e "\nerror: $*\n" >&2
 	exit 1
 }
 
@@ -54,7 +54,6 @@ script can assume that the following environment variables are set:
 				needs files present in other tests, they can be
 				accessed using this variable as a root.
 	* M2S			Multi2Sim executable.
-	* M2C			Multi2C executable.
 
 Files 'test.out' and 'test.err' are optional. If either one is missing, that
 specific check will not be performed. If you need to create a regular expression
@@ -100,8 +99,15 @@ Options:
 	instead.
 
   --offline
-    Do not build new version of Multi2Sim. Simply use the version that
-    is currently in /tmp.
+  	Do not try to obtain the latest version from the Multi2Sim repository.
+	Simply use the version that was obtained last time this script was
+	invoked.
+
+  --local <path>
+  	Do not obtain a remote copy of Multi2Sim. Instead, use the local
+	Multi2Sim source directory given in the argument. Using this option
+	will rebuild the source in this directory, and then use the
+	executable in "<path>/bin/m2s" for the tests.
 
 EOF
 	exit 1
@@ -113,22 +119,63 @@ EOF
 # Main Script
 #
 
-# Options
-temp=`getopt -o r:h -l tag:,offline,help -n $prog_name -- "$@"`
-if [ $? != 0 ] ; then exit 1 ; fi
+# Parse options
+temp=`getopt -o r:h -l tag:,offline,local:,help -n $prog_name -- "$@"`
+[ $? == 0 ] || exit 1
+
+# Parse values
 eval set -- "$temp"
 rev=
 rev_arg=
 tag=
 tag_arg=
+local_path=
 while true ; do
+
 	case "$1" in
-	-h|--help) syntax ;;
-	--offline) offline_mode=true ; shift ;;
-	-r) rev=$2 ; rev_arg="-r $2" ; shift 2 ;;
-	--tag) tag=$2 ; tag_arg="--tag $2" ; shift 2 ;;
-	--) shift ; break ;;
-	*) echo "$1: invalid option" ; exit 1 ;;
+
+	-h|--help)
+
+		syntax
+		;;
+
+	--offline)
+
+		offline_mode=true
+		shift
+		;;
+
+	-r)
+	
+		rev=$2
+		rev_arg="-r $2"
+		shift 2
+		;;
+
+	--tag)
+	
+		tag=$2
+		tag_arg="--tag $2"
+		shift 2
+		;;
+
+	--local)
+		
+		local_path=$2
+		shift 2
+		;;
+
+	--)
+	
+		shift
+		break
+		;;
+
+	*)
+	
+		echo "$1: invalid option"
+		exit 1
+		;;
 	esac
 done
 
@@ -222,9 +269,54 @@ else
 fi
 
 # Obtain local copy
-if [ $offline_mode != true ]
+if [ "$local_path" != "" ]
 then
+	# Check that local path is a valid build path
+	if [ ! -f "$local_path/Makefile" ]
+	then
+		error "File '$local_path/Makefile' not found." \
+			"\nThe given path doesn't seem to contain Multi2Sim's source."
+	fi
+	if [ ! -d "$local_path/src" ]
+	then
+		error "Directory '$local_path/src' not found." \
+			"\nThe given path doesn't seem to contain Multi2Sim's source."
+	fi
+
+	# Change to local path
+	old_path=`pwd`
+	cd $local_path
+	log=`mktemp`
+	
+	# Build source
+	echo "Running 'make' on $local_path..."
+	make >$log 2>&1
+	if [ $? == 0 ]
+	then
+		rm -f $log
+	else
+		new_log="$M2S_CLIENT_KIT_RESULT_PATH/test-auto.log"
+		mv $log $new_log
+		error "Failed to build Multi2Sim in '$local_path'." \
+			"\nThe log can be found in '$new_log'"
+		exit 1
+	fi
+
+	# Return to old path
+	cd $old_path
+
+	# Set Multi2Sim paths
+	m2s_build_path="$local_path"
+	m2s_exe_path="$m2s_build_path/bin/m2s"
+
+elif [ $offline_mode != true ]
+then
+	# Acquire remote copy and build
 	$build_m2s_local_sh $rev_arg $tag_arg || exit 1
+
+	# Set Multi2Sim paths
+	m2s_build_path="$M2S_CLIENT_KIT_TMP_PATH/m2s-build"
+	m2s_exe_path="$M2S_CLIENT_KIT_TMP_PATH/m2s-build/bin/m2s"
 fi
 
 # Create path for results and clear it
@@ -257,9 +349,8 @@ do
 	out_copy="$result_path/$t.out"
 	err_copy="$result_path/$t.err"
 	M2S_TEST_PATH="$M2S_CLIENT_KIT_TEST_PATH" \
-		       M2S_BUILD_PATH="$M2S_CLIENT_KIT_TMP_PATH/m2s-build" \
-		       M2S="$M2S_CLIENT_KIT_TMP_PATH/m2s-build/bin/m2s" \
-		       M2C="$M2S_CLIENT_KIT_TMP_PATH/m2s-build/bin/m2c" \
+		       M2S_BUILD_PATH="$m2s_build_path" \
+		       M2S="$m2s_exe_path" \
 		       timeout 10s $test_sh >$out 2>$err
 
 	# Check outputs

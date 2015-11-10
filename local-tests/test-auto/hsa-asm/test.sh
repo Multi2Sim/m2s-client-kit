@@ -5,3 +5,5 @@ $M2S --hsa-disasm target.brig > result.hsail
 
 # At last, compare the difference between the result and the target
 diff target.hsail result.hsail
+rm -f result.hsail
+
