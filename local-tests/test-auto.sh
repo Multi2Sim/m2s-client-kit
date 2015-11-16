@@ -351,7 +351,7 @@ do
 	M2S_TEST_PATH="$M2S_CLIENT_KIT_TEST_PATH" \
 		       M2S_BUILD_PATH="$m2s_build_path" \
 		       M2S="$m2s_exe_path" \
-		       timeout 10s $test_sh >$out 2>$err
+		       timeout 1h $test_sh >$out 2>$err
 
 	# Check outputs
 	failed=0
