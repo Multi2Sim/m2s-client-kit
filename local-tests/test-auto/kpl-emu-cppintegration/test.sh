@@ -1,6 +1,6 @@
 #!/bin/bash
 
 # Run test
-$M2S --kpl-sim functional cppIntegration_m2s
+$M2S cppIntegration
 echo $?
-rm -f vec_con.o cppIntegration.cu.cubin
+rm -f cppIntegration.cu.cubin
