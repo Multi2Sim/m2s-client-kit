@@ -1,6 +1,0 @@
-#!/bin/bash
-
-# Run test
-# m2s --kpl-sim functional vectorAdd
-$M2S --kpl-disasm vectoradd.cubin
-echo $?
