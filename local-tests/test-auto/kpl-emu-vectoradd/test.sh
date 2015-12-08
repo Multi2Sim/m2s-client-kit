@@ -1,6 +1,5 @@
 #!/bin/bash
 
 # Run test
-$M2S --kpl-sim functional vectoradd_m2s
+$M2S vectoradd_m2s
 echo $?
-rm -f vectorAdd.cu.cubin
