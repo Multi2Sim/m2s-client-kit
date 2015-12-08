@@ -1,3 +1,4 @@
+Verification passes\.
 	code for sm_35
 		Function : _Z8vect_addPiS_
 	/\*0008\*/     /\*0x089c000664c03c00\*/ 	MOV R1, c \[0x0\] \[0x44\];
