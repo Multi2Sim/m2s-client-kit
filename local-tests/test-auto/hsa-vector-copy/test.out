@@ -1,0 +1,31 @@
+Initializing the hsa runtime succeeded.
+Getting a gpu agent succeeded.
+Querying the agent name succeeded.
+Querying the agent maximum queue size succeeded.
+Creating the queue succeeded.
+Create the program succeeded.
+Adding the brig module to the program succeeded.
+Query the agents isa succeeded.
+Finalizing the program succeeded.
+Destroying the program succeeded.
+Create the executable succeeded.
+Loading the code object succeeded.
+Freeze the executable succeeded.
+Extract the symbol from the executable succeeded.
+Extracting the symbol from the executable succeeded.
+Extracting the kernarg segment size from the executable succeeded.
+Extracting the group segment size from the executable succeeded.
+Extracting the private segment from the executable succeeded.
+Creating a HSA signal succeeded.
+Registering argument memory for input parameter succeeded.
+Registering argument memory for output parameter succeeded.
+Finding a kernarg memory region succeeded.
+Allocating kernel argument memory buffer succeeded.
+Dispatching the kernel succeeded.
+Passed validation.
+Destroying the signal succeeded.
+Destroying the executable succeeded.
+Destroying the code object succeeded.
+Destroying the queue succeeded.
+Shutting down the runtime succeeded.
+0
