@@ -5,8 +5,7 @@
 
 
 \[ELF Reader\]
-\[.*\] Error:
-64-bit ELF files not supported
+\[.*\]\sError:\s64-bit\sELF\sfiles\snot\ssupported
 
 
 
