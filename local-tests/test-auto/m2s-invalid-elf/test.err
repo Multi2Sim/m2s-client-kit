@@ -5,6 +5,5 @@
 
 
 \[ELF Reader\]
-\[/home/tushar/m2s-client-kit/local-tests/test-auto/m2s-invalid-elf/elf\] Error:
-Invalid ELF file
+\[[^\]]*\]\sError:\sInvalid\sELF\sfile
 
