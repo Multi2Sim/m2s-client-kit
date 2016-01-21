@@ -4,7 +4,7 @@
 ;
 
 \[ Config\.Device \]
-Frequency = 925
+Frequency = 1000
 NumComputeUnits = 32
 
 \[ Config\.ComputeUnit \]
@@ -15,8 +15,8 @@ MaxWorkGroupsPerWavefrontPool = 10
 MaxWavefrontsPerWavefrontPool = 10
 
 \[ Config\.FrontEnd \]
-FetchLatency = 5
-FetchWidth = 4
+FetchLatency = 1
+FetchWidth = 1
 FetchBufferSize = 10
 IssueLatency = 1
 IssueWidth = 5
@@ -29,11 +29,11 @@ IssueBufferSize = 1
 DecodeLatency = 1
 DecodeBufferSize = 1
 ReadExecWriteLatency = 8
-ReadExecWriteBufferSize = 1
+ReadExecWriteBufferSize = 2
 
 \[ Config\.ScalarUnit \]
 Width = 1
-IssueBufferSize = 1
+IssueBufferSize = 4
 DecodeLatency = 1
 DecodeBufferSize = 1
 ReadLatency = 1
@@ -50,14 +50,14 @@ DecodeLatency = 1
 DecodeBufferSize = 1
 ReadLatency = 1
 ReadBufferSize = 1
-ExecLatency = 4
-ExecBufferSize = 4
+ExecLatency = 16
+ExecBufferSize = 16
 WriteLatency = 1
 WriteBufferSize = 1
 
 \[ Config\.LDSUnit \]
 Width = 1
-IssueBufferSize = 1
+IssueBufferSize = 4
 DecodeLatency = 1
 DecodeBufferSize = 1
 ReadLatency = 1
@@ -124,10 +124,8 @@ VectorRegWrites= [^\n]*
 
 LDS\.Accesses = [^\n]*
 LDS\.Reads = [^\n]*
-LDS\.EffectiveReads = [^\n]*
 LDS\.CoalescedReads = [^\n]*
 LDS\.Writes = [^\n]*
-LDS\.EffectiveWrites = [^\n]*
 LDS\.CoalescedWrites = [^\n]*
 
 
@@ -141,7 +139,7 @@ BranchInstructions = 0
 SIMDInstructions = 0
 VectorMemInstructions = 0
 LDSInstructions = 0
-Cycles = 0
+Cycles = [^\n]*
 InstructionsPerCycle = 0
 
 ScalarRegReads= 0
@@ -151,10 +149,8 @@ VectorRegWrites= 0
 
 LDS\.Accesses = 0
 LDS\.Reads = 0
-LDS\.EffectiveReads = 0
 LDS\.CoalescedReads = 0
 LDS\.Writes = 0
-LDS\.EffectiveWrites = 0
 LDS\.CoalescedWrites = 0
 
 
@@ -168,7 +164,7 @@ BranchInstructions = 0
 SIMDInstructions = 0
 VectorMemInstructions = 0
 LDSInstructions = 0
-Cycles = 0
+Cycles = [^\n]*
 InstructionsPerCycle = 0
 
 ScalarRegReads= 0
@@ -178,10 +174,8 @@ VectorRegWrites= 0
 
 LDS\.Accesses = 0
 LDS\.Reads = 0
-LDS\.EffectiveReads = 0
 LDS\.CoalescedReads = 0
 LDS\.Writes = 0
-LDS\.EffectiveWrites = 0
 LDS\.CoalescedWrites = 0
 
 
@@ -195,7 +189,7 @@ BranchInstructions = 0
 SIMDInstructions = 0
 VectorMemInstructions = 0
 LDSInstructions = 0
-Cycles = 0
+Cycles = [^\n]*
 InstructionsPerCycle = 0
 
 ScalarRegReads= 0
@@ -205,10 +199,8 @@ VectorRegWrites= 0
 
 LDS\.Accesses = 0
 LDS\.Reads = 0
-LDS\.EffectiveReads = 0
 LDS\.CoalescedReads = 0
 LDS\.Writes = 0
-LDS\.EffectiveWrites = 0
 LDS\.CoalescedWrites = 0
 
 
@@ -222,7 +214,7 @@ BranchInstructions = 0
 SIMDInstructions = 0
 VectorMemInstructions = 0
 LDSInstructions = 0
-Cycles = 0
+Cycles = [^\n]*
 InstructionsPerCycle = 0
 
 ScalarRegReads= 0
@@ -232,10 +224,8 @@ VectorRegWrites= 0
 
 LDS\.Accesses = 0
 LDS\.Reads = 0
-LDS\.EffectiveReads = 0
 LDS\.CoalescedReads = 0
 LDS\.Writes = 0
-LDS\.EffectiveWrites = 0
 LDS\.CoalescedWrites = 0
 
 
@@ -249,7 +239,7 @@ BranchInstructions = 0
 SIMDInstructions = 0
 VectorMemInstructions = 0
 LDSInstructions = 0
-Cycles = 0
+Cycles = [^\n]*
 InstructionsPerCycle = 0
 
 ScalarRegReads= 0
@@ -259,10 +249,8 @@ VectorRegWrites= 0
 
 LDS\.Accesses = 0
 LDS\.Reads = 0
-LDS\.EffectiveReads = 0
 LDS\.CoalescedReads = 0
 LDS\.Writes = 0
-LDS\.EffectiveWrites = 0
 LDS\.CoalescedWrites = 0
 
 
@@ -276,7 +264,7 @@ BranchInstructions = 0
 SIMDInstructions = 0
 VectorMemInstructions = 0
 LDSInstructions = 0
-Cycles = 0
+Cycles = [^\n]*
 InstructionsPerCycle = 0
 
 ScalarRegReads= 0
@@ -286,10 +274,8 @@ VectorRegWrites= 0
 
 LDS\.Accesses = 0
 LDS\.Reads = 0
-LDS\.EffectiveReads = 0
 LDS\.CoalescedReads = 0
 LDS\.Writes = 0
-LDS\.EffectiveWrites = 0
 LDS\.CoalescedWrites = 0
 
 
@@ -303,7 +289,7 @@ BranchInstructions = 0
 SIMDInstructions = 0
 VectorMemInstructions = 0
 LDSInstructions = 0
-Cycles = 0
+Cycles = [^\n]*
 InstructionsPerCycle = 0
 
 ScalarRegReads= 0
@@ -313,10 +299,8 @@ VectorRegWrites= 0
 
 LDS\.Accesses = 0
 LDS\.Reads = 0
-LDS\.EffectiveReads = 0
 LDS\.CoalescedReads = 0
 LDS\.Writes = 0
-LDS\.EffectiveWrites = 0
 LDS\.CoalescedWrites = 0
 
 
@@ -330,7 +314,7 @@ BranchInstructions = 0
 SIMDInstructions = 0
 VectorMemInstructions = 0
 LDSInstructions = 0
-Cycles = 0
+Cycles = [^\n]*
 InstructionsPerCycle = 0
 
 ScalarRegReads= 0
@@ -340,10 +324,8 @@ VectorRegWrites= 0
 
 LDS\.Accesses = 0
 LDS\.Reads = 0
-LDS\.EffectiveReads = 0
 LDS\.CoalescedReads = 0
 LDS\.Writes = 0
-LDS\.EffectiveWrites = 0
 LDS\.CoalescedWrites = 0
 
 
@@ -357,7 +339,7 @@ BranchInstructions = 0
 SIMDInstructions = 0
 VectorMemInstructions = 0
 LDSInstructions = 0
-Cycles = 0
+Cycles = [^\n]*
 InstructionsPerCycle = 0
 
 ScalarRegReads= 0
@@ -367,10 +349,8 @@ VectorRegWrites= 0
 
 LDS\.Accesses = 0
 LDS\.Reads = 0
-LDS\.EffectiveReads = 0
 LDS\.CoalescedReads = 0
 LDS\.Writes = 0
-LDS\.EffectiveWrites = 0
 LDS\.CoalescedWrites = 0
 
 
@@ -384,7 +364,7 @@ BranchInstructions = 0
 SIMDInstructions = 0
 VectorMemInstructions = 0
 LDSInstructions = 0
-Cycles = 0
+Cycles = [^\n]*
 InstructionsPerCycle = 0
 
 ScalarRegReads= 0
@@ -394,10 +374,8 @@ VectorRegWrites= 0
 
 LDS\.Accesses = 0
 LDS\.Reads = 0
-LDS\.EffectiveReads = 0
 LDS\.CoalescedReads = 0
 LDS\.Writes = 0
-LDS\.EffectiveWrites = 0
 LDS\.CoalescedWrites = 0
 
 
@@ -411,7 +389,7 @@ BranchInstructions = 0
 SIMDInstructions = 0
 VectorMemInstructions = 0
 LDSInstructions = 0
-Cycles = 0
+Cycles = [^\n]*
 InstructionsPerCycle = 0
 
 ScalarRegReads= 0
@@ -421,10 +399,8 @@ VectorRegWrites= 0
 
 LDS\.Accesses = 0
 LDS\.Reads = 0
-LDS\.EffectiveReads = 0
 LDS\.CoalescedReads = 0
 LDS\.Writes = 0
-LDS\.EffectiveWrites = 0
 LDS\.CoalescedWrites = 0
 
 
@@ -438,7 +414,7 @@ BranchInstructions = 0
 SIMDInstructions = 0
 VectorMemInstructions = 0
 LDSInstructions = 0
-Cycles = 0
+Cycles = [^\n]*
 InstructionsPerCycle = 0
 
 ScalarRegReads= 0
@@ -448,10 +424,8 @@ VectorRegWrites= 0
 
 LDS\.Accesses = 0
 LDS\.Reads = 0
-LDS\.EffectiveReads = 0
 LDS\.CoalescedReads = 0
 LDS\.Writes = 0
-LDS\.EffectiveWrites = 0
 LDS\.CoalescedWrites = 0
 
 
@@ -465,7 +439,7 @@ BranchInstructions = 0
 SIMDInstructions = 0
 VectorMemInstructions = 0
 LDSInstructions = 0
-Cycles = 0
+Cycles = [^\n]*
 InstructionsPerCycle = 0
 
 ScalarRegReads= 0
@@ -475,10 +449,8 @@ VectorRegWrites= 0
 
 LDS\.Accesses = 0
 LDS\.Reads = 0
-LDS\.EffectiveReads = 0
 LDS\.CoalescedReads = 0
 LDS\.Writes = 0
-LDS\.EffectiveWrites = 0
 LDS\.CoalescedWrites = 0
 
 
@@ -492,7 +464,7 @@ BranchInstructions = 0
 SIMDInstructions = 0
 VectorMemInstructions = 0
 LDSInstructions = 0
-Cycles = 0
+Cycles = [^\n]*
 InstructionsPerCycle = 0
 
 ScalarRegReads= 0
@@ -502,10 +474,8 @@ VectorRegWrites= 0
 
 LDS\.Accesses = 0
 LDS\.Reads = 0
-LDS\.EffectiveReads = 0
 LDS\.CoalescedReads = 0
 LDS\.Writes = 0
-LDS\.EffectiveWrites = 0
 LDS\.CoalescedWrites = 0
 
 
@@ -519,7 +489,7 @@ BranchInstructions = 0
 SIMDInstructions = 0
 VectorMemInstructions = 0
 LDSInstructions = 0
-Cycles = 0
+Cycles = [^\n]*
 InstructionsPerCycle = 0
 
 ScalarRegReads= 0
@@ -529,10 +499,8 @@ VectorRegWrites= 0
 
 LDS\.Accesses = 0
 LDS\.Reads = 0
-LDS\.EffectiveReads = 0
 LDS\.CoalescedReads = 0
 LDS\.Writes = 0
-LDS\.EffectiveWrites = 0
 LDS\.CoalescedWrites = 0
 
 
@@ -546,7 +514,7 @@ BranchInstructions = 0
 SIMDInstructions = 0
 VectorMemInstructions = 0
 LDSInstructions = 0
-Cycles = 0
+Cycles = [^\n]*
 InstructionsPerCycle = 0
 
 ScalarRegReads= 0
@@ -556,10 +524,8 @@ VectorRegWrites= 0
 
 LDS\.Accesses = 0
 LDS\.Reads = 0
-LDS\.EffectiveReads = 0
 LDS\.CoalescedReads = 0
 LDS\.Writes = 0
-LDS\.EffectiveWrites = 0
 LDS\.CoalescedWrites = 0
 
 
@@ -573,7 +539,7 @@ BranchInstructions = 0
 SIMDInstructions = 0
 VectorMemInstructions = 0
 LDSInstructions = 0
-Cycles = 0
+Cycles = [^\n]*
 InstructionsPerCycle = 0
 
 ScalarRegReads= 0
@@ -583,10 +549,8 @@ VectorRegWrites= 0
 
 LDS\.Accesses = 0
 LDS\.Reads = 0
-LDS\.EffectiveReads = 0
 LDS\.CoalescedReads = 0
 LDS\.Writes = 0
-LDS\.EffectiveWrites = 0
 LDS\.CoalescedWrites = 0
 
 
@@ -600,7 +564,7 @@ BranchInstructions = 0
 SIMDInstructions = 0
 VectorMemInstructions = 0
 LDSInstructions = 0
-Cycles = 0
+Cycles = [^\n]*
 InstructionsPerCycle = 0
 
 ScalarRegReads= 0
@@ -610,10 +574,8 @@ VectorRegWrites= 0
 
 LDS\.Accesses = 0
 LDS\.Reads = 0
-LDS\.EffectiveReads = 0
 LDS\.CoalescedReads = 0
 LDS\.Writes = 0
-LDS\.EffectiveWrites = 0
 LDS\.CoalescedWrites = 0
 
 
@@ -627,7 +589,7 @@ BranchInstructions = 0
 SIMDInstructions = 0
 VectorMemInstructions = 0
 LDSInstructions = 0
-Cycles = 0
+Cycles = [^\n]*
 InstructionsPerCycle = 0
 
 ScalarRegReads= 0
@@ -637,10 +599,8 @@ VectorRegWrites= 0
 
 LDS\.Accesses = 0
 LDS\.Reads = 0
-LDS\.EffectiveReads = 0
 LDS\.CoalescedReads = 0
 LDS\.Writes = 0
-LDS\.EffectiveWrites = 0
 LDS\.CoalescedWrites = 0
 
 
@@ -654,7 +614,7 @@ BranchInstructions = 0
 SIMDInstructions = 0
 VectorMemInstructions = 0
 LDSInstructions = 0
-Cycles = 0
+Cycles = [^\n]*
 InstructionsPerCycle = 0
 
 ScalarRegReads= 0
@@ -664,10 +624,8 @@ VectorRegWrites= 0
 
 LDS\.Accesses = 0
 LDS\.Reads = 0
-LDS\.EffectiveReads = 0
 LDS\.CoalescedReads = 0
 LDS\.Writes = 0
-LDS\.EffectiveWrites = 0
 LDS\.CoalescedWrites = 0
 
 
@@ -681,7 +639,7 @@ BranchInstructions = 0
 SIMDInstructions = 0
 VectorMemInstructions = 0
 LDSInstructions = 0
-Cycles = 0
+Cycles = [^\n]*
 InstructionsPerCycle = 0
 
 ScalarRegReads= 0
@@ -691,10 +649,8 @@ VectorRegWrites= 0
 
 LDS\.Accesses = 0
 LDS\.Reads = 0
-LDS\.EffectiveReads = 0
 LDS\.CoalescedReads = 0
 LDS\.Writes = 0
-LDS\.EffectiveWrites = 0
 LDS\.CoalescedWrites = 0
 
 
@@ -708,7 +664,7 @@ BranchInstructions = 0
 SIMDInstructions = 0
 VectorMemInstructions = 0
 LDSInstructions = 0
-Cycles = 0
+Cycles = [^\n]*
 InstructionsPerCycle = 0
 
 ScalarRegReads= 0
@@ -718,10 +674,8 @@ VectorRegWrites= 0
 
 LDS\.Accesses = 0
 LDS\.Reads = 0
-LDS\.EffectiveReads = 0
 LDS\.CoalescedReads = 0
 LDS\.Writes = 0
-LDS\.EffectiveWrites = 0
 LDS\.CoalescedWrites = 0
 
 
@@ -735,7 +689,7 @@ BranchInstructions = 0
 SIMDInstructions = 0
 VectorMemInstructions = 0
 LDSInstructions = 0
-Cycles = 0
+Cycles = [^\n]*
 InstructionsPerCycle = 0
 
 ScalarRegReads= 0
@@ -745,10 +699,8 @@ VectorRegWrites= 0
 
 LDS\.Accesses = 0
 LDS\.Reads = 0
-LDS\.EffectiveReads = 0
 LDS\.CoalescedReads = 0
 LDS\.Writes = 0
-LDS\.EffectiveWrites = 0
 LDS\.CoalescedWrites = 0
 
 
@@ -762,7 +714,7 @@ BranchInstructions = 0
 SIMDInstructions = 0
 VectorMemInstructions = 0
 LDSInstructions = 0
-Cycles = 0
+Cycles = [^\n]*
 InstructionsPerCycle = 0
 
 ScalarRegReads= 0
@@ -772,10 +724,8 @@ VectorRegWrites= 0
 
 LDS\.Accesses = 0
 LDS\.Reads = 0
-LDS\.EffectiveReads = 0
 LDS\.CoalescedReads = 0
 LDS\.Writes = 0
-LDS\.EffectiveWrites = 0
 LDS\.CoalescedWrites = 0
 
 
@@ -789,7 +739,7 @@ BranchInstructions = 0
 SIMDInstructions = 0
 VectorMemInstructions = 0
 LDSInstructions = 0
-Cycles = 0
+Cycles = [^\n]*
 InstructionsPerCycle = 0
 
 ScalarRegReads= 0
@@ -799,10 +749,8 @@ VectorRegWrites= 0
 
 LDS\.Accesses = 0
 LDS\.Reads = 0
-LDS\.EffectiveReads = 0
 LDS\.CoalescedReads = 0
 LDS\.Writes = 0
-LDS\.EffectiveWrites = 0
 LDS\.CoalescedWrites = 0
 
 
@@ -816,7 +764,7 @@ BranchInstructions = 0
 SIMDInstructions = 0
 VectorMemInstructions = 0
 LDSInstructions = 0
-Cycles = 0
+Cycles = [^\n]*
 InstructionsPerCycle = 0
 
 ScalarRegReads= 0
@@ -826,10 +774,8 @@ VectorRegWrites= 0
 
 LDS\.Accesses = 0
 LDS\.Reads = 0
-LDS\.EffectiveReads = 0
 LDS\.CoalescedReads = 0
 LDS\.Writes = 0
-LDS\.EffectiveWrites = 0
 LDS\.CoalescedWrites = 0
 
 
@@ -843,7 +789,7 @@ BranchInstructions = 0
 SIMDInstructions = 0
 VectorMemInstructions = 0
 LDSInstructions = 0
-Cycles = 0
+Cycles = [^\n]*
 InstructionsPerCycle = 0
 
 ScalarRegReads= 0
@@ -853,10 +799,8 @@ VectorRegWrites= 0
 
 LDS\.Accesses = 0
 LDS\.Reads = 0
-LDS\.EffectiveReads = 0
 LDS\.CoalescedReads = 0
 LDS\.Writes = 0
-LDS\.EffectiveWrites = 0
 LDS\.CoalescedWrites = 0
 
 
@@ -870,7 +814,7 @@ BranchInstructions = 0
 SIMDInstructions = 0
 VectorMemInstructions = 0
 LDSInstructions = 0
-Cycles = 0
+Cycles = [^\n]*
 InstructionsPerCycle = 0
 
 ScalarRegReads= 0
@@ -880,10 +824,8 @@ VectorRegWrites= 0
 
 LDS\.Accesses = 0
 LDS\.Reads = 0
-LDS\.EffectiveReads = 0
 LDS\.CoalescedReads = 0
 LDS\.Writes = 0
-LDS\.EffectiveWrites = 0
 LDS\.CoalescedWrites = 0
 
 
@@ -897,7 +839,7 @@ BranchInstructions = 0
 SIMDInstructions = 0
 VectorMemInstructions = 0
 LDSInstructions = 0
-Cycles = 0
+Cycles = [^\n]*
 InstructionsPerCycle = 0
 
 ScalarRegReads= 0
@@ -907,10 +849,8 @@ VectorRegWrites= 0
 
 LDS\.Accesses = 0
 LDS\.Reads = 0
-LDS\.EffectiveReads = 0
 LDS\.CoalescedReads = 0
 LDS\.Writes = 0
-LDS\.EffectiveWrites = 0
 LDS\.CoalescedWrites = 0
 
 
@@ -924,7 +864,7 @@ BranchInstructions = 0
 SIMDInstructions = 0
 VectorMemInstructions = 0
 LDSInstructions = 0
-Cycles = 0
+Cycles = [^\n]*
 InstructionsPerCycle = 0
 
 ScalarRegReads= 0
@@ -934,10 +874,8 @@ VectorRegWrites= 0
 
 LDS\.Accesses = 0
 LDS\.Reads = 0
-LDS\.EffectiveReads = 0
 LDS\.CoalescedReads = 0
 LDS\.Writes = 0
-LDS\.EffectiveWrites = 0
 LDS\.CoalescedWrites = 0
 
 
@@ -951,7 +889,7 @@ BranchInstructions = 0
 SIMDInstructions = 0
 VectorMemInstructions = 0
 LDSInstructions = 0
-Cycles = 0
+Cycles = [^\n]*
 InstructionsPerCycle = 0
 
 ScalarRegReads= 0
@@ -961,10 +899,8 @@ VectorRegWrites= 0
 
 LDS\.Accesses = 0
 LDS\.Reads = 0
-LDS\.EffectiveReads = 0
 LDS\.CoalescedReads = 0
 LDS\.Writes = 0
-LDS\.EffectiveWrites = 0
 LDS\.CoalescedWrites = 0
 
 
