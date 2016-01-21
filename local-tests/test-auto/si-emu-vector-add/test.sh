@@ -15,11 +15,14 @@
 cp $M2S_TEST_PATH/si-asm-vector-add/vector-add.c .
 cp $M2S_TEST_PATH/si-asm-vector-add/vector-add.cl .
 cp $M2S_TEST_PATH/si-asm-vector-add/vector-add.bin .
-gcc vector-add.c -o vector-add -m32 \
+
+gcc vector-add.c -o vector-add \
 	-I$M2S_BUILD_PATH/runtime/include \
-	-L$M2S_BUILD_PATH/lib/.libs -lm2s-opencl
-LD_LIBRARY_PATH=$M2S_BUILD_PATH/lib/.libs \
-	M2S_OPENCL_BINARY=vector-add.bin \
-	$M2S ./vector-add vector-add.cl
-echo $?
+	-L$M2S_BUILD_PATH/lib/.libs \
+	-lm2s-opencl \
+	-m32
+
+M2S_OPENCL_BINARY=vector-add.bin \
+	$M2S vector-add vector-add.bin
+
 rm -f vector-add vector-add.c vector-add.cl vector-add.bin
