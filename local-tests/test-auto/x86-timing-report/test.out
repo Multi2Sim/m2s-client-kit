@@ -13,8 +13,6 @@ ThreadQuantum = 1000
 ThreadSwitchPenalty = 0
 RecoverKind = Writeback
 RecoverPenalty = 0
-ProcessPrefetchHints = 1
-PrefetchHistorySize = 10
 
 \[ Config\.Pipeline \]
 FetchKind = TimeSlice
@@ -39,6 +37,7 @@ LsqSize = 20
 RfKind = Private
 RfIntSize = 80
 RfFpSize = 40
+RfXmmSize = 40
 
 \[ Config\.TraceCache \]
 Present = False
@@ -49,69 +48,69 @@ BranchMax = 3
 QueueSize = 32
 
 \[ Config\.FunctionalUnits \]
-IntAdd\.Count = 4
-IntAdd\.OpLat = 1
-IntAdd\.IssueLat = 1
-IntMult\.Count = 2
-IntMult\.OpLat = 2
-IntMult\.IssueLat = 2
-IntDiv\.Count = 1
-IntDiv\.OpLat = 5
-IntDiv\.IssueLat = 5
-EffAddr\.Count = 4
-EffAddr\.OpLat = 2
-EffAddr\.IssueLat = 2
-Logic\.Count = 4
-Logic\.OpLat = 1
-Logic\.IssueLat = 1
-FloatSimple\.Count = 2
-FloatSimple\.OpLat = 2
-FloatSimple\.IssueLat = 2
-FloatAdd\.Count = 2
-FloatAdd\.OpLat = 5
-FloatAdd\.IssueLat = 5
-FloatComp\.Count = 2
-FloatComp\.OpLat = 2
-FloatComp\.IssueLat = 2
-FloatMult\.Count = 1
-FloatMult\.OpLat = 10
-FloatMult\.IssueLat = 10
-FloatDiv\.Count = 1
-FloatDiv\.OpLat = 15
-FloatDiv\.IssueLat = 15
-FloatComplex\.Count = 1
-FloatComplex\.OpLat = 20
-FloatComplex\.IssueLat = 20
-XMMIntAdd\.Count = 1
-XMMIntAdd\.OpLat = 1
-XMMIntAdd\.IssueLat = 1
-XMMIntMult\.Count = 1
-XMMIntMult\.OpLat = 2
-XMMIntMult\.IssueLat = 2
-XMMIntDiv\.Count = 1
-XMMIntDiv\.OpLat = 5
-XMMIntDiv\.IssueLat = 5
-XMMLogic\.Count = 1
-XMMLogic\.OpLat = 1
-XMMLogic\.IssueLat = 1
-XMMFloatAdd\.Count = 1
-XMMFloatAdd\.OpLat = 5
-XMMFloatAdd\.IssueLat = 5
-XMMFloatComp\.Count = 1
-XMMFloatComp\.OpLat = 2
-XMMFloatComp\.IssueLat = 2
-XMMFloatMult\.Count = 1
-XMMFloatMult\.OpLat = 10
-XMMFloatMult\.IssueLat = 10
-XMMFloatDiv\.Count = 1
-XMMFloatDiv\.OpLat = 15
-XMMFloatDiv\.IssueLat = 15
-XMMFloatConv\.Count = 1
-XMMFloatConv\.OpLat = 5
-XMMFloatConv\.IssueLat = 5
-XMMFloatComplex\.Count = 1
-XMMFloatComplex\.OpLat = 20
-XMMFloatComplex\.IssueLat = 20
+IntAdd\.Count = [^\n]+
+IntAdd\.OpLat = [^\n]+
+IntAdd\.IssueLat = [^\n]+
+IntMult\.Count = [^\n]+
+IntMult\.OpLat = [^\n]+
+IntMult\.IssueLat = [^\n]+
+IntDiv\.Count = [^\n]+
+IntDiv\.OpLat = [^\n]+
+IntDiv\.IssueLat = [^\n]+
+EffAddr\.Count = [^\n]+
+EffAddr\.OpLat = [^\n]+
+EffAddr\.IssueLat = [^\n]+
+Logic\.Count = [^\n]+
+Logic\.OpLat = [^\n]+
+Logic\.IssueLat = [^\n]+
+FloatSimple\.Count = [^\n]+
+FloatSimple\.OpLat = [^\n]+
+FloatSimple\.IssueLat = [^\n]+
+FloatAdd\.Count = [^\n]+
+FloatAdd\.OpLat = [^\n]+
+FloatAdd\.IssueLat = [^\n]+
+FloatComp\.Count = [^\n]+
+FloatComp\.OpLat = [^\n]+
+FloatComp\.IssueLat = [^\n]+
+FloatMult\.Count = [^\n]+
+FloatMult\.OpLat = [^\n]+
+FloatMult\.IssueLat = [^\n]+
+FloatDiv\.Count = [^\n]+
+FloatDiv\.OpLat = [^\n]+
+FloatDiv\.IssueLat = [^\n]+
+FloatComplex\.Count = [^\n]+
+FloatComplex\.OpLat = [^\n]+
+FloatComplex\.IssueLat = [^\n]+
+XMMIntAdd\.Count = [^\n]+
+XMMIntAdd\.OpLat = [^\n]+
+XMMIntAdd\.IssueLat = [^\n]+
+XMMIntMult\.Count = [^\n]+
+XMMIntMult\.OpLat = [^\n]+
+XMMIntMult\.IssueLat = [^\n]+
+XMMIntDiv\.Count = [^\n]+
+XMMIntDiv\.OpLat = [^\n]+
+XMMIntDiv\.IssueLat = [^\n]+
+XMMLogic\.Count = [^\n]+
+XMMLogic\.OpLat = [^\n]+
+XMMLogic\.IssueLat = [^\n]+
+XMMFloatAdd\.Count = [^\n]+
+XMMFloatAdd\.OpLat = [^\n]+
+XMMFloatAdd\.IssueLat = [^\n]+
+XMMFloatComp\.Count = [^\n]+
+XMMFloatComp\.OpLat = [^\n]+
+XMMFloatComp\.IssueLat = [^\n]+
+XMMFloatMult\.Count = [^\n]+
+XMMFloatMult\.OpLat = [^\n]+
+XMMFloatMult\.IssueLat = [^\n]+
+XMMFloatDiv\.Count = [^\n]+
+XMMFloatDiv\.OpLat = [^\n]+
+XMMFloatDiv\.IssueLat = [^\n]+
+XMMFloatConv\.Count = [^\n]+
+XMMFloatConv\.OpLat = [^\n]+
+XMMFloatConv\.IssueLat = [^\n]+
+XMMFloatComplex\.Count = [^\n]+
+XMMFloatComplex\.OpLat = [^\n]+
+XMMFloatComplex\.IssueLat = [^\n]+
 
 \[ Config\.BranchPredictor \]
 Kind = TwoLevel
@@ -122,6 +121,7 @@ Choice\.Size = 1024
 RAS\.Size = 32
 TwoLevel\.L1Size = 1
 TwoLevel\.L2Size = 1024
+TwoLevel\.L2Height = 256
 TwoLevel\.HistorySize = 8
 
 
@@ -131,12 +131,9 @@ TwoLevel\.HistorySize = 8
 
 ; Global statistics
 \[ Global \]
-
 Cycles = [^\n]*
 Time = [^\n]*
 CyclesPerSecond = [^\n]*
-MemoryUsed = [^\n]*
-MemoryUsedMax = [^\n]*
 
 ; Dispatch stage
 Dispatch\.Uop\.nop = [^\n]*
@@ -354,11 +351,11 @@ Commit\.Total = [^\n]*
 Commit\.IPC = [^\n]*
 Commit\.DutyCycle = [^\n]*
 
-; Committed branches
-;    Branches - Number of committed control uops
-;    Squashed - Number of mispredicted uops squashed from the ROB
-;    Mispred - Number of mispredicted branches in the correct path
-;    PredAcc - Prediction accuracy
+; [^\n]*
+; [^\n]*
+; [^\n]*
+; [^\n]*
+; [^\n]*
 Commit\.Branches = [^\n]*
 Commit\.Squashed = [^\n]*
 Commit\.Mispred = [^\n]*
@@ -436,11 +433,11 @@ fu\.XMMFloatComplex\.Accesses = [^\n]*
 fu\.XMMFloatComplex\.Denied = [^\n]*
 fu\.XMMFloatComplex\.WaitingTime = [^\n]*
 
-; Dispatch slots usage \(sum = [^\n]*
-;    used - dispatch slot was used by a non-spec uop
-;    spec - used by a mispeculated uop
-;    ctx - no context allocated to thread
-;    uopq,rob,iq,lsq,rename - no space in structure
+; [^\n]*
+; [^\n]*
+; [^\n]*
+; [^\n]*
+; [^\n]*
 Dispatch\.Stall\.used = [^\n]*
 Dispatch\.Stall\.spec = [^\n]*
 Dispatch\.Stall\.uop_queue = [^\n]*
@@ -672,16 +669,14 @@ Commit\.Squashed = [^\n]*
 Commit\.Mispred = [^\n]*
 Commit\.PredAcc = [^\n]*
 
-; Structure statistics \(reorder buffer, instruction queue,
-; load-store queue, and integer/floating-point register file\)
-;    Size - Available size
-;    Occupancy - Average number of occupied entries
-;    Full - Number of cycles when the structure was full
-;    Reads, Writes - Accesses to the structure
+; [^\n]*
+; [^\n]*
+; [^\n]*
+; [^\n]*
 
 
 ; Statistics for core 0 - thread 0
-\[ c0t0 \]
+\[ Core 0 Thread 0 \]
 
 ; Dispatch stage
 Dispatch\.Uop\.nop = [^\n]*
@@ -905,33 +900,33 @@ Commit\.Squashed = [^\n]*
 Commit\.Mispred = [^\n]*
 Commit\.PredAcc = [^\n]*
 
-; Structure statistics \(reorder buffer, instruction queue, load-store queue,
-; integer/floating-point register file, and renaming table\)
+; [^\n]*
+; [^\n]*
+; [^\n]*
 ROB\.Size = [^\n]*
-ROB\.Full = [^\n]*
 ROB\.Reads = [^\n]*
 ROB\.Writes = [^\n]*
 IQ\.Size = [^\n]*
-IQ\.Full = [^\n]*
 IQ\.Reads = [^\n]*
 IQ\.Writes = [^\n]*
-IQ\.WakeupAccesses = [^\n]*
 LSQ\.Size = [^\n]*
-LSQ\.Full = [^\n]*
 LSQ\.Reads = [^\n]*
 LSQ\.Writes = [^\n]*
 RF_Int\.Size = [^\n]*
-RF_Int\.Full = [^\n]*
 RF_Int\.Reads = [^\n]*
 RF_Int\.Writes = [^\n]*
 RF_Fp\.Size = [^\n]*
-RF_Fp\.Full = [^\n]*
 RF_Fp\.Reads = [^\n]*
 RF_Fp\.Writes = [^\n]*
+RF_Xmm\.Size = [^\n]*
+RF_Xmm\.Reads = [^\n]*
+RF_Xmm\.Writes = [^\n]*
 RAT\.IntReads = [^\n]*
 RAT\.IntWrites = [^\n]*
 RAT\.FpReads = [^\n]*
 RAT\.FpWrites = [^\n]*
+RAT\.XmmReads = [^\n]*
+RAT\.XmmWrites = [^\n]*
 BTB\.Reads = [^\n]*
 BTB\.Writes = [^\n]*
 
