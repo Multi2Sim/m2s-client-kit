@@ -4,8 +4,7 @@
 ; Simulation alpha-numeric ID: .*
 
 
-Warning: Path '.*' has been
-redirected to
+Warning: Path '.*' has been\sredirected to
 '.*' while
 loading the OpenCL runtime\.
 
