@@ -4,9 +4,7 @@
 ; Simulation alpha-numeric ID: .*
 
 
-Warning: Path .* has been\sredirected to
-.* while
-loading the OpenCL runtime\.
+Warning: Path\s'.*'\shas\sbeen\sredirected\sto\s'(?s).*'\swhile\sloading\sthe\sOpenCL\sruntime\.
 
         The dynamic linker of your application seems to be accessing a runtime
         library\. A copy of this runtime library has been found in
