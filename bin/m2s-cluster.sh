@@ -264,7 +264,7 @@ function get_condor_jobs()
 
 	# Connect to server
 	temp=`mktemp`
-	ssh $server -p $port '
+	ssh $server -q -p $port '
 		condor_q -format "[ %d." ClusterID \
 			-format "%d ]\n" ProcID \
 			-format "Cmd = %s\n" Cmd \
@@ -341,7 +341,7 @@ function remote_make()
 		|| error "cannot connect to server"
 
 	# Compile in server
-	ssh -p $port $server '
+	ssh -q -p $port $server '
 
 		# Variables
 		tarball_file_name='$tarball_file_name'
@@ -667,7 +667,7 @@ then
 
 	# Actions in server
 	echo -n " - preparing benchmarks"
-	ssh -p $port $server '
+	ssh -q -p $port $server '
 
 		function error()
 		{
@@ -1016,7 +1016,7 @@ then
 	if [ -n "$server" ]
 	then
 		echo -n " - removing cluster in server"
-		ssh $server -p $port '
+		ssh $server -q -p $port '
 			rm -f $HOME/'$M2S_SERVER_KIT_TMP_PATH/$cluster_name'-report.tar.gz
 			rm -rf $HOME/'$M2S_SERVER_KIT_RUN_PATH/$cluster_name'
 		' || error "failed deleting directories in server"
@@ -1180,7 +1180,7 @@ then
 	fi
 
 	# Kill jobs
-	ssh $server -p $port '
+	ssh $server -q -p $port '
 		condor_rm '$job_list' > /dev/null
 	' || error "failed to kill condor jobs"
 
@@ -1240,7 +1240,7 @@ then
 
 	# Connect to server and create package
 	echo -n " - create package"
-	ssh $server -p $port '
+	ssh $server -p $port -q '
 		import_all="'"$import_all"'"
 		package=$HOME/'$M2S_SERVER_KIT_TMP_PATH/$cluster_name'-report.tar.gz
 		cd $HOME/'$M2S_SERVER_KIT_RUN_PATH/$cluster_name' || exit 1
@@ -1402,7 +1402,7 @@ then
 	[ -n "$port" ] || port=22
 
 	# Connect to server and list benchmarks
-	ssh -p $port $server '
+	ssh -p $port -q $server '
 		function error()
 		{
 			echo -e "\nerror: $1\n" >&2
