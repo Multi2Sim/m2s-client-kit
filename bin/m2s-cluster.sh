@@ -628,14 +628,12 @@ then
 	# Check if 'm2s-client-kit' is up to date
 	cd $HOME/$M2S_CLIENT_KIT_PATH || error "cannot cd to client kit path"
 	temp=$(mktemp)
-	svn info > $temp || error "failed running 'svn info'"
-	rev_current=$(sed -n "s,^Revision: ,,gp" $temp)
-	svn info -r HEAD > $temp || error "failed running 'svn info'"
-	rev_latest=$(sed -n "s,^Revision: ,,gp" $temp)
+	git fetch origin >/dev/null || error "Failed to run 'git fetch origin'"
+	git log HEAD..origin/master --oneline > $temp || error "Failed to run 'git log'"
+	num_lines=`cat $temp | wc -l`
 	rm -f $temp
-	[ "$rev_current" == "$rev_latest" ] || \
-		echo -n " - [WARNING: m2s-client-kit out of date]"
-
+	[ "$num_lines" == 0 ] || echo -n " - [WARNING: m2s-client-kit out of date]"
+	
 	# If an executable file was specified with option '--exe', make a copy
 	# of it in the temporary directory, named 'm2s-exe'.
 	if [ -n "$exe" ]
@@ -680,14 +678,12 @@ then
 		# Check if m2s-server-kit is up to date
 		cd $HOME/'$M2S_SERVER_KIT_PATH' || exit 1
 		temp=$(mktemp)
-		svn info > $temp || error "failed running \"svn info\""
-		rev_current=$(sed -n "s,^Revision: ,,gp" $temp)
-		svn info -r HEAD > $temp || error "failed running \"svn info\""
-		rev_latest=$(sed -n "s,^Revision: ,,gp" $temp)
+		git fetch origin >/dev/null || error "Failed to run \"git fetch origin\""
+		git log HEAD..origin/master --oneline > $temp || error "Failed to run \"git log\""
+		num_lines=`cat $temp | wc -l`
 		rm -f $temp
-		[ "$rev_current" == "$rev_latest" ] || \
-			echo -n " - [WARNING: m2s-sever-kit out of date]"
-
+		[ "$num_lines" == 0 ] || echo -n " - [WARNING: m2s-server-kit out of date]"
+		
 		# Unpack server package
 		server_package="$HOME/'$M2S_SERVER_KIT_TMP_PATH'/m2s-cluster.tar.gz"
 		cd $HOME/'$M2S_SERVER_KIT_TMP_PATH' && \

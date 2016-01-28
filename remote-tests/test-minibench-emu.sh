@@ -21,15 +21,13 @@ function syntax()
 {
 	cat << EOF
 
-Run a simulation for benchmark MatrixMultiplication in suite AMDAPP-2.5, using a
-functional emulation, and activating the self-check option in the benchmark.
-Square matrices are multiplied with sizes ranging between 16 x 16 and 1k x 1k.
+Run a simulation for the Minibench test suite.
 
 * Secondary verification scripts
 	None
 
 * Associated clusters
-	mmul-emu
+	minibench-emu
 
 --
 
