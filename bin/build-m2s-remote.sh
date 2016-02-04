@@ -229,15 +229,22 @@ scp -q -P $port $dist_file $server:$M2S_SERVER_KIT_TMP_PATH >> $log_file 2>&1 \
 echo -n " - building"
 ssh -p $port $server '
 
-	# Unpack
 	cd '$M2S_SERVER_KIT_TMP_PATH' || exit 1
+	echo "Removing directory '$dist_file_name' ..."
 	rm -rf '$dist_file_name'
-	tar -xmzvf '$dist_file' || exit 1
+	
+	# Unpack
+	echo "Unpacking '$dist_file' ..."
+	tar -xzvf '$dist_file' || exit 1
 	rm -f '$dist_file'
 	cd '$dist_file_name' || exit 1
 
-	# Build
+	# Configure
+	echo "Running ./configure ..."
 	./configure '"$configure_args"' || exit 1
+
+	# Build
+	echo "Running make ..."
 	make || exit 1
 
 	# Copy executable
