@@ -4,15 +4,4 @@ Syntax:
 
 
 \$ m2s \[<options>\] \[<exe>\] \[<args>\]
-
-
-
-Multi2Sim's command line can take a program executable <exe> as an argument,
-given as a binary file in any of the supported CPU architectures, and optionally
-followed by its arguments <args>\. The following list of command-line options can
-be used for <options>:
-
-General Multi2Sim Options
-=========================
-
 .*
