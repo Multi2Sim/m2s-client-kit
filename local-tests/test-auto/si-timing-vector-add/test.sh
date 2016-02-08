@@ -23,6 +23,7 @@ gcc vector-add.c -o vector-add \
 	-m32
 
 M2S_OPENCL_BINARY=vector-add.bin \
-	$M2S --si-sim detailed vector-add vector-add.bin
+	$M2S --si-sim detailed vector-add vector-add.bin \
+	> >(tee stdout.log) 2> >(tee stderr.log >&2)
 
-rm -f vector-add vector-add.c vector-add.cl vector-add.bin
+rm -f vector-add* stdout.log stderr.log
