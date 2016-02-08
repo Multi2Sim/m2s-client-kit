@@ -1,0 +1,79 @@
+;--------------------------------------------Network
+[Network.net0]
+DefaultInputBufferSize = 528
+DefaultOutputBufferSize = 528
+DefaultBandwidth = 264
+
+;--------------------------------------------------Nodes
+[Network.net0.Node.n0]
+Type = EndNode
+
+[Network.net0.Node.n1]
+Type = EndNode
+
+[Network.net0.Node.n2]
+Type = EndNode
+
+[Network.net0.Node.n3]
+Type = EndNode
+
+[Network.net0.Node.s0]
+Type = Switch
+
+[Network.net0.Node.s1]
+Type = Switch
+
+[Network.net0.Node.s2]
+Type = Switch
+
+[Network.net0.Node.s3]
+Type = Switch
+
+;-----------------------------------------------------Links
+[Network.net0.Link.n0-s0]
+Type = Bidirectional
+Source = n0
+Dest = s0
+VC = 1
+
+[Network.net0.Link.n1-s1]
+Type = Bidirectional
+Source = n1
+Dest = s1
+VC = 1
+
+[Network.net0.Link.n2-s2]
+Type = Bidirectional
+Source = n2
+Dest = s2
+VC = 1
+
+[Network.net0.Link.n3-s3]
+Type = Bidirectional
+Source = n3
+Dest = s3
+VC = 1
+
+[Network.net0.Link.s0-s1]
+Type = Bidirectional
+Source = s0
+Dest = s1
+VC = 1
+
+[Network.net0.Link.s0-s2]
+Type = Bidirectional
+Source = s0
+Dest = s2
+VC = 1
+
+[Network.net0.Link.s1-s3]
+Type = Bidirectional
+Source = s1
+Dest = s3
+VC = 1
+
+[Network.net0.Link.s2-s3]
+Type = Bidirectional
+Source = s2
+Dest = s3
+VC = 1
