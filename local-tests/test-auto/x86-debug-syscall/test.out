@@ -1,2 +1,2 @@
-\[x86 context .*\] System call '.*' \(code .*, inst .*\)
+\[x86 context [0-9]+] System call '[^\n]*' \(code [0-9]+, inst [0-9]+\)
 .*
