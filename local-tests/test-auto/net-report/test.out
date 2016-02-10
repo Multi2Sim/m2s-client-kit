@@ -1,10 +1,10 @@
 0
 \[ Network\.net0 \]
 Transfers = [^\n]*
-AverageMessageSize = 1\.00
+AverageMessageSize = 4\.00
 TransferredBytes = [^\n]*
 AverageLatency = [^\n]*
-Cycles = 1000000
+Cycles = 200000
 
 \[ Network\.net0\.Link\.link_n0_s0 \]
 Name = n0-s0
