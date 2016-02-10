@@ -1,0 +1,5 @@
+0
+Legend = True
+Title = " Network: net0 "
+node = [^\n]*
+.*
