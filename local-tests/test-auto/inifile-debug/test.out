@@ -1,0 +1,6 @@
+0
+\[IniFile\] ctx-config\.ini: Found section \[Context 0\]
+\[IniFile\] ctx-config\.ini: Parsed section \[Context 0\], variable 'Exe', value 'test-args'
+\[IniFile\] ctx-config\.ini: Parsed section \[Context 0\], variable 'Args', value 'how are you'
+\[IniFile\] ctx-config\.ini: Read section \[Context 0\], variable 'Exe', value 'test-args'
+.*
