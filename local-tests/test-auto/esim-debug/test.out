@@ -1,0 +1,5 @@
+0
+\[esim\] Event-driven simulation engine initialized
+\[esim\] \[[^\n]*\] Event '[^\n]*' scheduled for \[[^\n]*\]
+\[esim\] \[[^\n]*\] Event 'Memory/load' triggered
+.*
