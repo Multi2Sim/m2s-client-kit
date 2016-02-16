@@ -1,0 +1,11 @@
+0
+x86\.init version="1\.671" num_cores=1 num_threads=1
+mem\.init version="1\.678"
+mem\.new_net name="x86-net-l1-l2" num_nodes=3
+mem\.new_net name="x86-net-l2-mm" num_nodes=3
+mem\.new_mod name="x86-l1-0" num_sets=16 assoc=2 block_size=64 sub_block_size=64 num_sharers=1 level=1 high_net="" high_net_node=0 low_net="x86-net-l1-l2" low_net_node=0
+mem\.new_mod name="x86-l2" num_sets=64 assoc=4 block_size=64 sub_block_size=64 num_sharers=3 level=2 high_net="x86-net-l1-l2" high_net_node=1 low_net="x86-net-l2-mm" low_net_node=0
+mem\.new_mod name="x86-mm" num_sets=8192 assoc=16 block_size=64 sub_block_size=64 num_sharers=3 level=3 high_net="x86-net-l2-mm" high_net_node=1 low_net="" low_net_node=0
+c clk=1
+x86\.map_ctx ctx=1000 core=0 thread=0 ppid=0
+.*
