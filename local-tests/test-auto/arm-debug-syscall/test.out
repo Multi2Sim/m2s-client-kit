@@ -1,0 +1,3 @@
+0
+system call '[^\n]*' \(code [0-9]+, inst [0-9]+, pid [0-9]+\)
+.*
