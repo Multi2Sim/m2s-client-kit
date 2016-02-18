@@ -1,0 +1,5 @@
+0
+\*\*\*\*\* Stack frame \*\*\*\*\*
+  Function: [^\n]*
+  Program counter \(offset in code section\): [^\n]*
+.*
