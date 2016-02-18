@@ -1,8 +1,8 @@
 #!/bin/bash
 
-M2S_SVN_URL="http://multi2sim.org/svn/multi2sim"
-M2S_SVN_TAGS_URL="http://multi2sim.org/svn/multi2sim/tags"
-M2S_SVN_TRUNK_URL="http://multi2sim.org/svn/multi2sim/trunk"
+M2S_SVN_URL="https://github.com/Multi2Sim/multi2sim"
+M2S_SVN_TAGS_URL="https://github.com/Multi2Sim/multi2sim/tags"
+M2S_SVN_TRUNK_URL="https://github.com/Multi2Sim/multi2sim/trunk"
 
 M2S_CLIENT_KIT_PATH="m2s-client-kit"
 M2S_CLIENT_KIT_BIN_PATH="$M2S_CLIENT_KIT_PATH/bin"
