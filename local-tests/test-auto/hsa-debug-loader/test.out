@@ -1,0 +1,7 @@
+0
+Components installed\.
+	\*\*\*\*\* [A-Z]+ device \*\*\*\*\*
+	 Name: [^\n]*
+	 Vendor name: [^\n]*
+	 Wavesize: [0-9]+, 
+.*
