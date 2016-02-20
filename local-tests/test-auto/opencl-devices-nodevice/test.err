@@ -1,0 +1,36 @@
+
+; Multi2Sim [^\n]* - A Simulation Framework for CPU-GPU Heterogeneous Computing
+; Please use command 'm2s --help' for a list of command-line options\.
+; Simulation alpha-numeric ID: .....
+
+
+Warning: Path\s'.*'\shas\sbeen\sredirected\sto\s'(?s).*'\swhile\sloading\sthe\sOpenCL\sruntime\.
+
+        The dynamic linker of your application seems to be accessing a runtime
+        library\. A copy of this runtime library has been found in
+        '\$\(TOPDIR\)/lib/\.libs', while running Multi2Sim from its build tree root\.
+        As a safer and portable option, please link your guest program
+        statically with the corresponding runtime\.
+
+
+OpenCL runtime error: Invalid device name \(wrong\)
+
+	Environment variable M2S_OPENCL_DEVICES contains an invalid
+	device name\. Please check the Multi2Sim guide for a list of
+	valid OpenCL devices
+
+
+
+;
+; Simulation Statistics Summary
+;
+
+\[ General \]
+RealTime = [^\n]*
+SimEnd = ContextsFinished
+
+\[ x86 \]
+RealTime = [^\n]*
+Instructions = [0-9]+
+InstructionsPerSecond = [0-9]+
+
