@@ -1,0 +1,8 @@
+0
+\[MMU [^\n]*\] Memory management unit created
+\[MMU \] Memory management unit created
+\[MMU \] Space  created
+\[MMU \] Memory management unit created
+\[MMU [^\n]*\] Space [^\n]* created
+\[MMU [^\n]*\] Page created\. Space [^\n]*, Virtual [^\n]*=> Physical [^\n]*
+.*
