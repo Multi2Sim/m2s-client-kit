@@ -1,0 +1,5 @@
+0
+
+Loading ELF sections
+  section '': offset=[^\n]*, addr=[^\n]*, size=[0-9]+, flags=\{[^\n]*\}
+.*
