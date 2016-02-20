@@ -1,0 +1,52 @@
+0
+Memory system frequency set to [0-9]+MHz
+Creating internal networks:
+	Network 'x86-net-l1-l2' created
+	Network 'x86-net-l2-mm' created
+
+Creating modules:
+	x86-l1-0
+	x86-l2
+	x86-mm
+
+Checking paths between caches and main memories:
+	  x86-l1-0
+	    x86-l2
+	      x86-mm
+	  x86-l2
+	    x86-mm
+	  x86-mm
+
+Processing entries to the memory system:
+
+	x86 Core 0, Thread 0
+		Entry for instructions -> x86-l1-0
+		Entry for data -> x86-l1-0
+
+Creating network switches and links for internal networks:
+	x86-net-l1-l2\.Switch -> x86-l1-0 x86-l2
+	x86-net-l2-mm\.Switch -> x86-l2 x86-mm
+
+Checking accessibility to low and high modules:
+	x86-l1-0
+		Low modules: x86-l2
+		High modules:
+	x86-l2
+		Low modules: x86-mm
+		High modules: x86-l1-0
+	x86-mm
+		Low modules:
+		High modules: x86-l2
+
+Creating directories:
+	x86-l1-0 - 16x2x1 \(16x2x0 effective\) - 32 entries, 1 sub-blocks
+	x86-l2 - 64x4x3 \(64x4x1 effective\) - 256 entries, 1 sub-blocks
+	x86-mm - 8192x16x3 \(8192x16x1 effective\) - 131072 entries, 1 sub-blocks
+
+Calculating module levels:
+	x86-l1-0 -> level 1
+	x86-l2 -> level 2
+	x86-mm -> level 3
+
+0 A-1 [^\n]*
+.*

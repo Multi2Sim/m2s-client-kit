@@ -1,0 +1,61 @@
+0
+; Report for caches, TLBs, and main memory
+;    Accesses - Total number of accesses - Reads, Writes, and NCWrites \(non-coherent\) 
+;    Hits, Misses - Accesses resulting in hits/misses
+;    HitRatio - Hits divided by accesses
+;    Evictions - Invalidated or replaced cache blocks
+;    Retries - For L1 caches, accesses that were retried
+;    ReadRetries, WriteRetries, NCWriteRetries - Read/Write retried accesses
+;    Reads, Writes, NCWrites - Total read/write accesses
+;    BlockingReads, BlockingWrites, BlockingNCWrites - Reads/writes coming from lower-level cache
+;    NonBlockingReads, NonBlockingWrites, NonBlockingNCWrites - Coming from upper-level cache
+
+
+\[ [^\n]* \]
+
+Sets = [0-9]+
+Ways = [0-9]+
+ReplacementPolicy = [^\n]*
+WritePolicy = [^\n]*
+BlockSize = [0-9]+
+DataLatency = [0-9]+
+Ports = [0-9]+
+
+Accesses = [0-9]+
+CoalescedAccesses = [0-9]+
+RetriedAccesses = [0-9]+
+Evictions = [0-9]+
+Hits = [0-9]+
+Misses = [0-9]+
+HitRatio = [^\n]*
+
+Reads = [0-9]+
+CoalescedReads = [0-9]+
+ReadHits = [0-9]+
+ReadMisses = [0-9]+
+ReadRetries = [0-9]+
+ReadRetryHits = [0-9]+
+ReadRetryMisses = [0-9]+
+BlockingReads = [0-9]+
+NonBlockingReads = [0-9]+
+
+Writes = [0-9]+
+CoalescedWrites = [0-9]+
+WriteHits = [0-9]+
+WriteMisses = [0-9]+
+WriteRetries = [0-9]+
+WriteRetryHits = [0-9]+
+WriteRetryMisses = [0-9]+
+BlockingWrites = [0-9]+
+NonBlockingWrites = [0-9]+
+
+NCWrites = [0-9]+
+CoalescedNCWrites = [0-9]+
+NCWriteHits = [0-9]+
+NCWriteMisses = [0-9]+
+NCWriteRetries = [0-9]+
+NCWriteRetryHits = [0-9]+
+NCWriteRetryMisses = [0-9]+
+BlockingNCWrites = [0-9]+
+NonBlockingNCWrites = [0-9]+
+.*
