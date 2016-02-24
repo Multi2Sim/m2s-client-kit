@@ -1,0 +1,16 @@
+
+; Multi2Sim [^\n]* - A Simulation Framework for CPU-GPU Heterogeneous Computing
+; Please use command 'm2s --help' for a list of command-line options\.
+; Simulation alpha-numeric ID: .....
+
+The Southern Islands GPU configuration file is a plain text INI file
+defining the parameters of the Southern Islands model for a detailed
+\(architectural\) configuration\. This file is passed to Multi2Sim with
+the '--si-config <file>' option, and should always be used together 
+with option '--si-sim detailed'\.
+
+The following is a list of the sections allowed in the GPU configuration
+file, along with the list of variables for each section\.
+
+Section '\[ Device \]': parameters for the GPU\.
+.*
