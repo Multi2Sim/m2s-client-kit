@@ -24,8 +24,7 @@ gcc vector-add.c -o vector-add \
 
 M2S_OPENCL_BINARY=vector-add.bin \
 	$M2S --si-sim detailed \
-	--si-max-cycles 5000 \
+	--si-max-inst 10 \
 	vector-add vector-add.bin \
 	> >(tee /dev/null) 2> >(tee stderr.log >&2)
-
 rm -f vector-add* stderr.log

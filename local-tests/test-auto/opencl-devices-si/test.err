@@ -35,3 +35,16 @@ RealTime = [^\n]*
 Instructions = [0-9]+
 InstructionsPerSecond = [0-9]+
 
+\[ SouthernIslands \]
+RealTime = [^\n]*
+Instructions = [0-9]+
+InstructionsPerSecond = [0-9]+
+NDRangeCount = [0-9]+
+WorkGroupCount = [0-9]+
+BranchInstructions = [0-9]+
+LDSInstructions = [0-9]+
+ScalarALUInstructions = [0-9]+
+ScalarMemInstructions = [0-9]+
+VectorALUInstructions = [0-9]+
+VectorMemInstructions = [0-9]+
+

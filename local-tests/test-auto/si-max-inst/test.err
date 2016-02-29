@@ -1,5 +1,5 @@
 
-; Multi2Sim .* - A Simulation Framework for CPU-GPU Heterogeneous Computing
+; Multi2Sim [^\n]* - A Simulation Framework for CPU-GPU Heterogeneous Computing
 ; Please use command 'm2s --help' for a list of command-line options\.
 ; Simulation alpha-numeric ID: .....
 
@@ -28,16 +28,14 @@ OpenCL runtime warning: clBuildProgram: vector-add\.bin: program binary loaded f
 
 \[ General \]
 RealTime = [^\n]*
-SimEnd = ContextsFinished
-
-\[ x86 \]
-RealTime = [^\n]*
-Instructions = [0-9]+
-InstructionsPerSecond = [0-9]+
+SimEnd = SIMaxInstructions
+SimTime = [^\n]*
+Frequency = 1000 \[MHz\]
+Cycles = [0-9]+
 
 \[ SouthernIslands \]
 RealTime = [^\n]*
-Instructions = [0-9]+
+Instructions = 10
 InstructionsPerSecond = [0-9]+
 NDRangeCount = [0-9]+
 WorkGroupCount = [0-9]+
@@ -47,4 +45,13 @@ ScalarALUInstructions = [0-9]+
 ScalarMemInstructions = [0-9]+
 VectorALUInstructions = [0-9]+
 VectorMemInstructions = [0-9]+
+SimTime = [^\n]*
+Frequency = 1000 \[MHz\]
+Cycles = [0-9]+
+CyclesPerSecond = [0-9]+
+
+\[ x86 \]
+RealTime = [^\n]*
+Instructions = [0-9]+
+InstructionsPerSecond = [0-9]+
 
