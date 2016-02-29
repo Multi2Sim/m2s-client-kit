@@ -1,0 +1,6 @@
+Hello, World
+0
+
+Loading ELF sections
+  section '[^\n]*': offset=[0][x][0-9a-f]+, addr=[0][x][0-9a-f]+, size=[0-9]+, flags=\{[^\n]*\}
+.*
