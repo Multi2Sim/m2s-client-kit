@@ -1,0 +1,15 @@
+
+; Multi2Sim [^\n]* - A Simulation Framework for CPU-GPU Heterogeneous Computing
+; Please use command 'm2s --help' for a list of command-line options\.
+; Simulation alpha-numeric ID: .....
+
+The x86 Cpu configuration file is a plain text INI file, defining
+the parameters of the Cpu model used for a detailed \(architectural\) simulation\.
+This configuration file is passed to Multi2Sim with option '--x86-config <file>,
+which must be accompanied by option '--x86-sim detailed'\.
+
+The following is a list of the sections allowed in the Cpu configuration file,
+along with the list of variables for each section\.
+
+Section '\[ General \]':
+.*
