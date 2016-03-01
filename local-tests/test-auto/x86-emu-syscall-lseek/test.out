@@ -1,0 +1,11 @@
+Creating lseek\.txt
+Writing 2 characters
+Position at the beginning
+Overwrite first letter
+Position at the end
+Append letter
+Go to the beginning
+Read it all
+Get current position
+Closing and removing lseek\.txt
+0
