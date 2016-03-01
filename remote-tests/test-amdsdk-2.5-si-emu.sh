@@ -9,7 +9,7 @@ prog_name=`echo $0 | awk -F/ '{ print $NF }'`
 m2s_cluster_sh="$HOME/$M2S_CLIENT_KIT_BIN_PATH/m2s-cluster.sh"
 inifile_py="$HOME/$M2S_CLIENT_KIT_BIN_PATH/inifile.py"
 
-cluster_name="amdapp-2.5-si-emu"
+cluster_name="amdsdk-2.5-emu"
 
 
 #
@@ -20,15 +20,15 @@ function syntax()
 {
 	cat << EOF
 
-Run emulation for 'amdapp-2.5-si' benchmarks, activating the self-check option. The
-result of the simulations are then checked for 'Passed' or 'Failed' messages to
-validate the Multi2Sim Southern Islands emulator.
+Run emulation of benchmark suite 'm2s-bench-amdsdk-2.5', activating the
+self-check option. The result of the simulations are then checked for 'Passed'
+or 'Failed' messages to validate the Multi2Sim Southern Islands emulator.
 
 * Secondary verification scripts
 	None
 
 * Associated clusters
-	amdapp-2.5-si-emu
+	amdsdk-2.5-emu
 
 --
 
@@ -102,7 +102,7 @@ then
 	for size in $size_list
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			amdapp-2.5-si/$bench_name \
+			amdsdk-2.5/$bench_name \
 			--sim-arg "--si-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -116,7 +116,7 @@ then
 	for size in $size_list
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			amdapp-2.5-si/$bench_name \
+			amdsdk-2.5/$bench_name \
 			--sim-arg "--si-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -130,7 +130,7 @@ then
 	for size in $size_list
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			amdapp-2.5-si/$bench_name \
+			amdsdk-2.5/$bench_name \
 			--sim-arg "--si-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -146,7 +146,7 @@ then
 	for size in $size_list
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			amdapp-2.5-si/$bench_name \
+			amdsdk-2.5/$bench_name \
 			--sim-arg "--si-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -160,7 +160,7 @@ then
 	#for size in $size_list
 	#do
 	#	$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-	#		amdapp-2.5-si/$bench_name \
+	#		amdsdk-2.5/$bench_name \
 	#		--sim-arg "--si-sim functional" \
 	#		--bench-arg " -q -e" \
 	#		|| exit 1
@@ -174,7 +174,7 @@ then
 	for size in $size_list
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			amdapp-2.5-si/$bench_name \
+			amdsdk-2.5/$bench_name \
 			--sim-arg "--si-sim functional" \
 			--bench-arg "-x $size -y $size -q -e" \
 			|| exit 1
@@ -188,7 +188,7 @@ then
 	for size in $size_list
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			amdapp-2.5-si/$bench_name \
+			amdsdk-2.5/$bench_name \
 			--sim-arg "--si-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -202,7 +202,7 @@ then
 	for size in $size_list
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			amdapp-2.5-si/$bench_name \
+			amdsdk-2.5/$bench_name \
 			--sim-arg "--si-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -217,7 +217,7 @@ then
 	for size in $size_list
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			amdapp-2.5-si/$bench_name \
+			amdsdk-2.5/$bench_name \
 			--sim-arg "--si-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -231,7 +231,7 @@ then
 	for size in $size_list
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			amdapp-2.5-si/$bench_name \
+			amdsdk-2.5/$bench_name \
 			--sim-arg "--si-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -245,7 +245,7 @@ then
 	for size in $size_list
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			amdapp-2.5-si/$bench_name \
+			amdsdk-2.5/$bench_name \
 			--sim-arg "--si-sim functional" \
 			--bench-arg "-x $size -y $size -q -e" \
 			|| exit 1
@@ -259,7 +259,7 @@ then
 	for size in $size_list
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			amdapp-2.5-si/$bench_name \
+			amdsdk-2.5/$bench_name \
 			--sim-arg "--si-sim functional" \
 			--bench-arg "-x $size -y $size -z $size -q -e" \
 			|| exit 1
@@ -273,7 +273,7 @@ then
 	for size in $size_list
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			amdapp-2.5-si/$bench_name \
+			amdsdk-2.5/$bench_name \
 			--sim-arg "--si-sim functional" \
 			--bench-arg "-x $size -y $size -q -e" \
 			|| exit 1
@@ -287,7 +287,7 @@ then
 	for size in $size_list
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			amdapp-2.5-si/$bench_name \
+			amdsdk-2.5/$bench_name \
 			--sim-arg "--si-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -301,7 +301,7 @@ then
 	for size in $size_list
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			amdapp-2.5-si/$bench_name \
+			amdsdk-2.5/$bench_name \
 			--sim-arg "--si-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -317,7 +317,7 @@ then
 	#for size in $size_list
 	#do
 	#	$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-	#		amdapp-2.5-si/$bench_name \
+	#		amdsdk-2.5/$bench_name \
 	#		--sim-arg "--si-sim functional" \
 	#		--bench-arg "-x $size -q -e" \
 	#		|| exit 1
@@ -331,7 +331,7 @@ then
 	for size in $size_list
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			amdapp-2.5-si/$bench_name \
+			amdsdk-2.5/$bench_name \
 			--sim-arg "--si-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -345,7 +345,7 @@ then
 	for size in $size_list
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			amdapp-2.5-si/$bench_name \
+			amdsdk-2.5/$bench_name \
 			--sim-arg "--si-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -359,7 +359,7 @@ then
 	for size in $size_list
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			amdapp-2.5-si/$bench_name \
+			amdsdk-2.5/$bench_name \
 			--sim-arg "--si-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -374,7 +374,7 @@ then
 	for size in $size_list
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			amdapp-2.5-si/$bench_name \
+			amdsdk-2.5/$bench_name \
 			--sim-arg "--si-sim functional" \
 			--bench-arg "-x $size -y $size -q -e" \
 			|| exit 1
@@ -388,7 +388,7 @@ then
 	for size in $size_list
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			amdapp-2.5-si/$bench_name \
+			amdsdk-2.5/$bench_name \
 			--sim-arg "--si-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
@@ -402,7 +402,7 @@ then
 	for size in $size_list
 	do
 		$m2s_cluster_sh add $cluster_name "$bench_name/$size_index" \
-			amdapp-2.5-si/$bench_name \
+			amdsdk-2.5/$bench_name \
 			--sim-arg "--si-sim functional" \
 			--bench-arg "-x $size -q -e" \
 			|| exit 1
