@@ -1,0 +1,153 @@
+0
+x86\.init version="[^\n]*" num_cores=4 num_threads=1
+mem\.init version="[^\n]*"
+net\.init version="[^\n]*"
+net\.create name="net0" num_nodes="10" packet_size="0"
+net\.node net_name="net0" node_index="0" node_name="sw0" node_type=2
+net\.node net_name="net0" node_index="1" node_name="sw1" node_type=2
+net\.node net_name="net0" node_index="2" node_name="sw2" node_type=2
+net\.node net_name="net0" node_index="3" node_name="sw3" node_type=2
+net\.node net_name="net0" node_index="4" node_name="n0" node_type=1
+net\.node net_name="net0" node_index="5" node_name="n1" node_type=1
+net\.node net_name="net0" node_index="6" node_name="n2" node_type=1
+net\.node net_name="net0" node_index="7" node_name="n3" node_type=1
+net\.node net_name="net0" node_index="8" node_name="n4" node_type=1
+net\.node net_name="net0" node_index="9" node_name="n5" node_type=1
+net\.link net_name="net0" link_name="link_sw0_sw1" src_node="sw0" dst_node="sw1" vc_num=1 bw=256
+net\.link net_name="net0" link_name="link_sw1_sw0" src_node="sw1" dst_node="sw0" vc_num=1 bw=256
+net\.link net_name="net0" link_name="link_sw1_sw2" src_node="sw1" dst_node="sw2" vc_num=1 bw=256
+net\.link net_name="net0" link_name="link_sw2_sw1" src_node="sw2" dst_node="sw1" vc_num=1 bw=256
+net\.link net_name="net0" link_name="link_sw2_sw3" src_node="sw2" dst_node="sw3" vc_num=1 bw=256
+net\.link net_name="net0" link_name="link_sw3_sw2" src_node="sw3" dst_node="sw2" vc_num=1 bw=256
+net\.link net_name="net0" link_name="link_sw3_sw0" src_node="sw3" dst_node="sw0" vc_num=1 bw=256
+net\.link net_name="net0" link_name="link_sw0_sw3" src_node="sw0" dst_node="sw3" vc_num=1 bw=256
+net\.link net_name="net0" link_name="link_sw0_n2" src_node="sw0" dst_node="n2" vc_num=1 bw=256
+net\.link net_name="net0" link_name="link_n2_sw0" src_node="n2" dst_node="sw0" vc_num=1 bw=256
+net\.link net_name="net0" link_name="link_sw1_n3" src_node="sw1" dst_node="n3" vc_num=1 bw=256
+net\.link net_name="net0" link_name="link_n3_sw1" src_node="n3" dst_node="sw1" vc_num=1 bw=256
+net\.link net_name="net0" link_name="link_sw2_n4" src_node="sw2" dst_node="n4" vc_num=1 bw=256
+net\.link net_name="net0" link_name="link_n4_sw2" src_node="n4" dst_node="sw2" vc_num=1 bw=256
+net\.link net_name="net0" link_name="link_sw3_n5" src_node="sw3" dst_node="n5" vc_num=1 bw=256
+net\.link net_name="net0" link_name="link_n5_sw3" src_node="n5" dst_node="sw3" vc_num=1 bw=256
+net\.link net_name="net0" link_name="link_sw1_n0" src_node="sw1" dst_node="n0" vc_num=1 bw=256
+net\.link net_name="net0" link_name="link_n0_sw1" src_node="n0" dst_node="sw1" vc_num=1 bw=256
+net\.link net_name="net0" link_name="link_sw2_n1" src_node="sw2" dst_node="n1" vc_num=1 bw=256
+net\.link net_name="net0" link_name="link_n1_sw2" src_node="n1" dst_node="sw2" vc_num=1 bw=256
+net\.input_buffer net_name="net0" node_name="sw0" buffer_name="in_buf_0" buffer_size=1024 buffer_type=1 connection="link_sw1_sw0"
+net\.input_buffer net_name="net0" node_name="sw0" buffer_name="in_buf_1" buffer_size=1024 buffer_type=1 connection="link_sw3_sw0"
+net\.input_buffer net_name="net0" node_name="sw0" buffer_name="in_buf_2" buffer_size=1024 buffer_type=1 connection="link_n2_sw0"
+net\.output_buffer net_name="net0" node_name="sw0" buffer_name="out_buf_0" buffer_size=1024 buffer_type=1 connection="link_sw0_sw1"
+net\.output_buffer net_name="net0" node_name="sw0" buffer_name="out_buf_1" buffer_size=1024 buffer_type=1 connection="link_sw0_sw3"
+net\.output_buffer net_name="net0" node_name="sw0" buffer_name="out_buf_2" buffer_size=1024 buffer_type=1 connection="link_sw0_n2"
+net\.input_buffer net_name="net0" node_name="sw1" buffer_name="in_buf_0" buffer_size=1024 buffer_type=1 connection="link_sw0_sw1"
+net\.input_buffer net_name="net0" node_name="sw1" buffer_name="in_buf_1" buffer_size=1024 buffer_type=1 connection="link_sw2_sw1"
+net\.input_buffer net_name="net0" node_name="sw1" buffer_name="in_buf_2" buffer_size=1024 buffer_type=1 connection="link_n3_sw1"
+net\.input_buffer net_name="net0" node_name="sw1" buffer_name="in_buf_3" buffer_size=1024 buffer_type=1 connection="link_n0_sw1"
+net\.output_buffer net_name="net0" node_name="sw1" buffer_name="out_buf_0" buffer_size=1024 buffer_type=1 connection="link_sw1_sw0"
+net\.output_buffer net_name="net0" node_name="sw1" buffer_name="out_buf_1" buffer_size=1024 buffer_type=1 connection="link_sw1_sw2"
+net\.output_buffer net_name="net0" node_name="sw1" buffer_name="out_buf_2" buffer_size=1024 buffer_type=1 connection="link_sw1_n3"
+net\.output_buffer net_name="net0" node_name="sw1" buffer_name="out_buf_3" buffer_size=1024 buffer_type=1 connection="link_sw1_n0"
+net\.input_buffer net_name="net0" node_name="sw2" buffer_name="in_buf_0" buffer_size=1024 buffer_type=1 connection="link_sw1_sw2"
+net\.input_buffer net_name="net0" node_name="sw2" buffer_name="in_buf_1" buffer_size=1024 buffer_type=1 connection="link_sw3_sw2"
+net\.input_buffer net_name="net0" node_name="sw2" buffer_name="in_buf_2" buffer_size=1024 buffer_type=1 connection="link_n4_sw2"
+net\.input_buffer net_name="net0" node_name="sw2" buffer_name="in_buf_3" buffer_size=1024 buffer_type=1 connection="link_n1_sw2"
+net\.output_buffer net_name="net0" node_name="sw2" buffer_name="out_buf_0" buffer_size=1024 buffer_type=1 connection="link_sw2_sw1"
+net\.output_buffer net_name="net0" node_name="sw2" buffer_name="out_buf_1" buffer_size=1024 buffer_type=1 connection="link_sw2_sw3"
+net\.output_buffer net_name="net0" node_name="sw2" buffer_name="out_buf_2" buffer_size=1024 buffer_type=1 connection="link_sw2_n4"
+net\.output_buffer net_name="net0" node_name="sw2" buffer_name="out_buf_3" buffer_size=1024 buffer_type=1 connection="link_sw2_n1"
+net\.input_buffer net_name="net0" node_name="sw3" buffer_name="in_buf_0" buffer_size=1024 buffer_type=1 connection="link_sw2_sw3"
+net\.input_buffer net_name="net0" node_name="sw3" buffer_name="in_buf_1" buffer_size=1024 buffer_type=1 connection="link_sw0_sw3"
+net\.input_buffer net_name="net0" node_name="sw3" buffer_name="in_buf_2" buffer_size=1024 buffer_type=1 connection="link_n5_sw3"
+net\.output_buffer net_name="net0" node_name="sw3" buffer_name="out_buf_0" buffer_size=1024 buffer_type=1 connection="link_sw3_sw2"
+net\.output_buffer net_name="net0" node_name="sw3" buffer_name="out_buf_1" buffer_size=1024 buffer_type=1 connection="link_sw3_sw0"
+net\.output_buffer net_name="net0" node_name="sw3" buffer_name="out_buf_2" buffer_size=1024 buffer_type=1 connection="link_sw3_n5"
+net\.input_buffer net_name="net0" node_name="n0" buffer_name="in_buf_0" buffer_size=1024 buffer_type=1 connection="link_sw1_n0"
+net\.output_buffer net_name="net0" node_name="n0" buffer_name="out_buf_0" buffer_size=1024 buffer_type=1 connection="link_n0_sw1"
+net\.input_buffer net_name="net0" node_name="n1" buffer_name="in_buf_0" buffer_size=1024 buffer_type=1 connection="link_sw2_n1"
+net\.output_buffer net_name="net0" node_name="n1" buffer_name="out_buf_0" buffer_size=1024 buffer_type=1 connection="link_n1_sw2"
+net\.input_buffer net_name="net0" node_name="n2" buffer_name="in_buf_0" buffer_size=1024 buffer_type=1 connection="link_sw0_n2"
+net\.output_buffer net_name="net0" node_name="n2" buffer_name="out_buf_0" buffer_size=1024 buffer_type=1 connection="link_n2_sw0"
+net\.input_buffer net_name="net0" node_name="n3" buffer_name="in_buf_0" buffer_size=1024 buffer_type=1 connection="link_sw1_n3"
+net\.output_buffer net_name="net0" node_name="n3" buffer_name="out_buf_0" buffer_size=1024 buffer_type=1 connection="link_n3_sw1"
+net\.input_buffer net_name="net0" node_name="n4" buffer_name="in_buf_0" buffer_size=1024 buffer_type=1 connection="link_sw2_n4"
+net\.output_buffer net_name="net0" node_name="n4" buffer_name="out_buf_0" buffer_size=1024 buffer_type=1 connection="link_n4_sw2"
+net\.input_buffer net_name="net0" node_name="n5" buffer_name="in_buf_0" buffer_size=1024 buffer_type=1 connection="link_sw3_n5"
+net\.output_buffer net_name="net0" node_name="n5" buffer_name="out_buf_0" buffer_size=1024 buffer_type=1 connection="link_n5_sw3"
+mem\.new_net name="net0" num_nodes=10
+net\.create name="net-l1-l2-0" num_nodes="5" packet_size="0"
+net\.node net_name="net-l1-l2-0" node_index="0" node_name="mod-l1-0" node_type=1
+net\.node net_name="net-l1-l2-0" node_index="1" node_name="mod-l1-1" node_type=1
+net\.node net_name="net-l1-l2-0" node_index="2" node_name="mod-il1-0" node_type=1
+net\.node net_name="net-l1-l2-0" node_index="3" node_name="mod-l2-0" node_type=1
+net\.node net_name="net-l1-l2-0" node_index="4" node_name="Switch" node_type=2
+net\.link net_name="net-l1-l2-0" link_name="link_mod-l1-0_Switch" src_node="mod-l1-0" dst_node="Switch" vc_num=1 bw=256
+net\.link net_name="net-l1-l2-0" link_name="link_Switch_mod-l1-0" src_node="Switch" dst_node="mod-l1-0" vc_num=1 bw=256
+net\.link net_name="net-l1-l2-0" link_name="link_mod-l1-1_Switch" src_node="mod-l1-1" dst_node="Switch" vc_num=1 bw=256
+net\.link net_name="net-l1-l2-0" link_name="link_Switch_mod-l1-1" src_node="Switch" dst_node="mod-l1-1" vc_num=1 bw=256
+net\.link net_name="net-l1-l2-0" link_name="link_mod-il1-0_Switch" src_node="mod-il1-0" dst_node="Switch" vc_num=1 bw=256
+net\.link net_name="net-l1-l2-0" link_name="link_Switch_mod-il1-0" src_node="Switch" dst_node="mod-il1-0" vc_num=1 bw=256
+net\.link net_name="net-l1-l2-0" link_name="link_mod-l2-0_Switch" src_node="mod-l2-0" dst_node="Switch" vc_num=1 bw=256
+net\.link net_name="net-l1-l2-0" link_name="link_Switch_mod-l2-0" src_node="Switch" dst_node="mod-l2-0" vc_num=1 bw=256
+net\.input_buffer net_name="net-l1-l2-0" node_name="mod-l1-0" buffer_name="in_buf_0" buffer_size=1024 buffer_type=1 connection="link_Switch_mod-l1-0"
+net\.output_buffer net_name="net-l1-l2-0" node_name="mod-l1-0" buffer_name="out_buf_0" buffer_size=1024 buffer_type=1 connection="link_mod-l1-0_Switch"
+net\.input_buffer net_name="net-l1-l2-0" node_name="mod-l1-1" buffer_name="in_buf_0" buffer_size=1024 buffer_type=1 connection="link_Switch_mod-l1-1"
+net\.output_buffer net_name="net-l1-l2-0" node_name="mod-l1-1" buffer_name="out_buf_0" buffer_size=1024 buffer_type=1 connection="link_mod-l1-1_Switch"
+net\.input_buffer net_name="net-l1-l2-0" node_name="mod-il1-0" buffer_name="in_buf_0" buffer_size=1024 buffer_type=1 connection="link_Switch_mod-il1-0"
+net\.output_buffer net_name="net-l1-l2-0" node_name="mod-il1-0" buffer_name="out_buf_0" buffer_size=1024 buffer_type=1 connection="link_mod-il1-0_Switch"
+net\.input_buffer net_name="net-l1-l2-0" node_name="mod-l2-0" buffer_name="in_buf_0" buffer_size=1024 buffer_type=1 connection="link_Switch_mod-l2-0"
+net\.output_buffer net_name="net-l1-l2-0" node_name="mod-l2-0" buffer_name="out_buf_0" buffer_size=1024 buffer_type=1 connection="link_mod-l2-0_Switch"
+net\.input_buffer net_name="net-l1-l2-0" node_name="Switch" buffer_name="in_buf_0" buffer_size=1024 buffer_type=1 connection="link_mod-l1-0_Switch"
+net\.input_buffer net_name="net-l1-l2-0" node_name="Switch" buffer_name="in_buf_1" buffer_size=1024 buffer_type=1 connection="link_mod-l1-1_Switch"
+net\.input_buffer net_name="net-l1-l2-0" node_name="Switch" buffer_name="in_buf_2" buffer_size=1024 buffer_type=1 connection="link_mod-il1-0_Switch"
+net\.input_buffer net_name="net-l1-l2-0" node_name="Switch" buffer_name="in_buf_3" buffer_size=1024 buffer_type=1 connection="link_mod-l2-0_Switch"
+net\.output_buffer net_name="net-l1-l2-0" node_name="Switch" buffer_name="out_buf_0" buffer_size=1024 buffer_type=1 connection="link_Switch_mod-l1-0"
+net\.output_buffer net_name="net-l1-l2-0" node_name="Switch" buffer_name="out_buf_1" buffer_size=1024 buffer_type=1 connection="link_Switch_mod-l1-1"
+net\.output_buffer net_name="net-l1-l2-0" node_name="Switch" buffer_name="out_buf_2" buffer_size=1024 buffer_type=1 connection="link_Switch_mod-il1-0"
+net\.output_buffer net_name="net-l1-l2-0" node_name="Switch" buffer_name="out_buf_3" buffer_size=1024 buffer_type=1 connection="link_Switch_mod-l2-0"
+mem\.new_net name="net-l1-l2-0" num_nodes=5
+net\.create name="net-l1-l2-1" num_nodes="5" packet_size="0"
+net\.node net_name="net-l1-l2-1" node_index="0" node_name="mod-l1-2" node_type=1
+net\.node net_name="net-l1-l2-1" node_index="1" node_name="mod-l1-3" node_type=1
+net\.node net_name="net-l1-l2-1" node_index="2" node_name="mod-il1-1" node_type=1
+net\.node net_name="net-l1-l2-1" node_index="3" node_name="mod-l2-1" node_type=1
+net\.node net_name="net-l1-l2-1" node_index="4" node_name="Switch" node_type=2
+net\.link net_name="net-l1-l2-1" link_name="link_mod-l1-2_Switch" src_node="mod-l1-2" dst_node="Switch" vc_num=1 bw=256
+net\.link net_name="net-l1-l2-1" link_name="link_Switch_mod-l1-2" src_node="Switch" dst_node="mod-l1-2" vc_num=1 bw=256
+net\.link net_name="net-l1-l2-1" link_name="link_mod-l1-3_Switch" src_node="mod-l1-3" dst_node="Switch" vc_num=1 bw=256
+net\.link net_name="net-l1-l2-1" link_name="link_Switch_mod-l1-3" src_node="Switch" dst_node="mod-l1-3" vc_num=1 bw=256
+net\.link net_name="net-l1-l2-1" link_name="link_mod-il1-1_Switch" src_node="mod-il1-1" dst_node="Switch" vc_num=1 bw=256
+net\.link net_name="net-l1-l2-1" link_name="link_Switch_mod-il1-1" src_node="Switch" dst_node="mod-il1-1" vc_num=1 bw=256
+net\.link net_name="net-l1-l2-1" link_name="link_mod-l2-1_Switch" src_node="mod-l2-1" dst_node="Switch" vc_num=1 bw=256
+net\.link net_name="net-l1-l2-1" link_name="link_Switch_mod-l2-1" src_node="Switch" dst_node="mod-l2-1" vc_num=1 bw=256
+net\.input_buffer net_name="net-l1-l2-1" node_name="mod-l1-2" buffer_name="in_buf_0" buffer_size=1024 buffer_type=1 connection="link_Switch_mod-l1-2"
+net\.output_buffer net_name="net-l1-l2-1" node_name="mod-l1-2" buffer_name="out_buf_0" buffer_size=1024 buffer_type=1 connection="link_mod-l1-2_Switch"
+net\.input_buffer net_name="net-l1-l2-1" node_name="mod-l1-3" buffer_name="in_buf_0" buffer_size=1024 buffer_type=1 connection="link_Switch_mod-l1-3"
+net\.output_buffer net_name="net-l1-l2-1" node_name="mod-l1-3" buffer_name="out_buf_0" buffer_size=1024 buffer_type=1 connection="link_mod-l1-3_Switch"
+net\.input_buffer net_name="net-l1-l2-1" node_name="mod-il1-1" buffer_name="in_buf_0" buffer_size=1024 buffer_type=1 connection="link_Switch_mod-il1-1"
+net\.output_buffer net_name="net-l1-l2-1" node_name="mod-il1-1" buffer_name="out_buf_0" buffer_size=1024 buffer_type=1 connection="link_mod-il1-1_Switch"
+net\.input_buffer net_name="net-l1-l2-1" node_name="mod-l2-1" buffer_name="in_buf_0" buffer_size=1024 buffer_type=1 connection="link_Switch_mod-l2-1"
+net\.output_buffer net_name="net-l1-l2-1" node_name="mod-l2-1" buffer_name="out_buf_0" buffer_size=1024 buffer_type=1 connection="link_mod-l2-1_Switch"
+net\.input_buffer net_name="net-l1-l2-1" node_name="Switch" buffer_name="in_buf_0" buffer_size=1024 buffer_type=1 connection="link_mod-l1-2_Switch"
+net\.input_buffer net_name="net-l1-l2-1" node_name="Switch" buffer_name="in_buf_1" buffer_size=1024 buffer_type=1 connection="link_mod-l1-3_Switch"
+net\.input_buffer net_name="net-l1-l2-1" node_name="Switch" buffer_name="in_buf_2" buffer_size=1024 buffer_type=1 connection="link_mod-il1-1_Switch"
+net\.input_buffer net_name="net-l1-l2-1" node_name="Switch" buffer_name="in_buf_3" buffer_size=1024 buffer_type=1 connection="link_mod-l2-1_Switch"
+net\.output_buffer net_name="net-l1-l2-1" node_name="Switch" buffer_name="out_buf_0" buffer_size=1024 buffer_type=1 connection="link_Switch_mod-l1-2"
+net\.output_buffer net_name="net-l1-l2-1" node_name="Switch" buffer_name="out_buf_1" buffer_size=1024 buffer_type=1 connection="link_Switch_mod-l1-3"
+net\.output_buffer net_name="net-l1-l2-1" node_name="Switch" buffer_name="out_buf_2" buffer_size=1024 buffer_type=1 connection="link_Switch_mod-il1-1"
+net\.output_buffer net_name="net-l1-l2-1" node_name="Switch" buffer_name="out_buf_3" buffer_size=1024 buffer_type=1 connection="link_Switch_mod-l2-1"
+mem\.new_net name="net-l1-l2-1" num_nodes=5
+mem\.new_mod name="mod-l1-0" num_sets=128 assoc=2 block_size=256 sub_block_size=256 num_sharers=1 level=1 high_net="" high_net_node=0 low_net="net-l1-l2-0" low_net_node=0
+mem\.new_mod name="mod-l1-1" num_sets=128 assoc=2 block_size=256 sub_block_size=256 num_sharers=1 level=1 high_net="" high_net_node=0 low_net="net-l1-l2-0" low_net_node=1
+mem\.new_mod name="mod-l1-2" num_sets=128 assoc=2 block_size=256 sub_block_size=256 num_sharers=1 level=1 high_net="" high_net_node=0 low_net="net-l1-l2-1" low_net_node=0
+mem\.new_mod name="mod-l1-3" num_sets=128 assoc=2 block_size=256 sub_block_size=256 num_sharers=1 level=1 high_net="" high_net_node=0 low_net="net-l1-l2-1" low_net_node=1
+mem\.new_mod name="mod-il1-0" num_sets=128 assoc=2 block_size=256 sub_block_size=256 num_sharers=1 level=1 high_net="" high_net_node=0 low_net="net-l1-l2-0" low_net_node=2
+mem\.new_mod name="mod-il1-1" num_sets=128 assoc=2 block_size=256 sub_block_size=256 num_sharers=1 level=1 high_net="" high_net_node=0 low_net="net-l1-l2-1" low_net_node=2
+mem\.new_mod name="mod-l2-0" num_sets=512 assoc=4 block_size=256 sub_block_size=256 num_sharers=5 level=2 high_net="net-l1-l2-0" high_net_node=3 low_net="net0" low_net_node=4
+mem\.new_mod name="mod-l2-1" num_sets=512 assoc=4 block_size=256 sub_block_size=256 num_sharers=5 level=2 high_net="net-l1-l2-1" high_net_node=3 low_net="net0" low_net_node=5
+mem\.new_mod name="mod-mm-0" num_sets=8192 assoc=16 block_size=256 sub_block_size=256 num_sharers=10 level=3 high_net="net0" high_net_node=6 low_net="" low_net_node=0
+mem\.new_mod name="mod-mm-1" num_sets=8192 assoc=16 block_size=256 sub_block_size=256 num_sharers=10 level=3 high_net="net0" high_net_node=7 low_net="" low_net_node=0
+mem\.new_mod name="mod-mm-2" num_sets=8192 assoc=16 block_size=256 sub_block_size=256 num_sharers=10 level=3 high_net="net0" high_net_node=8 low_net="" low_net_node=0
+mem\.new_mod name="mod-mm-3" num_sets=8192 assoc=16 block_size=256 sub_block_size=256 num_sharers=10 level=3 high_net="net0" high_net_node=9 low_net="" low_net_node=0
+c clk=1
+x86\.map_ctx ctx=1000 core=0 thread=0 ppid=0
+.*
