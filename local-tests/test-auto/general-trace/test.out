@@ -1,11 +1,43 @@
 0
 x86\.init version="[^\n]*" num_cores=1 num_threads=1
 mem\.init version="[^\n]*"
+net\.create name="x86-net-l1-l2" num_nodes="3" packet_size="0"
+net\.node net_name="x86-net-l1-l2" node_index="0" node_name="x86-l1-0" node_type=1
+net\.node net_name="x86-net-l1-l2" node_index="1" node_name="x86-l2" node_type=1
+net\.node net_name="x86-net-l1-l2" node_index="2" node_name="Switch" node_type=2
+net\.link net_name="x86-net-l1-l2" link_name="link_x86-l1-0_Switch" src_node="x86-l1-0" dst_node="Switch" vc_num=1 bw=72
+net\.link net_name="x86-net-l1-l2" link_name="link_Switch_x86-l1-0" src_node="Switch" dst_node="x86-l1-0" vc_num=1 bw=72
+net\.link net_name="x86-net-l1-l2" link_name="link_x86-l2_Switch" src_node="x86-l2" dst_node="Switch" vc_num=1 bw=72
+net\.link net_name="x86-net-l1-l2" link_name="link_Switch_x86-l2" src_node="Switch" dst_node="x86-l2" vc_num=1 bw=72
+net\.input_buffer net_name="x86-net-l1-l2" node_name="x86-l1-0" buffer_name="in_buf_0" buffer_size=144 buffer_type=1 connection="link_Switch_x86-l1-0"
+net\.output_buffer net_name="x86-net-l1-l2" node_name="x86-l1-0" buffer_name="out_buf_0" buffer_size=144 buffer_type=1 connection="link_x86-l1-0_Switch"
+net\.input_buffer net_name="x86-net-l1-l2" node_name="x86-l2" buffer_name="in_buf_0" buffer_size=144 buffer_type=1 connection="link_Switch_x86-l2"
+net\.output_buffer net_name="x86-net-l1-l2" node_name="x86-l2" buffer_name="out_buf_0" buffer_size=144 buffer_type=1 connection="link_x86-l2_Switch"
+net\.input_buffer net_name="x86-net-l1-l2" node_name="Switch" buffer_name="in_buf_0" buffer_size=144 buffer_type=1 connection="link_x86-l1-0_Switch"
+net\.input_buffer net_name="x86-net-l1-l2" node_name="Switch" buffer_name="in_buf_1" buffer_size=144 buffer_type=1 connection="link_x86-l2_Switch"
+net\.output_buffer net_name="x86-net-l1-l2" node_name="Switch" buffer_name="out_buf_0" buffer_size=144 buffer_type=1 connection="link_Switch_x86-l1-0"
+net\.output_buffer net_name="x86-net-l1-l2" node_name="Switch" buffer_name="out_buf_1" buffer_size=144 buffer_type=1 connection="link_Switch_x86-l2"
 mem\.new_net name="x86-net-l1-l2" num_nodes=3
+net\.create name="x86-net-l2-mm" num_nodes="3" packet_size="0"
+net\.node net_name="x86-net-l2-mm" node_index="0" node_name="x86-l2" node_type=1
+net\.node net_name="x86-net-l2-mm" node_index="1" node_name="x86-mm" node_type=1
+net\.node net_name="x86-net-l2-mm" node_index="2" node_name="Switch" node_type=2
+net\.link net_name="x86-net-l2-mm" link_name="link_x86-l2_Switch" src_node="x86-l2" dst_node="Switch" vc_num=1 bw=264
+net\.link net_name="x86-net-l2-mm" link_name="link_Switch_x86-l2" src_node="Switch" dst_node="x86-l2" vc_num=1 bw=264
+net\.link net_name="x86-net-l2-mm" link_name="link_x86-mm_Switch" src_node="x86-mm" dst_node="Switch" vc_num=1 bw=264
+net\.link net_name="x86-net-l2-mm" link_name="link_Switch_x86-mm" src_node="Switch" dst_node="x86-mm" vc_num=1 bw=264
+net\.input_buffer net_name="x86-net-l2-mm" node_name="x86-l2" buffer_name="in_buf_0" buffer_size=528 buffer_type=1 connection="link_Switch_x86-l2"
+net\.output_buffer net_name="x86-net-l2-mm" node_name="x86-l2" buffer_name="out_buf_0" buffer_size=528 buffer_type=1 connection="link_x86-l2_Switch"
+net\.input_buffer net_name="x86-net-l2-mm" node_name="x86-mm" buffer_name="in_buf_0" buffer_size=528 buffer_type=1 connection="link_Switch_x86-mm"
+net\.output_buffer net_name="x86-net-l2-mm" node_name="x86-mm" buffer_name="out_buf_0" buffer_size=528 buffer_type=1 connection="link_x86-mm_Switch"
+net\.input_buffer net_name="x86-net-l2-mm" node_name="Switch" buffer_name="in_buf_0" buffer_size=528 buffer_type=1 connection="link_x86-l2_Switch"
+net\.input_buffer net_name="x86-net-l2-mm" node_name="Switch" buffer_name="in_buf_1" buffer_size=528 buffer_type=1 connection="link_x86-mm_Switch"
+net\.output_buffer net_name="x86-net-l2-mm" node_name="Switch" buffer_name="out_buf_0" buffer_size=528 buffer_type=1 connection="link_Switch_x86-l2"
+net\.output_buffer net_name="x86-net-l2-mm" node_name="Switch" buffer_name="out_buf_1" buffer_size=528 buffer_type=1 connection="link_Switch_x86-mm"
 mem\.new_net name="x86-net-l2-mm" num_nodes=3
 mem\.new_mod name="x86-l1-0" num_sets=16 assoc=2 block_size=64 sub_block_size=64 num_sharers=1 level=1 high_net="" high_net_node=0 low_net="x86-net-l1-l2" low_net_node=0
 mem\.new_mod name="x86-l2" num_sets=64 assoc=4 block_size=64 sub_block_size=64 num_sharers=3 level=2 high_net="x86-net-l1-l2" high_net_node=1 low_net="x86-net-l2-mm" low_net_node=0
 mem\.new_mod name="x86-mm" num_sets=8192 assoc=16 block_size=64 sub_block_size=64 num_sharers=3 level=3 high_net="x86-net-l2-mm" high_net_node=1 low_net="" low_net_node=0
 c clk=1
-x86\.map_ctx ctx=[0-9]+ core=0 thread=0 ppid=0
+x86\.map_ctx ctx=[0-9]+ core=0 thread=0 ppid=[0-9]+
 .*
