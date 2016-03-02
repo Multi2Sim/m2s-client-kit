@@ -1,0 +1,61 @@
+net\.init version="[^\n]*"
+net\.create name="net0" num_nodes="8" packet_size="0"
+net\.node net_name="net0" node_index="0" node_name="n0" node_type=1
+net\.node net_name="net0" node_index="1" node_name="n1" node_type=1
+net\.node net_name="net0" node_index="2" node_name="n2" node_type=1
+net\.node net_name="net0" node_index="3" node_name="n3" node_type=1
+net\.node net_name="net0" node_index="4" node_name="s0" node_type=2
+net\.node net_name="net0" node_index="5" node_name="s1" node_type=2
+net\.node net_name="net0" node_index="6" node_name="s2" node_type=2
+net\.node net_name="net0" node_index="7" node_name="s3" node_type=2
+net\.link net_name="net0" link_name="link_n0_s0" src_node="n0" dst_node="s0" vc_num=1 bw=264
+net\.link net_name="net0" link_name="link_s0_n0" src_node="s0" dst_node="n0" vc_num=1 bw=264
+net\.link net_name="net0" link_name="link_n1_s1" src_node="n1" dst_node="s1" vc_num=1 bw=264
+net\.link net_name="net0" link_name="link_s1_n1" src_node="s1" dst_node="n1" vc_num=1 bw=264
+net\.link net_name="net0" link_name="link_n2_s2" src_node="n2" dst_node="s2" vc_num=1 bw=264
+net\.link net_name="net0" link_name="link_s2_n2" src_node="s2" dst_node="n2" vc_num=1 bw=264
+net\.link net_name="net0" link_name="link_n3_s3" src_node="n3" dst_node="s3" vc_num=1 bw=264
+net\.link net_name="net0" link_name="link_s3_n3" src_node="s3" dst_node="n3" vc_num=1 bw=264
+net\.link net_name="net0" link_name="link_s0_s1" src_node="s0" dst_node="s1" vc_num=1 bw=264
+net\.link net_name="net0" link_name="link_s1_s0" src_node="s1" dst_node="s0" vc_num=1 bw=264
+net\.link net_name="net0" link_name="link_s0_s2" src_node="s0" dst_node="s2" vc_num=1 bw=264
+net\.link net_name="net0" link_name="link_s2_s0" src_node="s2" dst_node="s0" vc_num=1 bw=264
+net\.link net_name="net0" link_name="link_s1_s3" src_node="s1" dst_node="s3" vc_num=1 bw=264
+net\.link net_name="net0" link_name="link_s3_s1" src_node="s3" dst_node="s1" vc_num=1 bw=264
+net\.link net_name="net0" link_name="link_s2_s3" src_node="s2" dst_node="s3" vc_num=1 bw=264
+net\.link net_name="net0" link_name="link_s3_s2" src_node="s3" dst_node="s2" vc_num=1 bw=264
+net\.input_buffer net_name="net0" node_name="n0" buffer_name="in_buf_0" buffer_size=528 buffer_type=1 connection="link_s0_n0"
+net\.output_buffer net_name="net0" node_name="n0" buffer_name="out_buf_0" buffer_size=528 buffer_type=1 connection="link_n0_s0"
+net\.input_buffer net_name="net0" node_name="n1" buffer_name="in_buf_0" buffer_size=528 buffer_type=1 connection="link_s1_n1"
+net\.output_buffer net_name="net0" node_name="n1" buffer_name="out_buf_0" buffer_size=528 buffer_type=1 connection="link_n1_s1"
+net\.input_buffer net_name="net0" node_name="n2" buffer_name="in_buf_0" buffer_size=528 buffer_type=1 connection="link_s2_n2"
+net\.output_buffer net_name="net0" node_name="n2" buffer_name="out_buf_0" buffer_size=528 buffer_type=1 connection="link_n2_s2"
+net\.input_buffer net_name="net0" node_name="n3" buffer_name="in_buf_0" buffer_size=528 buffer_type=1 connection="link_s3_n3"
+net\.output_buffer net_name="net0" node_name="n3" buffer_name="out_buf_0" buffer_size=528 buffer_type=1 connection="link_n3_s3"
+net\.input_buffer net_name="net0" node_name="s0" buffer_name="in_buf_0" buffer_size=528 buffer_type=1 connection="link_n0_s0"
+net\.input_buffer net_name="net0" node_name="s0" buffer_name="in_buf_1" buffer_size=528 buffer_type=1 connection="link_s1_s0"
+net\.input_buffer net_name="net0" node_name="s0" buffer_name="in_buf_2" buffer_size=528 buffer_type=1 connection="link_s2_s0"
+net\.output_buffer net_name="net0" node_name="s0" buffer_name="out_buf_0" buffer_size=528 buffer_type=1 connection="link_s0_n0"
+net\.output_buffer net_name="net0" node_name="s0" buffer_name="out_buf_1" buffer_size=528 buffer_type=1 connection="link_s0_s1"
+net\.output_buffer net_name="net0" node_name="s0" buffer_name="out_buf_2" buffer_size=528 buffer_type=1 connection="link_s0_s2"
+net\.input_buffer net_name="net0" node_name="s1" buffer_name="in_buf_0" buffer_size=528 buffer_type=1 connection="link_n1_s1"
+net\.input_buffer net_name="net0" node_name="s1" buffer_name="in_buf_1" buffer_size=528 buffer_type=1 connection="link_s0_s1"
+net\.input_buffer net_name="net0" node_name="s1" buffer_name="in_buf_2" buffer_size=528 buffer_type=1 connection="link_s3_s1"
+net\.output_buffer net_name="net0" node_name="s1" buffer_name="out_buf_0" buffer_size=528 buffer_type=1 connection="link_s1_n1"
+net\.output_buffer net_name="net0" node_name="s1" buffer_name="out_buf_1" buffer_size=528 buffer_type=1 connection="link_s1_s0"
+net\.output_buffer net_name="net0" node_name="s1" buffer_name="out_buf_2" buffer_size=528 buffer_type=1 connection="link_s1_s3"
+net\.input_buffer net_name="net0" node_name="s2" buffer_name="in_buf_0" buffer_size=528 buffer_type=1 connection="link_n2_s2"
+net\.input_buffer net_name="net0" node_name="s2" buffer_name="in_buf_1" buffer_size=528 buffer_type=1 connection="link_s0_s2"
+net\.input_buffer net_name="net0" node_name="s2" buffer_name="in_buf_2" buffer_size=528 buffer_type=1 connection="link_s3_s2"
+net\.output_buffer net_name="net0" node_name="s2" buffer_name="out_buf_0" buffer_size=528 buffer_type=1 connection="link_s2_n2"
+net\.output_buffer net_name="net0" node_name="s2" buffer_name="out_buf_1" buffer_size=528 buffer_type=1 connection="link_s2_s0"
+net\.output_buffer net_name="net0" node_name="s2" buffer_name="out_buf_2" buffer_size=528 buffer_type=1 connection="link_s2_s3"
+net\.input_buffer net_name="net0" node_name="s3" buffer_name="in_buf_0" buffer_size=528 buffer_type=1 connection="link_n3_s3"
+net\.input_buffer net_name="net0" node_name="s3" buffer_name="in_buf_1" buffer_size=528 buffer_type=1 connection="link_s1_s3"
+net\.input_buffer net_name="net0" node_name="s3" buffer_name="in_buf_2" buffer_size=528 buffer_type=1 connection="link_s2_s3"
+net\.output_buffer net_name="net0" node_name="s3" buffer_name="out_buf_0" buffer_size=528 buffer_type=1 connection="link_s3_n3"
+net\.output_buffer net_name="net0" node_name="s3" buffer_name="out_buf_1" buffer_size=528 buffer_type=1 connection="link_s3_s1"
+net\.output_buffer net_name="net0" node_name="s3" buffer_name="out_buf_2" buffer_size=528 buffer_type=1 connection="link_s3_s2"
+c clk=1
+net\.new_msg net="net0" name="M-0" size=1 state="n0:create"
+.*

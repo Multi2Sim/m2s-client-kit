@@ -1,6 +1,7 @@
 0
 x86\.init version="[^\n]*" num_cores=1 num_threads=1
 mem\.init version="[^\n]*"
+net\.init version="[^\n]*"
 net\.create name="x86-net-l1-l2" num_nodes="3" packet_size="0"
 net\.node net_name="x86-net-l1-l2" node_index="0" node_name="x86-l1-0" node_type=1
 net\.node net_name="x86-net-l1-l2" node_index="1" node_name="x86-l2" node_type=1
@@ -39,5 +40,5 @@ mem\.new_mod name="x86-l1-0" num_sets=16 assoc=2 block_size=64 sub_block_size=64
 mem\.new_mod name="x86-l2" num_sets=64 assoc=4 block_size=64 sub_block_size=64 num_sharers=3 level=2 high_net="x86-net-l1-l2" high_net_node=1 low_net="x86-net-l2-mm" low_net_node=0
 mem\.new_mod name="x86-mm" num_sets=8192 assoc=16 block_size=64 sub_block_size=64 num_sharers=3 level=3 high_net="x86-net-l2-mm" high_net_node=1 low_net="" low_net_node=0
 c clk=1
-x86\.map_ctx ctx=[0-9]+ core=0 thread=0 ppid=[0-9]+
+x86\.map_ctx ctx=1000 core=0 thread=0 ppid=0
 .*
