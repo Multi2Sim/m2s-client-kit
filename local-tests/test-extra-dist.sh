@@ -1,12 +1,15 @@
 #!/bin/bash
 
-M2S_CLIENT_KIT_PATH="m2s-client-kit"
+SCRIPT_PATH=$(readlink -f "$0")
+SCRIPT_DIRECTORY=$(dirname "$SCRIPT_PATH")
+
+M2S_CLIENT_KIT_PATH=$(readlink -f "$SCRIPT_DIRECTORY/..")
 M2S_CLIENT_KIT_BIN_PATH="$M2S_CLIENT_KIT_PATH/bin"
 M2S_CLIENT_KIT_TMP_PATH="$M2S_CLIENT_KIT_PATH/tmp"
 M2S_CLIENT_KIT_RESULT_PATH="$M2S_CLIENT_KIT_PATH/result"
 
-inifile_py="$HOME/$M2S_CLIENT_KIT_BIN_PATH/inifile.py"
-build_m2s_local_sh="$HOME/$M2S_CLIENT_KIT_BIN_PATH/build-m2s-local.sh"
+inifile_py="$M2S_CLIENT_KIT_BIN_PATH/inifile.py"
+build_m2s_local_sh="$M2S_CLIENT_KIT_BIN_PATH/build-m2s-local.sh"
 prog_name=$(echo $0 | awk -F/ '{ print $NF }')
 
 
@@ -79,16 +82,16 @@ $build_m2s_local_sh $rev_arg $tag_arg \
 temp_dir=`mktemp -d`
 
 # Copy package
-m2s_dir=`ls $HOME/m2s-client-kit/tmp/m2s-bin/multi2sim-*.tar.gz | sed "s/.*\(multi2sim-.*\)\.tar\.gz/\1/g"`
+m2s_dir=`ls $M2S_CLIENT_KIT_PATH/tmp/m2s-bin/multi2sim-*.tar.gz | sed "s/.*\(multi2sim-.*\)\.tar\.gz/\1/g"`
 m2s_pkg="${m2s_dir}.tar.gz"
-cp $HOME/m2s-client-kit/tmp/m2s-bin/$m2s_pkg $temp_dir || exit 1
+cp $M2S_CLIENT_KIT_PATH/tmp/m2s-bin/$m2s_pkg $temp_dir || exit 1
 
 # Extract development package
 cd $temp_dir
 tar -xzf $m2s_pkg || exit 1
 
 # List files in development package
-cd $HOME/m2s-client-kit/tmp/m2s-src || exit 1
+cd $M2S_CLIENT_KIT_PATH/tmp/m2s-src || exit 1
 file_list=`find . -type f | grep -v "\.svn\>"`
 
 # Find files in distribution package

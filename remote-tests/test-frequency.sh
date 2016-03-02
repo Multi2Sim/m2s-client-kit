@@ -1,14 +1,17 @@
 #!/bin/bash
 
-M2S_CLIENT_KIT_PATH="m2s-client-kit"
+SCRIPT_PATH=$(readlink -f "$0")
+SCRIPT_DIRECTORY=$(dirname "$SCRIPT_PATH")
+
+M2S_CLIENT_KIT_PATH=$(readlink -f "$SCRIPT_DIRECTORY/..")
 M2S_CLIENT_KIT_BIN_PATH="$M2S_CLIENT_KIT_PATH/bin"
 M2S_CLIENT_KIT_TMP_PATH="$M2S_CLIENT_KIT_PATH/tmp"
 M2S_CLIENT_KIT_RESULT_PATH="$M2S_CLIENT_KIT_PATH/result"
 M2S_CLIENT_KIT_DOC_PATH="$M2S_CLIENT_KIT_PATH/doc"
 
 prog_name=`echo $0 | awk -F/ '{ print $NF }'`
-m2s_cluster_sh="$HOME/$M2S_CLIENT_KIT_BIN_PATH/m2s-cluster.sh"
-inifile_py="$HOME/$M2S_CLIENT_KIT_BIN_PATH/inifile.py"
+m2s_cluster_sh="$M2S_CLIENT_KIT_BIN_PATH/m2s-cluster.sh"
+inifile_py="$M2S_CLIENT_KIT_BIN_PATH/inifile.py"
 
 # List of the first 5 integer + the first 5 floating-point benchmarks
 bench_list="403.gcc 410.bwaves 434.zeusmp"
@@ -29,7 +32,7 @@ The test is run using three different benchmarks with low (gcc), medium
 
 Cluster: $cluster_name
 Secondary scripts: -
-Additional info: $HOME/$M2S_CLIENT_KIT_DOC_PATH/verification-script-interface.txt
+Additional info: $M2S_CLIENT_KIT_DOC_PATH/verification-script-interface.txt
 "
 
 
@@ -98,9 +101,9 @@ then
 	$m2s_cluster_sh create $cluster_name || exit 1
 
 	# Temporary x86 configuration files
-	x86_config="$HOME/$M2S_CLIENT_KIT_TMP_PATH/x86-config"
-	mem_config="$HOME/$M2S_CLIENT_KIT_TMP_PATH/mem-config"
-	net_config="$HOME/$M2S_CLIENT_KIT_TMP_PATH/net-config"
+	x86_config="$M2S_CLIENT_KIT_TMP_PATH/x86-config"
+	mem_config="$M2S_CLIENT_KIT_TMP_PATH/mem-config"
+	net_config="$M2S_CLIENT_KIT_TMP_PATH/net-config"
 
 	# Maximum number of instructions
 	x86_max_inst="10M"
@@ -266,7 +269,7 @@ then
 	done
 
 	# Import cluster if needed
-	cluster_path="$HOME/$M2S_CLIENT_KIT_RESULT_PATH/$cluster_name"
+	cluster_path="$M2S_CLIENT_KIT_RESULT_PATH/$cluster_name"
 	if [ ! -d "$cluster_path" -o "$force" == 1 ]
 	then
 		$m2s_cluster_sh import $cluster_name \

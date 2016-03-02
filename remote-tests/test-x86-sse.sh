@@ -1,13 +1,16 @@
 #!/bin/bash
 
-M2S_CLIENT_KIT_PATH="m2s-client-kit"
+SCRIPT_PATH=$(readlink -f "$0")
+SCRIPT_DIRECTORY=$(dirname "$SCRIPT_PATH")
+
+M2S_CLIENT_KIT_PATH=$(readlink -f "$SCRIPT_DIRECTORY/..")
 M2S_CLIENT_KIT_BIN_PATH="$M2S_CLIENT_KIT_PATH/bin"
 M2S_CLIENT_KIT_RESULT_PATH="$M2S_CLIENT_KIT_PATH/result"
 M2S_CLIENT_KIT_DOC_PATH="$M2S_CLIENT_KIT_PATH/doc"
 
 prog_name=`echo $0 | awk -F/ '{ print $NF }'`
-m2s_cluster_sh="$HOME/$M2S_CLIENT_KIT_BIN_PATH/m2s-cluster.sh"
-inifile_py="$HOME/$M2S_CLIENT_KIT_BIN_PATH/inifile.py"
+m2s_cluster_sh="$M2S_CLIENT_KIT_BIN_PATH/m2s-cluster.sh"
+inifile_py="$M2S_CLIENT_KIT_BIN_PATH/inifile.py"
 
 cluster_name="x86-sse"
 
@@ -38,7 +41,7 @@ instructions to this process, just add new benchmark executables in the
 EOF
 
 	# Print verification script interface
-	cat $HOME/$M2S_CLIENT_KIT_DOC_PATH/verification-script-interface.txt
+	cat $M2S_CLIENT_KIT_DOC_PATH/verification-script-interface.txt
 	exit 1
 }
 
@@ -150,7 +153,7 @@ then
 	# Import cluster if needed.
 	# Use '-a' option in 'm2s-cluster.sh import' to receive the benchmark
 	# binaries as well.
-	cluster_path="$HOME/$M2S_CLIENT_KIT_RESULT_PATH/$cluster_name"
+	cluster_path="$M2S_CLIENT_KIT_RESULT_PATH/$cluster_name"
 	if [ ! -d "$cluster_path" -o "$force" == 1 ]
 	then
 		$m2s_cluster_sh import -a $cluster_name \

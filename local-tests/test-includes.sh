@@ -1,12 +1,15 @@
 #!/bin/bash
 
-M2S_CLIENT_KIT_PATH="m2s-client-kit"
+SCRIPT_PATH=$(readlink -f "$0")
+SCRIPT_DIRECTORY=$(dirname "$SCRIPT_PATH")
+
+M2S_CLIENT_KIT_PATH=$(readlink -f "$SCRIPT_DIRECTORY/..")
 M2S_CLIENT_KIT_BIN_PATH="$M2S_CLIENT_KIT_PATH/bin"
 M2S_CLIENT_KIT_TMP_PATH="$M2S_CLIENT_KIT_PATH/tmp"
 M2S_CLIENT_KIT_RESULT_PATH="$M2S_CLIENT_KIT_PATH/result"
 
-inifile_py="$HOME/$M2S_CLIENT_KIT_BIN_PATH/inifile.py"
-build_m2s_local_sh="$HOME/$M2S_CLIENT_KIT_BIN_PATH/build-m2s-local.sh"
+inifile_py="$M2S_CLIENT_KIT_BIN_PATH/inifile.py"
+build_m2s_local_sh="$M2S_CLIENT_KIT_BIN_PATH/build-m2s-local.sh"
 prog_name=$(echo $0 | awk -F/ '{ print $NF }')
 
 
