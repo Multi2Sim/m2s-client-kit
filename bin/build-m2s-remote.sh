@@ -4,7 +4,10 @@ M2S_SVN_URL="https://github.com/Multi2Sim/multi2sim"
 M2S_SVN_TAGS_URL="https://github.com/Multi2Sim/multi2sim/tags"
 M2S_SVN_TRUNK_URL="https://github.com/Multi2Sim/multi2sim/trunk"
 
-M2S_CLIENT_KIT_PATH="m2s-client-kit"
+SCRIPT_PATH=$(readlink -f "$0")
+SCRIPT_DIRECTORY=$(dirname "$SCRIPT_PATH")
+
+M2S_CLIENT_KIT_PATH=$(readlink -f "$SCRIPT_DIRECTORY/..")
 M2S_CLIENT_KIT_M2S_PATH="$M2S_CLIENT_KIT_PATH/tmp/multi2sim"
 
 M2S_SERVER_KIT_PATH="m2s-server-kit"
@@ -15,8 +18,8 @@ M2S_SERVER_KIT_M2S_BIN_PATH="$M2S_SERVER_KIT_TMP_PATH/m2s-bin"
 M2S_SERVER_KIT_M2S_BIN_EXE_PATH="$M2S_SERVER_KIT_M2S_BIN_PATH/m2s"
 M2S_SERVER_KIT_M2S_BIN_BUILD_INI_PATH="$M2S_SERVER_KIT_M2S_BIN_PATH/build.ini"
 
-inifile_py="$HOME/$M2S_CLIENT_KIT_BIN_PATH/inifile.py"
-log_file="$HOME/$M2S_CLIENT_KIT_PATH/tmp/build-m2s-remote.log"
+inifile_py="$M2S_CLIENT_KIT_BIN_PATH/inifile.py"
+log_file="$M2S_CLIENT_KIT_PATH/tmp/build-m2s-remote.log"
 prog_name=$(echo $0 | awk -F/ '{ print $NF }')
 
 
@@ -190,17 +193,17 @@ echo -n " - obtain local revision"
 cd && rm -rf $M2S_CLIENT_KIT_M2S_PATH
 if [ -z "$tag" ]
 then
-	svn co $M2S_SVN_TRUNK_URL $HOME/$M2S_CLIENT_KIT_M2S_PATH \
+	svn co $M2S_SVN_TRUNK_URL $M2S_CLIENT_KIT_M2S_PATH \
 		-r $rev >/dev/null || error "cannot get local copy"
 else
-	svn co $M2S_SVN_TAGS_URL/$tag $HOME/$M2S_CLIENT_KIT_M2S_PATH \
+	svn co $M2S_SVN_TAGS_URL/$tag $M2S_CLIENT_KIT_M2S_PATH \
 		-r $rev >/dev/null || error "cannot get local copy"
 fi
 
 # Create distribution package
 echo -n " - generate package"
-cd $HOME/$M2S_CLIENT_KIT_M2S_PATH
-rm -f $HOME/$M2S_CLIENT_KIT_M2S_PATH/multi2sim*.tar.gz
+cd $M2S_CLIENT_KIT_M2S_PATH
+rm -f $M2S_CLIENT_KIT_M2S_PATH/multi2sim*.tar.gz
 if [ ! -e Makefile ]
 then
 	libtoolize >> $log_file 2>&1 && \
@@ -215,7 +218,7 @@ make dist >> $log_file 2>&1 || \
 
 # Copy to server
 echo -n " - copy to server"
-cd $HOME/$M2S_CLIENT_KIT_M2S_PATH
+cd $M2S_CLIENT_KIT_M2S_PATH
 dist_file=$(ls multi2sim*.tar.gz)
 dist_file_name=${dist_file%.tar.gz}
 if [ `echo $dist_file | wc -w` != 1 ]

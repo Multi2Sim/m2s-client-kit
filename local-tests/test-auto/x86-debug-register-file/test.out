@@ -1,0 +1,4 @@
+Hello, World
+0
+Rename uop id = 1, eip = [0][x][0-9a-f]+, spec = f, first_spec = f, trace_cache = f, uinst = '[^\n]*'
+.*

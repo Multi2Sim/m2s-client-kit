@@ -1,6 +1,9 @@
 #!/bin/bash
 
-M2S_CLIENT_KIT_PATH="m2s-client-kit"
+SCRIPT_PATH=$(readlink -f "$0")
+SCRIPT_DIRECTORY=$(dirname "$SCRIPT_PATH")
+
+M2S_CLIENT_KIT_PATH=$(readlink -f "$SCRIPT_DIRECTORY/..")
 M2S_CLIENT_KIT_BIN_PATH="$M2S_CLIENT_KIT_PATH/bin"
 M2S_CLIENT_KIT_TMP_PATH="$M2S_CLIENT_KIT_PATH/tmp"
 M2S_CLIENT_KIT_RESULT_PATH="$M2S_CLIENT_KIT_PATH/result"
@@ -12,10 +15,10 @@ M2S_SERVER_KIT_TMP_PATH="$M2S_SERVER_KIT_PATH/tmp"
 M2S_SERVER_KIT_BENCH_PATH="$M2S_SERVER_KIT_PATH/benchmarks"
 M2S_SERVER_KIT_M2S_BIN_PATH="$M2S_SERVER_KIT_TMP_PATH/m2s-bin"
 
-m2s_cluster_sh="$HOME/$M2S_CLIENT_KIT_BIN_PATH/m2s-cluster.sh"
-inifile_py="$HOME/$M2S_CLIENT_KIT_BIN_PATH/inifile.py"
+m2s_cluster_sh="$M2S_CLIENT_KIT_BIN_PATH/m2s-cluster.sh"
+inifile_py="$M2S_CLIENT_KIT_BIN_PATH/inifile.py"
 
-inifile="$HOME/$M2S_CLIENT_KIT_TMP_PATH/m2s-cluster.ini"
+inifile="$M2S_CLIENT_KIT_TMP_PATH/m2s-cluster.ini"
 
 prog_name=`echo $0 | awk -F/ '{ print $NF }'`
 
@@ -431,7 +434,7 @@ then
 	fi
 
 	# Clear all sending files
-	rm -f $HOME/$M2S_CLIENT_KIT_TMP_PATH/m2s-cluster-file-*
+	rm -f $M2S_CLIENT_KIT_TMP_PATH/m2s-cluster-file-*
 
 	# Start cluster
 	inifile_script=$(mktemp)
@@ -504,7 +507,7 @@ then
 	num_send_files=`$inifile_py $inifile read $cluster_section NumSendFiles`
 	for send_file in $send_files
 	do
-		send_file_copy="$HOME/$M2S_CLIENT_KIT_TMP_PATH/m2s-cluster-file-$num_send_files"
+		send_file_copy="$M2S_CLIENT_KIT_TMP_PATH/m2s-cluster-file-$num_send_files"
 		num_send_files=`expr $num_send_files + 1`
 		cp $send_file $send_file_copy 2>/dev/null \
 			|| error "$send_file: file not found"
@@ -617,7 +620,7 @@ then
 		tag_arg=
 		[ -z "$rev" ] || rev_arg="-r $rev"
 		[ -z "$tag" ] || tag_arg="--tag $tag"
-		$HOME/$M2S_CLIENT_KIT_BIN_PATH/build-m2s-remote.sh \
+		$M2S_CLIENT_KIT_BIN_PATH/build-m2s-remote.sh \
 			$rev_arg $tag_arg --configure-args "$configure_args" $server_port \
 			|| exit 1
 	fi
@@ -626,7 +629,7 @@ then
 	echo -n "submitting cluster '$cluster_name'"
 
 	# Check if 'm2s-client-kit' is up to date
-	cd $HOME/$M2S_CLIENT_KIT_PATH || error "cannot cd to client kit path"
+	cd $M2S_CLIENT_KIT_PATH || error "cannot cd to client kit path"
 	temp=$(mktemp)
 	git fetch origin >/dev/null || error "Failed to run 'git fetch origin'"
 	git log HEAD..origin/master --oneline > $temp || error "Failed to run 'git log'"
@@ -639,7 +642,7 @@ then
 	if [ -n "$exe" ]
 	then
 		[ -f "$exe" ] || error "$exe: invalid executable"
-		cp $exe $HOME/$M2S_CLIENT_KIT_TMP_PATH/m2s-exe || \
+		cp $exe $M2S_CLIENT_KIT_TMP_PATH/m2s-exe || \
 			error "cannot copy executable to temp path"
 	fi
 
@@ -649,16 +652,16 @@ then
 		[ -d "$exe_dir" ] || error "$exe_dir: invalid directory"
 		echo -n " - building"
 		remote_make $server_port $exe_dir \
-			$HOME/$M2S_CLIENT_KIT_TMP_PATH/m2s-remote-exe
-		cp $HOME/$M2S_CLIENT_KIT_TMP_PATH/m2s-remote-exe \
-			$HOME/$M2S_CLIENT_KIT_TMP_PATH/m2s-exe || \
+			$M2S_CLIENT_KIT_TMP_PATH/m2s-remote-exe
+		cp $M2S_CLIENT_KIT_TMP_PATH/m2s-remote-exe \
+			$M2S_CLIENT_KIT_TMP_PATH/m2s-exe || \
 			error "cannot copy executable to temp path"
 	fi
 
 	# Send configuration to server
 	echo -n " - sending files"
-	server_package="$HOME/$M2S_CLIENT_KIT_TMP_PATH/m2s-cluster.tar.gz"
-	cd $HOME/$M2S_CLIENT_KIT_TMP_PATH || error "cannot cd to temp path"
+	server_package="$M2S_CLIENT_KIT_TMP_PATH/m2s-cluster.tar.gz"
+	cd $M2S_CLIENT_KIT_TMP_PATH || error "cannot cd to temp path"
 	file_list=`ls m2s-cluster-file-* m2s-cluster.ini m2s-exe 2>/dev/null`
 	tar -czf $server_package $file_list || error "error creating package for server"
 	scp -q -P $port $server_package $server:$M2S_SERVER_KIT_TMP_PATH \
@@ -986,7 +989,7 @@ then
 		|| error "cluster must be in state 'Created', 'Completed', or 'Killed'"
 
 	# Remove all sending files
-	rm -f $HOME/$M2S_CLIENT_KIT_TMP_PATH/m2s-cluster-file-*
+	rm -f $M2S_CLIENT_KIT_TMP_PATH/m2s-cluster-file-*
 
 	# Get cluster jobs
 	num_jobs=`$inifile_py $inifile read $cluster_section NumJobs`
@@ -1023,7 +1026,7 @@ then
 	fi
 
 	# If cluster has been imported, delete the directory
-	rm -rf $HOME/$M2S_CLIENT_KIT_RESULT_PATH/$cluster_name
+	rm -rf $M2S_CLIENT_KIT_RESULT_PATH/$cluster_name
 
 	# Done
 	echo " - ok"
@@ -1256,10 +1259,10 @@ then
 	' || error "could not create package in server"
 
 	# Create directory locally
-	rm -rf $HOME/$M2S_CLIENT_KIT_RESULT_PATH/$cluster_name
-	mkdir $HOME/$M2S_CLIENT_KIT_RESULT_PATH/$cluster_name \
+	rm -rf $M2S_CLIENT_KIT_RESULT_PATH/$cluster_name
+	mkdir $M2S_CLIENT_KIT_RESULT_PATH/$cluster_name \
 		> /dev/null 2>&1 || error "cannot create local copy"
-	cd $HOME/$M2S_CLIENT_KIT_RESULT_PATH/$cluster_name || exit 1
+	cd $M2S_CLIENT_KIT_RESULT_PATH/$cluster_name || exit 1
 
 	# Import the package
 	echo -n " - import"
