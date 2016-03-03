@@ -14,9 +14,9 @@ inifile_py="$M2S_CLIENT_KIT_BIN_PATH/inifile.py"
 
 nthreads_list="1 2 4 8 16"
 
-cluster_name="parsec-2.1-emu"
+cluster_name="parsec-3.0-emu"
 cluster_desc="
-Run emulation of the PARSEC-2.1 benchmark suite. For each benchmark, the number of
+Run emulation of the PARSEC-3.0 benchmark suite. For each benchmark, the number of
 threads is set to powers of 2 between 1 and 16. The default (Medium) input size
 is used as the data set.
 
@@ -90,7 +90,7 @@ then
 	server_port=$1
 
 	# Get benchmark list
-	bench_list=`$m2s_cluster_sh list-bench $server_port parsec-2.1` || exit 1
+	bench_list=`$m2s_cluster_sh list-bench $server_port parsec-3.0` || exit 1
 
 	# Create cluster
 	$m2s_cluster_sh create $cluster_name || exit 1
@@ -101,7 +101,7 @@ then
 		for nthreads in $nthreads_list
 		do
 			$m2s_cluster_sh add $cluster_name $bench/$nthreads \
-				-p $nthreads parsec-2.1/$bench || exit 1
+				-p $nthreads parsec-3.0/$bench || exit 1
 		done
 	done
 	
