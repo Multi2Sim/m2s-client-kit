@@ -119,7 +119,7 @@ commands are:
           Arguments to be passed to the './configure' script when building the
 	  Multi2Sim distribution package used for simulation. The arguments
 	  should be listed within double quotes. For simulations aiming
-	  simulator verification, it is recommend to always used at least:
+	  simulator verification, it is recommended to use:
 	      --configure-args "--enable-debug"
 
       --exe <file>
