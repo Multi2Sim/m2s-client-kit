@@ -1,0 +1,10 @@
+Initial affinity: 3
+Setting affinity to 0 - err=-1 - errno=22
+Setting affinity to 2 - err=0
+New affinity: 2
+Commit\.Total = [1-9][0-9]*
+Commit\.Total = [1-9][0-9]*
+Commit\.Total = [1-9][0-9]*
+Commit\.Total = [1-9][0-9]*
+Commit\.Total = [1-9][0-9]*
+0
