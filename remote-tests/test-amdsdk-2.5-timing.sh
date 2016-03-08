@@ -395,7 +395,7 @@ then
 	cluster_path="$M2S_CLIENT_KIT_RESULT_PATH/$cluster_name"
 	if [ ! -d "$cluster_path" -o "$force" == 1 ]
 	then
-		$m2s_cluster_sh import $cluster_name \
+		$m2s_cluster_sh import $cluster_name\
 			|| exit 1
 	fi
 
@@ -422,9 +422,11 @@ then
 	crashed_count=0
 	exit_code=0
 	total=0
+  echo $job_list
 	for job in $job_list
 	do
 		sim_err="$cluster_path/$job/sim.err"
+		sim_log="$cluster_path/$job/sim.log"
 		total=`expr $total + 1`
 
 		# Check if results are available
@@ -445,7 +447,17 @@ then
 			continue
 		fi
 
-		# Check if GPU results section is available
+		# Check if normal exit
+    grep -i "Abnormal termination" $sim_log > /dev/null 2>&1
+    retval=$?
+    if [ "$retval" == 0 ]
+    then
+      crashed_count=`expr $crashed_count + 1`
+      echo "$job - crashed"
+      continue
+    fi
+
+    # Check if GPU results section is available
 		section_exists=`$inifile_py $sim_err exists SouthernIslands`
 		if [ "$section_exists" == 0 ]
 		then
