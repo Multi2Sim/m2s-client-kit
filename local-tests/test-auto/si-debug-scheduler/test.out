@@ -1,0 +1,14 @@
+0
+SI Gpu with 32 compute unit is created
+NDRange 0 added
+NDRange 0 calculations:
+	[0-9]+ work group per wavefront pool
+	[0-9]+ work group slot per compute unit
+\[NDRange 0\] work group 0 scheduled
+@[0-9]+ available slot 0 found in compute unit 0
+	work group 0 added
+		first wavefront=0, count=1
+		first work-item=0, count=64
+@[0-9]+ work group 0 removed from compute unit 0 slot 0
+\[NDRange 0\] work group 0 removed
+NDRange 0 removed

@@ -2,10 +2,10 @@ Context 1000 created
 \[x86 context 1000\] Instruction 0: Changed state to \{running\}
 @1 Schedule: Emulator sent scheduling signal
 \[x86 context 1000\] Instruction 0: Changed state to \{running\|mapped\}
-@1 Context 1000 mapped to thread Core 0 Thread 0
+@1 Context 1000 mapped to Core 0 Thread 0
 @1 Context 1000 \(priority 1\)
 @1 Context 1000 \(priority 1\) is a candidate
 \[x86 context 1000\] Instruction 0: Changed state to \{running\|alloc\|mapped\}
-@1 Context 1000 in thread Core 0 Thread 0 allocated
+@1 Context 1000 allocated in Core 0 Thread 0
 Allocating context 1000
 .*
