@@ -362,6 +362,7 @@ do
 		$file_match_py $out $test_out
 		if [ $? != 0 ]
 		then
+			cat $out
 			cp $out $out_copy
 			failed_out=1
 			failed=1
@@ -372,6 +373,7 @@ do
 		$file_match_py $err $test_err
 		if [ $? != 0 ]
 		then
+			cat $err
 			cp $err $err_copy
 			failed_err=1
 			failed=1
