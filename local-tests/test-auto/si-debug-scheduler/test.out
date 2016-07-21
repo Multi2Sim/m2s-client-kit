@@ -11,4 +11,5 @@ NDRange 0 calculations:
 		first work-item=0, count=64
 @[0-9]+ work group 0 removed from compute unit 0 slot 0
 \[NDRange 0\] work group 0 removed
+@[0-9]+ compute unit 0 reset
 NDRange 0 removed
